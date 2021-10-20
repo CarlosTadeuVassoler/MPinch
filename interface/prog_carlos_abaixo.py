@@ -263,6 +263,10 @@ def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente,
 	nsi = [ncold, ncold]
 	nsj = [nhot, nhot]
 	dTmin = deltaTmin
+	print(Th0)
+	print(Thf)
+	print(Tc0)
+	print(Tcf)
 	preparar_dados_e_rede2()
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
@@ -927,6 +931,7 @@ def adicionar_utilidade_abaixo(dlg, corrente):
 			Qtotalh0[chotutil-1][si][k] = 0
 	if q == 0:
 		QMessageBox.about(dlg, "Error!", "The heat of this stream has already been supplied")
+		print(Thf)
 		return
 	temperatura_atual_quente_abaixo[chotutil-1] = Thf[chotutil-1]
 	calor_atual_quente_abaixo[chotutil-1] = 0.0
@@ -936,7 +941,7 @@ def adicionar_utilidade_abaixo(dlg, corrente):
 def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
 	Qtotalh0[corrente-1][0][0] = utilidades_abaixo[indice_remover][1]
 	calor_atual_quente_abaixo[corrente-1] = Qtotalh0[corrente-1][0][0]
-	temperatura_atual_quente_abaixo[corrente-1] = -calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
+	temperatura_atual_quente_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
 	utilidades_abaixo.pop(indice_remover)
 
 def caixa_de_temperatura_abaixo(dlg):

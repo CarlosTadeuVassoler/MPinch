@@ -637,6 +637,7 @@ def inserir_trocador(dlg, vetor):
 
 								if tempdif < 0:
 									tempdif = - tempdif
+									#violação termo fazer erro
 								if tempdif >= dTmin:
 									Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
 									Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
