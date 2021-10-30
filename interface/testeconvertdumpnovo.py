@@ -306,7 +306,7 @@ def apertarpinchbutton():
 		printar_abaixo()
 		correntesnoscombos(nhot,ncold)
 		#print(correntes,correntes,correntes)
-		dlg.comboBox_50.setEnabled(False) #fechar combobox de subhot stream
+		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
 		dlg.comboBox_51.setEnabled(False) #fechar combobox de subcold stream
 		dlg.comboBox_53.setEnabled(False) #fechar combobox de subhot stream
 		dlg.comboBox_54.setEnabled(False) #fechar combobox de subcold stream
@@ -374,6 +374,7 @@ def correntesnoscombos(nhot,ncold): #preenche as caixinhas
 		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
 		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
 		dlg.TempLoad.comboBox_2.addItem(str(i+1))
+		dlg.comboBox_50.addItem(str(i+1))
 	for i in range (nstages):
 		dlg.comboBox_8.addItem(str(i+1))    #acima
 		dlg.comboBox_39.addItem(str(i+1))   #abaixo
@@ -684,6 +685,7 @@ def printar():
 			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades[utilidade][1])))))
 
 def inserir_teste():
+	dlg.dtmin = uic.loadUi("dtmin.ui")
 	dados_do_trocador = ler_dados(dlg)
 	nova_matriz = inserir_trocador(dlg, dados_do_trocador)
 	try:
@@ -751,13 +753,31 @@ def calcular_calor_teste():
 	dlg.TempLoadAbove.pushButton_2.clicked.connect(lambda: dlg.TempLoadAbove.close())
 	dlg.TempLoadAbove.pushButton.clicked.connect(lambda: caixa_de_temperatura(dlg))
 
+def violou_dtmin(dados_do_trocador):
+	indice = len(matriz_trocadores_abaixo) - 1
+	calor_atual_quente_abaixo[dados_do_trocador[0]-1] += dados_do_trocador[6]
+	calor_atual_frio_abaixo[dados_do_trocador[1]-1] += dados_do_trocador[6]
+	remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
+	printar_abaixo()
+	checaresgotadosabaixo()
+	dlg.comboBox_43.setEnabled(False)
+	dlg.pushButton_20.setEnabled(False)
+	dlg.dtmin.close()
+
 def inserir_teste_abaixo():
 	dados_do_trocador = ler_dados_abaixo(dlg)
-	nova_matriz = inserir_trocador_abaixo(dlg, dados_do_trocador)
+	nova_matriz, violou, violou_termo = inserir_trocador_abaixo(dlg, dados_do_trocador)
 	try:
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
 		pass
+	if violou:
+		dlg.dtmin = uic.loadUi("dtmin.ui")
+		dlg.dtmin.show()
+		dlg.dtmin.pushButton.clicked.connect(lambda: violou_dtmin(dados_do_trocador))
+		dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
+	if violou_termo:
+		violou_dtmin(dados_do_trocador)
 	printar_abaixo()
 	checaresgotadosabaixo()
 
@@ -857,14 +877,65 @@ def calcular_calor_abaixo():
 	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg))
 	dlg.TempLoadBelow.pushButton_2.clicked.connect(lambda: dlg.TempLoadBelow.close())
 
+def dividir_corrente():
+	dlg.DivisaoCarlos = uic.loadUi("divisaocarlos.ui")
+	dlg.DivisaoCarlos.show()
+	#for i in range(2):
+	dlg.DivisaoCarlos.comboBox_2.addItem(str(1))
+	#for i in range(2):
+	dlg.DivisaoCarlos.comboBox.addItem(str(2))
+	#for i in range(10):
+	dlg.DivisaoCarlos.comboBox_3.addItem(str(2))
 
+	def confirm():
+		global caixa_fracao, quantidade, corrente, estagio
+		quantidade = int(dlg.DivisaoCarlos.comboBox_3.currentText())
+		estagio = int(dlg.DivisaoCarlos.comboBox.currentText())
+		corrente = int(dlg.DivisaoCarlos.comboBox_2.currentText())
+		if verificar_trocador_estagio(estagio):
+			print("ja tem trocador")
+			return
+		dlg.DivisaoCarlos.pushButton_3.setEnabled(True)
+		dlg.DivisaoCarlos.pushButton.setEnabled(False)
+		caixa_fracao = [0] * quantidade
+		caixa_corrente = [0] * quantidade
+		for i in range(quantidade):
+			caixa_fracao[i] = QtWidgets.QDoubleSpinBox(dlg)
+			caixa_corrente[i] = QtWidgets.QLabel(dlg)
+			dlg.DivisaoCarlos.verticalLayout_3.addWidget(caixa_corrente[i])
+			dlg.DivisaoCarlos.verticalLayout_3.addWidget(caixa_fracao[i])
+			caixa_fracao[i].setSingleStep(float(0.1))
+			caixa_fracao[i].setMaximum(1)
+			caixa_fracao[i].setMinimum(0)
+			caixa_corrente[i].setText("Substream {}".format(i+1))
+			caixa_corrente[i].setAlignment(Qt.AlignCenter)
+			caixa_fracao[i].setAlignment(Qt.AlignCenter)
+
+	def split():
+		soma = 0
+		fracao = [0] * quantidade
+		for i in range(quantidade):
+			soma += float(caixa_fracao[i].value())
+		if soma != 1:
+			print("erro de soma")
+			#return
+		#else:
+		#	for i in range(quantidade):
+		fracao[0] = 0.1#float(caixa_fracao[i].value())
+		fracao[1] = 0.9
+
+		divisao_de_correntes("Q", estagio, corrente, quantidade, fracao)
+
+
+	dlg.DivisaoCarlos.pushButton.clicked.connect(lambda: confirm())
+	dlg.DivisaoCarlos.pushButton_3.clicked.connect(lambda: split())
 
 #streams
 dlg.pinchbutton.setEnabled(False) #block o botao pinch até apertar done
 dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
 dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
-dlg.tabWidget.setTabEnabled(4,False) #block heat exchangers network até fazer o pinch
+dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.pushButton.clicked.connect(apertaradd) #add stream
 dlg.donebutton.clicked.connect(apertardone) #done
 dlg.pinchbutton.clicked.connect(apertarpinchbutton) #pinch
@@ -885,7 +956,7 @@ dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 1 and kW(dlg))
 dlg.radioButton.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_4.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(False)) #block o heat load quando max heat ta ativado
 dlg.radioButton_4.setChecked(True) #por padrao abre o prog com max heat selecionado
-dlg.pushButton_9.clicked.connect(hotsplit1)
+dlg.pushButton_9.clicked.connect(dividir_corrente)
 dlg.pushButton_13.clicked.connect(coldsplit1)
 dlg.comboBox_9.setEnabled(False) #corrente quente que vai utilizade
 dlg.comboBox_10.setEnabled(False) #corrente fria que vai utilidade

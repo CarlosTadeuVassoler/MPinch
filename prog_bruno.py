@@ -276,6 +276,7 @@ def divisao_de_correntes():
 				else:
 					Qtotalh0[chot-1][0][k] += Qtotalh0[chot-1][si][k]
 		for si in range(ncold-1, qsi-1, -1):
+			print("loop",si)
 			Fharr[estagio-1][chot-1][si] = 0
 			Qtotalh0[chot-1][si][estagio-1] = 0
 		while qsi > nsi[chot-1]:
@@ -291,6 +292,10 @@ def divisao_de_correntes():
 					else:
 						Qtotalh0[chot-1][si][k] = Qtotalh0[chot-1][0][k]*(Fharr[k][chot-1][si]/100)
 		nhotc = qsi + (nhot - 1)
+		print("Fharr 1", Fharr[estagio-1][chot-1][0])
+		print("Fharr 2", Fharr[estagio-1][chot-1][1])
+		print("1", Qtotalh0[chot-1][0][1])
+		print("2", Qtotalh0[chot-1][1][1])
 	if divtype == 'F':
 		ccold = int(input('Qual corrente fria será dividida? '))
 		qsj = int(input('Em quantas sub-correntes frias essa corrente irá se dividir? '))

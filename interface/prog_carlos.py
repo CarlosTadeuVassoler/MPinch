@@ -393,121 +393,64 @@ def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 					for sj in range(nhot):
 						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
 
-def divisao_de_correntes():
-	global nhotc, ncoldc
-	cont = 0
-	divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
-	estagio = int(input('Em qual estágio ocorrerá a divisão? '))
+def verificar_trocador_estagio(estagio):
 	for i in range (nhot):
 		for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
 			for j in range(ncold):
 				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
 					for sk in range (nsk):
 						if Q[i][si][j][sj][sk][estagio-1] != 0:
-							print('Já existe um trocador neste estágio. Remova-o primeiro antes de dividir correntes!')
-							cont = 1
-							input()
-							break
-	if cont == 0:
-		if divtype == 'A': #ambas quente e fria
-			chot = int(input('Qual corrente quente será dividida? '))
-			qsi = int(input('Em quantas sub-correntes quentes essa corrente irá se dividir? '))
-			for k in range(nstages):
-				for si in range(ncold):
-					if si == 0:								#fixa a corrente quente e acha a si e k que tem o Q trocador
-						continue							#salvando esse valor na si 0 pra fazer as contas depois
-					else:
-						Qtotalh0[chot-1][0][k] += Qtotalh0[chot-1][si][k]
-			for si in range(ncold-1, qsi-1, -1):
-				Fharr[estagio-1][chot-1][si] = 0			#caso houvesse dividido a corrente anteriormente, zera tudo pra poder
-				Qtotalh0[chot-1][si][estagio-1] = 0			#dividir novamente
-			while qsi > nsi[chot-1]:
-				print('Erro! O número de divisões é muito grande.')
-				qsi = int(input('Em quantas sub-correntes quentes essa corrente irá se dividir? '))
-			if qsi <= nsi[chot-1]:
-				for si in range(qsi-1, -1, -1):
-					Fharr[estagio-1][chot-1][si] = float(input(f'Qual a fração da sub-corrente quente {si+1}? '))
-				for si in range(ncold-1, -1, -1):
-					for k in range(nstages-1, -1, -1):		#varre as frações de todas as si e k e quando acha
-						if Fharr[k][chot-1][si] == 0:		#a corrente que foi dividida multiplica o calor total
-							continue						#pela fração que vai ser dividida, obtendo o calor da subcorrente no k
-						else:
-							Qtotalh0[chot-1][si][k] = Qtotalh0[chot-1][0][k]*(Fharr[k][chot-1][si]/100)
-			ccold = int(input('Qual corrente fria será dividida? '))
-			qsj = int(input('Em quantas sub-correntes frias essa corrente irá se dividir? '))
-			for k in range(nstages):
-				for sj in range(nhot):
-					if sj == 0:								#fixa a corrente fria e acha a sj e o k que tem o Q trocador
-						continue							#salvando esse valor na sj 0 pra fazer as contas depois
-					else:
-						Qtotalc0[ccold-1][0][k] += Qtotalc0[ccold-1][sj][k]
-			for sj in range(nhot-1, qsj-1, -1):
-				Fcarr[estagio-1][ccold-1][sj] = 0			#caso houvesse dividido a corrente anteriormente, zera tudo pra poder
-				Qtotalc0[ccold-1][sj][estagio-1] = 0		#dividir novamente
-			while qsj > nsj[ccold-1]:
-				print('Erro! O número de divisões é muito grande.')
-				qsj = int(input('Em quantas sub-correntes frias essa corrente irá se dividir? '))
-			if qsj <= nsj[ccold-1]:
-				for sj in range(qsj-1, -1, -1):
-					Fcarr[estagio-1][ccold-1][sj] = float(input(f'Qual a fração da sub-corrente fria {j+1}? '))
-				for sj in range(nhot-1, -1, -1):
-					for k in range(nstages-1, -1, -1):		#varre as frações de todas as sj e os k e quando acha
-						if Fcarr[k][ccold-1][sj] == 0:		#a corrente que foi dividida, multiplica o calor total
-							continue						#pela fração que vai ser dividida, obtendo o calor da subcorrente no k
-						else:
-							Qtotalc0[ccold-1][sj][k] = Qtotalc0[ccold-1][0][k]*(Fcarr[k][ccold-1][sj]/100)
-			nhotc = qsi + (nhot - 1)						#arruma a quantidade de correntes pois morre uma pra adicionar a
-			ncoldc = qsj + (ncold - 1)						#quantidade que foi dividida
+							return True
 
-		if divtype == 'Q':
-			chot = int(input('Qual corrente quente será dividida? '))
-			qsi = int(input('Em quantas sub-correntes quentes essa corrente irá se dividir? '))
-			for k in range(nstages):
-				for si in range(ncold):
-					if si == 0:
-						continue
-					else:
-						Qtotalh0[chot-1][0][k] += Qtotalh0[chot-1][si][k]
-			for si in range(ncold-1, qsi-1, -1):
-				Fharr[estagio-1][chot-1][si] = 0
-				Qtotalh0[chot-1][si][estagio-1] = 0
-			while qsi > nsi[chot-1]:
+def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
+	global nhotc, ncoldc
+	qsi = quantidade
+	cont = 0
+	if cont == 0:
+		if divtype.upper() == 'Q':
+			#desfaz divisoes anteriores
+			for si in range(1, ncold):
+				Qtotalh0[corrente-1][0][estagio-1] += Qtotalh0[corrente-1][si][estagio-1]
+			for si in range(ncold-1, qsi-1, -1):#ex: antes 3 divisoes porem agora 2, zera a 3
+				Fharr[estagio-1][corrente-1][si] = 0
+				Qtotalh0[corrente-1][si][estagio-1] = 0
+
+			#faz a nova divisao
+			if qsi > nsi[corrente-1]:
 				print('Erro! O número de divisões é muito grande.')
-				qsi = int(input('Em quantas sub-correntes quentes essa corrente irá se dividir? '))
-			if qsi <= nsi[chot-1]:
-				for si in range(qsi-1, -1, -1):
-					Fharr[estagio-1][chot-1][si] = float(input(f'Qual a fração da sub-corrente quente {si+1}? '))
+				return
+			if qsi <= nsi[corrente-1]:
+				for si in range(qsi):
+					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
 				for si in range(ncold-1, -1, -1):
-					for k in range(nstages-1, -1, -1):
-						if Fharr[k][chot-1][si] == 0:
-							continue
-						else:
-							Qtotalh0[chot-1][si][k] = Qtotalh0[chot-1][0][k]*(Fharr[k][chot-1][si]/100)
+					if Fharr[estagio-1][corrente-1][si] != 0:
+						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
+
 			nhotc = qsi + (nhot - 1)
 		if divtype == 'F':
-			ccold = int(input('Qual corrente fria será dividida? '))
+			corrente = int(input('Qual corrente fria será dividida? '))
 			qsj = int(input('Em quantas sub-correntes frias essa corrente irá se dividir? '))
 			for k in range(nstages):
 				for sj in range(nhot):
 					if sj == 0:
 						continue
 					else:
-						Qtotalc0[ccold-1][0][k] += Qtotalc0[ccold-1][sj][k]
+						Qtotalc0[corrente-1][0][k] += Qtotalc0[corrente-1][sj][k]
 			for sj in range(nhot-1, qsj-1, -1):
-				Fcarr[estagio-1][ccold-1][sj] = 0
-				Qtotalc0[ccold-1][sj][estagio-1] = 0
-			while qsj > nsj[ccold-1]:
+				Fcarr[estagio-1][corrente-1][sj] = 0
+				Qtotalc0[corrente-1][sj][estagio-1] = 0
+			while qsj > nsj[corrente-1]:
 				print('Erro! O número de divisões é muito grande.')
 				qsj = int(input('Em quantas sub-correntes frias essa corrente irá se dividir? '))
-			if qsj <= nsj[ccold-1]:
+			if qsj <= nsj[corrente-1]:
 				for sj in range(qsj-1, -1, -1):
-					Fcarr[estagio-1][ccold-1][sj] = float(input(f'Qual a fração da sub-corrente quente {sj+1}? '))
+					Fcarr[estagio-1][corrente-1][sj] = float(input(f'Qual a fração da sub-corrente quente {sj+1}? '))
 				for sj in range(nhot-1, -1, -1):
 					for k in range(nstages-1, -1, -1):
-						if Fcarr[k][ccold-1][sj] == 0:
+						if Fcarr[k][corrente-1][sj] == 0:
 							continue
 						else:
-							Qtotalc0[ccold-1][sj][k] = Qtotalc0[ccold-1][0][k]*(Fcarr[k][ccold-1][sj]/100)
+							Qtotalc0[corrente-1][sj][k] = Qtotalc0[corrente-1][0][k]*(Fcarr[k][corrente-1][sj]/100)
 			ncoldc = qsj + (ncold - 1)
 
 def ler_dados(dlg):
@@ -620,14 +563,14 @@ def inserir_trocador(dlg, vetor):
 									Fcarr[k][j][sj] = 100
 
 								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
-								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPh[i]*(Fharr[k][i][si]/100)))
+								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPh[i]*Fharr[k][i][si]/100))
 								temperatura_atual_quente[i] = Thout[i][si][j][sj][sk][k]
 
 								Think[i][si][j][sj][sk][k] = Thki[i][k]
 								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] + (Qestagioq[i][k]/CPh[i])
 
 								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
-								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPc[j]*(Fcarr[k][j][sj]/100)))
+								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPc[j]*Fcarr[k][j][sj]/100))
 								temperatura_atual_fria[j] = Tcout[i][si][j][sj][sk][k]
 
 								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
@@ -673,46 +616,55 @@ def inserir_trocador(dlg, vetor):
 												Thkf[i][k1] = Thfinal01k[i][k]
 
 								else:
-									print('Erro! A diferença mínima de temperatura não está sendo respeitada: ', tempdif)
-									return
-									#avanc = str(input('Deseja continuar mesmo assim? ')).strip().upper()[0]
-									#if avanc == 'Y':
-									#	Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
-									#	Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
-									#	Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
-									#	Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
-									#
-									#	#Temperatura inicial de estágios e sub-estágios
-									#	for k1 in range(nstages):
-									#		for sk1 in range(nsk):
-									#			if k1 < (k):
-									#				Tcki[j][k1] = Tcfinal01k[j][k]
-									#				Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
-									#				Thki[i][k1] = Thfinal01k[i][k]
-									#				Thski[i][si][sk1][k1] = Thfinal01k[i][k]
-									#			if k1 == (k):
-									#				if sk1 < (sk):
-									#					Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
-									#					Thski[i][si][sk1][k1] = Thfinal01[i][si]
+									def continuar():
+										global esperando
+										Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
+										Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
+										Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
+										Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
+
+										#Temperatura inicial de estágios e sub-estágios
+										for k1 in range(nstages):
+											for sk1 in range(nsk):
+												if k1 < (k):
+													Tcki[j][k1] = Tcfinal01k[j][k]
+													Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
+													Thki[i][k1] = Thfinal01k[i][k]
+													Thski[i][si][sk1][k1] = Thfinal01k[i][k]
+												if k1 == (k):
+													if sk1 < (sk):
+														Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
+														Thski[i][si][sk1][k1] = Thfinal01[i][si]
 
 										#Temperatura final dos estágios e sub-estágios
-									#	for k1 in range(nstages):
-									#		for sk1 in range(nsk):
-									#			if k1 < (k):
-									#				Tckf[j][k1] = Tcfinal01k[j][k]
-									#				Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
-									#				Thkf[i][k1] = Thfinal01k[i][k]
-									#				Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
-									#			if k1 == (k):
-									#				if sk1 <= (sk):
-									#					Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
-									#					Thskf[i][si][sk1][k1] = Thfinal01[i][si]
-									#				Tckf[j][k1] = Tcfinal01k[j][k]
-									#				Thkf[i][k1] = Thfinal01k[i][k]
-									#else:
-									#	print('A troca de calor não ocorreu!')
-									#	Q[i][si][j][sj][sk][k] = 0
-									#		cont = 1
+										for k1 in range(nstages):
+											for sk1 in range(nsk):
+												if k1 < (k):
+													Tckf[j][k1] = Tcfinal01k[j][k]
+													Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
+													Thkf[i][k1] = Thfinal01k[i][k]
+													Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
+												if k1 == (k):
+													if sk1 <= (sk):
+														Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
+														Thskf[i][si][sk1][k1] = Thfinal01[i][si]
+													Tckf[j][k1] = Tcfinal01k[j][k]
+													Thkf[i][k1] = Thfinal01k[i][k]
+										esperando = False
+									def parar():
+										global esperando
+										print('A troca de calor não ocorreu!')
+										Q[i][si][j][sj][sk][k] = 0
+										cont = 1
+										esperando = False
+
+									print('Erro! A diferença mínima de temperatura não está sendo respeitada: ', tempdif)
+									esperando = True
+									dlg.dtmin.show()
+									dlg.dtmin.pushButton_2.clicked(lambda: continuar())
+									dlg.dtmin.pushButton.clicked(lambda: dlg.dtmin.close())
+									if esperando:
+										x = input("oi esperando")
 
 								if Fharr[k][i][si] == 100:
 									Fharr[k][i][si] = 0
@@ -730,9 +682,9 @@ def inserir_trocador(dlg, vetor):
 	if cont != 1:
 		remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
-	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
+	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
-	if Fharr[estagio-1][ccold-1][sestagio-1] == 0:
+	if Fcarr[estagio-1][ccold-1][sbcold-1] == 0:
 		fracao_fria = 1
 
 	calor_atual_quente[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
@@ -747,8 +699,8 @@ def inserir_trocador(dlg, vetor):
 							Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1],
 							Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
 							Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1],
-							fracao_quente,
-							fracao_fria])
+							Fharr[estagio-1][chot-1][sbhot-1],
+							Fcarr[estagio-1][ccold-1][sbcold-1]])
 
 	for trocador in linha_interface:
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
