@@ -394,7 +394,16 @@ def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 					for sj in range(nhot):
 						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
 
-def divisao_de_correntes_abaixo():
+def verificar_trocador_estagio_abaixo(estagio):
+	for i in range (nhot):
+		for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
+			for j in range(ncold):
+				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
+					for sk in range (nsk):
+						if Q[i][si][j][sj][sk][estagio-1] != 0:
+							return True
+
+def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 	global nhotc, ncoldc
 	cont = 0
 	divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
@@ -724,7 +733,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, violou_termo
+	return linha_interface_abaixo, violou, violou_termo, tempdif
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]

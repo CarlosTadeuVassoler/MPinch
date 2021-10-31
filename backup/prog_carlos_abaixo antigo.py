@@ -1,219 +1,223 @@
 from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout, QMessageBox
-from PyQt5 import QtWidgets , uic, QtGui
+from PyQt5 import QtWidgets , uic
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-import time
 
-Th0 = []
-Thf = []
-CPh = []
+Th0 = [70, 70]
+map(float, Th0)
+Thf = [60, 30]
+map(float, Thf)
+CPh = [3, 1.5]
+map(float, CPh)
 
-Tc0 = []
-Tcf = []
-CPc = []
+Tc0 = [60, 40]
+map(float, Tc0)
+Tcf = [60, 60]
+map(float, Tcf)
+CPc = [4, 2]
+map(float, CPc)
 
 divop = avanc = ''
-dTmin = 0
-nhot = 0
-ncold = 0
-pinchq = 0
-pinchf = 0
+dTmin = 10
+nhot = 2
+ncold = 2
+pinchq = 70
+pinchf = 60
 
+#variaveis do carlos
 linha_interface_abaixo = []
 utilidades_abaixo = []
 estagio = 0
 sestagio = 0
+temperatura_atual_quente_abaixoarr = np.array([0])
+temperatura_atual_quente_abaixoarr.resize(nhot)
+temperatura_atual_quente_abaixo = temperatura_atual_quente_abaixoarr.tolist()
+map(float, temperatura_atual_quente_abaixo)
+
+temperatura_atual_fria_abaixoarr = np.array([0])
+temperatura_atual_fria_abaixoarr.resize(ncold)
+temperatura_atual_fria_abaixo = temperatura_atual_fria_abaixoarr.tolist()
+map(float, temperatura_atual_fria_abaixo)
+
+calor_atual_quente_abaixoarr = np.array([0])
+calor_atual_quente_abaixoarr.resize(nhot)
+calor_atual_quente_abaixo = calor_atual_quente_abaixoarr.tolist()
+
+calor_atual_frio_abaixoarr = np.array([0])
+calor_atual_frio_abaixoarr.resize(ncold)
+calor_atual_frio_abaixo = calor_atual_frio_abaixoarr.tolist()
+
+Q_quente_da_corrente_sem_troca_abaixoarr = np.array([0])
+Q_quente_da_corrente_sem_troca_abaixoarr.resize(nhot)
+Q_quente_da_corrente_sem_troca_abaixo = Q_quente_da_corrente_sem_troca_abaixoarr.tolist()
+
+Q_frio_da_corrente_sem_troca_abaixoarr = np.array([0])
+Q_frio_da_corrente_sem_troca_abaixoarr.resize(ncold)
+Q_frio_da_corrente_sem_troca_abaixo = Q_frio_da_corrente_sem_troca_abaixoarr.tolist()
 
 complistq = []
 complistf = []
-cont = compq = compf = opcao = 0
+cont = contq = contf = compq = compf = opcao = 0
 chot = ccold = sbhot = sbcold = nhotc = ncoldc = qsi = qsj = chotutil = 0
+Qtotalestagio = Qtotalestagiof = Qmax = Qtotalhaux = Qtotalcaux = 0
 somaCPh = somaCPc = 0
 tempdif = tempmeta = 0
+
+nsi = [ncold, ncold]
+nsj = [nhot, nhot]
 
 nsk = nstages = 2
 
 #VARIÁVEIS DO CALOR
 Qtotalh01 = []
 Qtotalc01 = []
-Qtotalh0 = []
-Qtotalc0 = []
-Qestagioq = []
-Qestagiof = []
-calor_atual_quente_abaixo = []
-calor_atual_frio_abaixo = []
-Qtotalestagio = Qtotalestagiof = Qmax = Qtotalhaux = Qtotalcaux = 0
+Qtotalh0arr = np.array([0])
+Qtotalh0arr.resize(nhot, ncold, nstages)
+Qtotalh0 = Qtotalh0arr.tolist()
+map(float, Qtotalh0)
+Qtotalc0arr = np.array([0])
+Qtotalc0arr.resize(ncold, nhot, nstages)
+Qtotalc0 = Qtotalc0arr.tolist()
+map(float, Qtotalc0)
+Qestagioq = np.array([0])
+Qestagioq.resize(nhot, nstages)
+Qestagiof = np.array([0])
+Qestagiof.resize(ncold, nstages)
 
 
 #VARIÁVEIS DE TEMPERATURAS QUENTES
-Thski = []
-Thki = []
-Thskf = []
-Thkf = []
-Thfinal01 = []
-Thfinal01k = []
-temperatura_atual_quente_abaixo = []
+Thskiarr = np.array ([0])
+Thskiarr.resize(nhot, ncold, nsk, nstages)
+Thski = Thskiarr.tolist()
+map(float, Thski)
+Thkiarr = np.array ([0])
+Thkiarr.resize(nhot, nstages)
+Thki = Thkiarr.tolist()
+map(float, Thki)
+Thskfarr = np.array ([0])
+Thskfarr.resize(nhot, ncold, nsk, nstages)
+Thskf = Thskfarr.tolist()
+map(float, Thskf)
+Thkfarr = np.array ([0])
+Thkfarr.resize(nhot, nstages)
+Thkf = Thkfarr.tolist()
+map(float, Thkf)
+Thsfinal0arr = np.array ([0])
+Thsfinal0arr.resize(nhot, ncold, nstages)
+Thsfinal0 = Thsfinal0arr.tolist()
+map(float, Thsfinal0)
+Thfinal0arr = np.array ([0])
+Thfinal0arr.resize(nhot)
+Thfinal0 = Thfinal0arr.tolist()
+map(float, Thfinal0)
+Thfinal01arr = np.array ([0])
+Thfinal01arr.resize(nhot, ncold)
+Thfinal01 = Thfinal01arr.tolist()
+map(float, Thfinal01)
+
+Thfinal01karr = np.array ([0])
+Thfinal01karr.resize(nhot, nstages)
+Thfinal01k = Thfinal01karr.tolist()
+map(float, Thfinal01k)
 
 #VARIÁVEIS DE TEMPERATURAS FRIAS
-Tcski = []
-Tcki = []
-Tcskf = []
-Tckf = []
-Tcfinal01 = []
-Tcfinal01k = []
-temperatura_atual_fria_abaixo = []
+Tcskiarr = np.array ([0])
+Tcskiarr.resize(ncold, nhot, nsk, nstages)
+Tcski = Tcskiarr.tolist()
+map(float, Tcski)
+Tckiarr = np.array ([0])
+Tckiarr.resize(ncold, nstages)
+Tcki = Tckiarr.tolist()
+map(float, Tcki)
+Tcskfarr = np.array ([0])
+Tcskfarr.resize(ncold, nhot, nsk, nstages)
+Tcskf = Tcskfarr.tolist()
+map(float, Tcskf)
+Tckfarr = np.array ([0])
+Tckfarr.resize(ncold, nstages)
+Tckf = Tckfarr.tolist()
+map(float, Tckf)
+Tcsfinal0arr = np.array ([0])
+Tcsfinal0arr.resize(ncold, nhot, nstages)
+Tcsfinal0 = Tcsfinal0arr.tolist()
+map(float, Tcsfinal0)
+Tcfinal0arr = np.array ([0])
+Tcfinal0arr.resize(ncold)
+Tcfinal0 = Tcfinal0arr.tolist()
+map(float, Tcfinal0)
+Tcfinal01arr = np.array ([0])
+Tcfinal01arr.resize(ncold, nhot)
+Tcfinal01 = Tcfinal01arr.tolist()
+map(float, Tcfinal01)
+
+Tcfinal01karr = np.array ([0])
+Tcfinal01karr.resize(ncold, nstages)
+Tcfinal01k = Tcfinal01karr.tolist()
+map(float, Tcfinal01k)
 
 #VARIÁVEIS DE TEMPERATURAS "GERAIS"
-Thin = []
-Thout = []
-Tcin = []
-Tcout = []
-Think = []
-Thoutk = []
-Tcink = []
-Tcoutk = []
+Thinarr = np.array ([0])
+Thinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada quente de um trocador
+Thin = Thinarr.tolist()
+map(float, Thin)
+Tcinarr = np.array ([0])
+Tcinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada fria de um trocador
+Tcin = Tcinarr.tolist()
+map(float, Tcin)
+Thoutarr = np.array ([0])
+Thoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de saída quente de um trocador
+Thout = Thoutarr.tolist()
+map(float, Thout)
+Tcoutarr = np.array ([0])
+Tcoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages) #Temperatura de saída fria de um trocador
+Tcout = Tcoutarr.tolist()
+map(float, Tcout)
+
+Think = Thinarr.tolist()
+map(float, Think)
+Tcink = Tcinarr.tolist()
+map(float, Tcin)
+Thoutk = Thoutarr.tolist()
+map(float, Thout)
+Tcoutk = Tcoutarr.tolist()
+map(float, Tcout)
 
 #OUTRAS VARIÁVEIS
-Fharr = []
-Fcarr = []
-Qarr = []
-Q = []
-Qaux = []
+Fharr = np.array ([0])
+Fharr.resize(nstages, nhot, ncold)
+Fcarr = np.array ([0])
+Fcarr.resize(nstages, ncold, nhot)
+Qarr = np.array ([0])
+Qarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Q[i][si][j][sj][sk][k]
+Q = Qarr.tolist()
+Qaux = Qarr.tolist()
+map(float, Q)
+map(float, Qaux)
 
 def limpar_lista(lista):
 	for i in range(len(lista)):
 		lista.pop(-1)
 
 def preparar_dados_e_rede2():
-	global Qtotalh01, Qtotalc01, Qtotalh0, Qtotalc0, Qestagioq, Qestagiof
-	global Thski, Thki, Thskf, Thkf, Thfinal01, Thfinal01k
-	global Tcski, Tcki, Tcskf, Tckf, Tcfinal01, Tcfinal01k
-	global Thin, Thout, Tcin, Tcout, Think, Thoutk, Tcink, Tcoutk
-	global Fharr, Fcarr, Qarr, Q, Qaux
-
-	limpar_lista(temperatura_atual_quente_abaixo)
-	limpar_lista(temperatura_atual_fria_abaixo)
-	limpar_lista(calor_atual_quente_abaixo)
-	limpar_lista(calor_atual_frio_abaixo)
-	limpar_lista(Qtotalh01)
-	limpar_lista(Qtotalc01)
-
-	Qtotalh0arr = np.array([0])
-	Qtotalh0arr.resize(nhot, ncold, nstages)
-	Qtotalh0 = Qtotalh0arr.tolist()
-	map(float, Qtotalh0)
-	Qtotalc0arr = np.array([0])
-	Qtotalc0arr.resize(ncold, nhot, nstages)
-	Qtotalc0 = Qtotalc0arr.tolist()
-	map(float, Qtotalc0)
-	Qestagioq = np.array([0])
-	Qestagioq.resize(nhot, nstages)
-	Qestagiof = np.array([0])
-	Qestagiof.resize(ncold, nstages)
-
-	Thskiarr = np.array ([0])
-	Thskiarr.resize(nhot, ncold, nsk, nstages)
-	Thski = Thskiarr.tolist()
-	map(float, Thski)
-	Thkiarr = np.array ([0])
-	Thkiarr.resize(nhot, nstages)
-	Thki = Thkiarr.tolist()
-	map(float, Thki)
-	Thskfarr = np.array ([0])
-	Thskfarr.resize(nhot, ncold, nsk, nstages)
-	Thskf = Thskfarr.tolist()
-	map(float, Thskf)
-	Thkfarr = np.array ([0])
-	Thkfarr.resize(nhot, nstages)
-	Thkf = Thkfarr.tolist()
-	map(float, Thkf)
-	Thfinal01arr = np.array ([0])
-	Thfinal01arr.resize(nhot, ncold)
-	Thfinal01 = Thfinal01arr.tolist()
-	map(float, Thfinal01)
-	Thfinal01karr = np.array ([0])
-	Thfinal01karr.resize(nhot, nstages)
-	Thfinal01k = Thfinal01karr.tolist()
-	map(float, Thfinal01k)
-
-	Tcskiarr = np.array ([0])
-	Tcskiarr.resize(ncold, nhot, nsk, nstages)
-	Tcski = Tcskiarr.tolist()
-	map(float, Tcski)
-	Tckiarr = np.array ([0])
-	Tckiarr.resize(ncold, nstages)
-	Tcki = Tckiarr.tolist()
-	map(float, Tcki)
-	Tcskfarr = np.array ([0])
-	Tcskfarr.resize(ncold, nhot, nsk, nstages)
-	Tcskf = Tcskfarr.tolist()
-	map(float, Tcskf)
-	Tckfarr = np.array ([0])
-	Tckfarr.resize(ncold, nstages)
-	Tckf = Tckfarr.tolist()
-	map(float, Tckf)
-	Tcfinal01arr = np.array ([0])
-	Tcfinal01arr.resize(ncold, nhot)
-	Tcfinal01 = Tcfinal01arr.tolist()
-	map(float, Tcfinal01)
-	Tcfinal01karr = np.array ([0])
-	Tcfinal01karr.resize(ncold, nstages)
-	Tcfinal01k = Tcfinal01karr.tolist()
-	map(float, Tcfinal01k)
-
-	Thinarr = np.array ([0])
-	Thinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada quente de um trocador
-	Thin = Thinarr.tolist()
-	map(float, Thin)
-	Tcinarr = np.array ([0])
-	Tcinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada fria de um trocador
-	Tcin = Tcinarr.tolist()
-	map(float, Tcin)
-	Thoutarr = np.array ([0])
-	Thoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de saída quente de um trocador
-	Thout = Thoutarr.tolist()
-	map(float, Thout)
-	Tcoutarr = np.array ([0])
-	Tcoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages) #Temperatura de saída fria de um trocador
-	Tcout = Tcoutarr.tolist()
-	map(float, Tcout)
-
-	Think = Thinarr.tolist()
-	map(float, Think)
-	Tcink = Tcinarr.tolist()
-	map(float, Tcin)
-	Thoutk = Thoutarr.tolist()
-	map(float, Thout)
-	Tcoutk = Tcoutarr.tolist()
-	map(float, Tcout)
-
-	Fharr = np.array ([0])
-	Fharr.resize(nstages, nhot, ncold)
-	Fcarr = np.array ([0])
-	Fcarr.resize(nstages, ncold, nhot)
-	Qarr = np.array ([0])
-	Qarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Q[i][si][j][sj][sk][k]
-	Q = Qarr.tolist()
-	Qaux = Qarr.tolist()
-	map(float, Q)
-	map(float, Qaux)
-
-	for quente in range(nhot):
-		temperatura_atual_quente_abaixo.append(pinchq)
-	for fria in range(ncold):
-		temperatura_atual_fria_abaixo.append(pinchf)
-
 	#CÁLCULOS DOS CALORES TOTAIS
 	for i in range (nhot):
-		Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
-		calor_atual_quente_abaixo.append(CPh[i] * (Th0[i] - Thf[i]))
+		Qtotalh1 = 0
+		Qtotalh1 = CPh[i] * (Th0[i] - Thf[i])
+		Qtotalh01.append(Qtotalh1)
+		Qtotalh01[i] = Qtotalh01[i]
+		calor_atual_quente_abaixo[i] = Qtotalh01[i]
+		Q_quente_da_corrente_sem_troca_abaixo[i] = Qtotalh01[i]
 	for j in range (ncold):
-		Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
-		calor_atual_frio_abaixo.append(CPc[j] * (Tcf[j] - Tc0[j]))
+		Qtotalc1 = 0
+		Qtotalc1 = CPc[j] * (Tcf[j] - Tc0[j])
+		Qtotalc01.append(Qtotalc1)
+		Qtotalc01[j] = Qtotalc01[j]
+		calor_atual_frio_abaixo[j] = Qtotalc01[j]
+		Q_frio_da_corrente_sem_troca_abaixo[j] = Qtotalc01[j]
 
 	for i in range(nhot):
 		for j in range(ncold):
@@ -221,7 +225,10 @@ def preparar_dados_e_rede2():
 				Qtotalh0[i][0][k] = Qtotalh01[i]
 				Qtotalc0[j][0][k] = Qtotalc01[j]
 
-	#Prepara rede
+	map(float, Qtotalh01)
+	map(float, Qtotalc01)
+
+	#Preparar rede
 	for i in range (nhot):
 		#Este loop iguala as temperaturas iniciais de todos os SUB-ESTÁGIOS à temperatura inicial da corrente
 		for si in range (ncold):
@@ -244,27 +251,14 @@ def preparar_dados_e_rede2():
 			Tcki[j][k] = Tcf[j]
 			Tckf[j][k] = Tcf[j]
 
-def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio):
-	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, nsi, nsj
-	Th0, Thf, Tc0, Tcf = [], [], [], []
-	limpar_lista(CPh)
-	limpar_lista(CPc)
-	for corrente in range(nquentes):
-		Thf.append(matriz_quente[corrente])
-		Th0.append(pinch_quente)
-		CPh.append(CPquente[corrente])
-	for corrente in range(nfrias):
-		Tc0.append(matriz_fria[corrente])
-		Tcf.append(pinch_frio)
-		CPc.append(CPfrio[corrente])
-	pinchq = pinch_quente
-	pinchf = pinch_frio
-	nhot = nquentes
-	ncold = nfrias
-	nsi = [ncold, ncold]
-	nsj = [nhot, nhot]
-	dTmin = deltaTmin
-	preparar_dados_e_rede2()
+	#variaveis de printar
+	for quente in range(nhot):
+		temperatura_atual_quente_abaixo[quente] = pinchq
+
+	for fria in range(ncold):
+		temperatura_atual_fria_abaixo[fria] = pinchf
+
+preparar_dados_e_rede2()
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 	Qtotalestagioq = Qtotalestagiof = 0
@@ -296,8 +290,10 @@ def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 					for si in range(ncold):
 						Qtotalestagioq += Qtotalh0[chot-1][si][k]
 					Qtotalestagioq = Qtotalestagioq - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+					print(Qtotalestagioq)
 					for si in range(ncold):
 						Qtotalh0[chot-1][si][k] = Qtotalestagioq*(Fharr[k][chot-1][si]/100)
+						print(Qtotalh0)
 
 	if Fcarr[estagio-1][ccold-1][sbcold-1] == 0:
 		Qtotalc0[ccold-1][sbcold-1][estagio-1] = Qtotalc0[ccold-1][sbcold-1][estagio-1] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
@@ -394,7 +390,7 @@ def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 					for sj in range(nhot):
 						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
 
-def divisao_de_correntes_abaixo():
+def divisao_de_correntes():
 	global nhotc, ncoldc
 	cont = 0
 	divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
@@ -643,54 +639,89 @@ def inserir_trocador_abaixo(dlg, vetor):
 								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] - (Qestagiof[j][k]/CPc[j])
 
 								tempdif = (Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k])
-								violou_termo = False
+
 								if tempdif < 0:
-									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation")
-									violou_termo = True
+									tempdif = - tempdif
 								if tempdif >= dTmin:
-									violou = False
+									Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
+									Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
+									Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
+									Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
+
+									#Temperatura inicial de estágios e sub-estágios
+									for k1 in range(nstages):
+										for sk1 in range(nsk):
+											if k1 > (k):
+												Tcki[j][k1] = Tcfinal01k[j][k]
+												Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
+												Thki[i][k1] = Thfinal01k[i][k]
+												Thski[i][si][sk1][k1] = Thfinal01k[i][k]
+											if k1 == (k):
+												if sk1 > (sk):
+													Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
+													Thski[i][si][sk1][k1] = Thfinal01[i][si]
+
+									#Temperatura final dos estágios e sub-estágios
+									for k1 in range(nstages):
+										for sk1 in range(nsk):
+											if k1 > (k):
+												Tckf[j][k1] = Tcfinal01k[j][k]
+												Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
+												Thkf[i][k1] = Thfinal01k[i][k]
+												Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
+											if k1 == (k):
+												if sk1 >= (sk):
+													Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
+													Thskf[i][si][sk1][k1] = Thfinal01[i][si]
+												Tckf[j][k1] = Tcfinal01k[j][k]
+												Thkf[i][k1] = Thfinal01k[i][k]
+
 								else:
-									violou = True
+									print('Erro! A diferença mínima de temperatura não está sendo respeitada: ', tempdif)
+									return
+									#avanc = str(input('Deseja continuar mesmo assim? ')).strip().upper()[0]
+									#if avanc == 'Y':
+									#	Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
+									#	Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
+									#	Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
+									#	Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
 
-								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
-								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
-								Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
-								Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
+									#	for k1 in range(nstages):
+									#		for sk1 in range(nsk):
+									#			if k1 > (k):
+									#				Tcki[j][k1] = Tcfinal01k[j][k]
+									#				Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
+									#				Thki[i][k1] = Thfinal01k[i][k]
+									#				Thski[i][si][sk1][k1] = Thfinal01k[i][k]
+									#			if k1 == (k):
+									#				if sk1 > (sk):
+									#					Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
+									#					Thski[i][si][sk1][k1] = Thfinal01[i][si]
 
-								#Temperatura inicial de estágios e sub-estágios
-								for k1 in range(nstages):
-									for sk1 in range(nsk):
-										if k1 > (k):
-											Tcki[j][k1] = Tcfinal01k[j][k]
-											Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
-											Thki[i][k1] = Thfinal01k[i][k]
-											Thski[i][si][sk1][k1] = Thfinal01k[i][k]
-										if k1 == (k):
-											if sk1 > (sk):
-												Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
-												Thski[i][si][sk1][k1] = Thfinal01[i][si]
-
-								#Temperatura final dos estágios e sub-estágios
-								for k1 in range(nstages):
-									for sk1 in range(nsk):
-										if k1 > (k):
-											Tckf[j][k1] = Tcfinal01k[j][k]
-											Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
-											Thkf[i][k1] = Thfinal01k[i][k]
-											Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
-										if k1 == (k):
-											if sk1 >= (sk):
-												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
-												Thskf[i][si][sk1][k1] = Thfinal01[i][si]
-											Tckf[j][k1] = Tcfinal01k[j][k]
-											Thkf[i][k1] = Thfinal01k[i][k]
+									#	#Temperatura final dos estágios e sub-estágios
+									#	for k1 in range(nstages):
+									#		for sk1 in range(nsk):
+									#			if k1 > (k):
+									#				Tckf[j][k1] = Tcfinal01k[j][k]
+									#				Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
+									#				Thkf[i][k1] = Thfinal01k[i][k]
+									#				Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
+									#			if k1 == (k):
+									#				if sk1 >= (sk):
+									#					Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
+									#					Thskf[i][si][sk1][k1] = Thfinal01[i][si]
+									#				Tckf[j][k1] = Tcfinal01k[j][k]
+									#				Thkf[i][k1] = Thfinal01k[i][k]
+									#else:
+									#	print('A troca de calor não ocorreu!')
+									#	Q[i][si][j][sj][sk][k] = 0
+									#	cont = 1
 
 								if Fharr[k][i][si] == 100:
 									Fharr[k][i][si] = 0
 								if Fcarr[k][j][sj] == 100:
 									Fcarr[k][j][sj] = 0
 
-	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	for k in range (nstages):
 		for sk in range (nsk):
@@ -699,6 +730,8 @@ def inserir_trocador_abaixo(dlg, vetor):
 					for j in range(ncold):
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
+	if cont != 1:
+		remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
 		fracao_quente = 1
@@ -724,7 +757,8 @@ def inserir_trocador_abaixo(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, violou_termo, tempdif
+
+	return linha_interface_abaixo
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]
@@ -863,9 +897,9 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	if Fharr[estagio-1][ccold-1][sestagio-1] == 0:
 		fracao_fria = 1
 
-	if calor_atual_quente_abaixo[chot-1] == Qtotalh01[chot-1]:
+	if calor_atual_quente_abaixo[chot-1] == Q_quente_da_corrente_sem_troca_abaixo[chot-1]:
 		temperatura_atual_quente_abaixo[chot-1] = pinchq
-	if calor_atual_frio_abaixo[ccold-1] == Qtotalc01[ccold-1]:
+	if calor_atual_frio_abaixo[ccold-1] == Q_frio_da_corrente_sem_troca_abaixo[ccold-1]:
 		temperatura_atual_fria_abaixo[ccold-1] = pinchf
 
 	try:
@@ -891,15 +925,17 @@ def adicionar_utilidade_abaixo(dlg, corrente):
 	if q == 0:
 		QMessageBox.about(dlg, "Error!", "The heat of this stream has already been supplied")
 		return
+	Thfinal0[chotutil-1] = Thf[chotutil-1]
 	temperatura_atual_quente_abaixo[chotutil-1] = Thf[chotutil-1]
 	calor_atual_quente_abaixo[chotutil-1] = 0.0
 	utilidades_abaixo.append([chotutil, q])
+	print(utilidades_abaixo)
 	return utilidades_abaixo
 
 def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
 	Qtotalh0[corrente-1][0][0] = utilidades_abaixo[indice_remover][1]
 	calor_atual_quente_abaixo[corrente-1] = Qtotalh0[corrente-1][0][0]
-	temperatura_atual_quente_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
+	temperatura_atual_quente_abaixo[corrente-1] = -calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
 	utilidades_abaixo.pop(indice_remover)
 
 def caixa_de_temperatura_abaixo(dlg):

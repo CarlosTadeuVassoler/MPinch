@@ -629,6 +629,19 @@
               </item>
               <item row="27" column="0" colspan="12">
                <layout class="QGridLayout" name="gridLayout_11">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_15">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Heat Exchangers</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="3" column="3">
                  <widget class="QLabel" name="label_20">
                   <property name="maximumSize">
@@ -655,19 +668,6 @@
                     <width>50</width>
                     <height>16777215</height>
                    </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_15">
-                  <property name="font">
-                   <font>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Heat Exchangers</string>
                   </property>
                  </widget>
                 </item>
@@ -869,6 +869,16 @@
                   </property>
                  </widget>
                 </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="comboBox_9">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
                 <item row="5" column="0" colspan="3">
                  <widget class="QTableWidget" name="tableWidget_3">
                   <property name="minimumSize">
@@ -914,16 +924,6 @@
                     <string>Heat Duty</string>
                    </property>
                   </column>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QComboBox" name="comboBox_9">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
                  </widget>
                 </item>
                </layout>

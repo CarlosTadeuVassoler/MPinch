@@ -652,12 +652,12 @@ def printar():
 	dlg.tableWidget_4.setRowCount(ncold)
 	for corrente in range(nhot):
 		dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-		dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
+		dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente])))))
 		dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
 		dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
 	for corrente in range(ncold):
 		dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-		dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
+		dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente])))))
 		dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
 		dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
 
@@ -879,64 +879,33 @@ def calcular_calor_abaixo():
 	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg))
 	dlg.TempLoadBelow.pushButton_2.clicked.connect(lambda: dlg.TempLoadBelow.close())
 
-def dividir_corrente_acima(divisao):
-	global divtype
-	divtype = divisao
+def dividir_corrente():
 	dlg.DivisaoQuente = uic.loadUi("DivisaoQuente.ui")
-	dlg.DivisaoFria = uic.loadUi("DivisaoQuente.ui")
-	if divtype == "Q":
-		for i in range(nhot):
-			dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
-		for i in range(nstages):
-			dlg.DivisaoQuente.comboBox.addItem(str(i+1))
-		for i in range(ncold):
-			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
-		dlg.DivisaoQuente.show()
-	elif divtype == "F":
-		dlg.DivisaoFria.label_5.setText("Split Cold Stream")
-		for i in range(ncold):
-			dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
-		for i in range(nstages):
-			dlg.DivisaoFria.comboBox.addItem(str(i+1))
-		for i in range(nhot):
-			dlg.DivisaoFria.comboBox_3.addItem(str(i+1))
-		dlg.DivisaoFria.show()
-
+	dlg.DivisaoQuente.show()
+	#for i in range(2):
+	dlg.DivisaoQuente.comboBox_2.addItem(str(1))
+	#for i in range(2):
+	dlg.DivisaoQuente.comboBox.addItem(str(2))
+	#for i in range(10):
+	dlg.DivisaoQuente.comboBox_3.addItem(str(2))
 
 	def confirm():
 		global caixa_fracao, quantidade, corrente, estagio
-		if divtype == "Q":
-			quantidade = int(dlg.DivisaoQuente.comboBox_3.currentText())
-			estagio = int(dlg.DivisaoQuente.comboBox.currentText())
-			corrente = int(dlg.DivisaoQuente.comboBox_2.currentText())
-		if divtype == "F":
-			quantidade = int(dlg.DivisaoFria.comboBox_3.currentText())
-			estagio = int(dlg.DivisaoFria.comboBox.currentText())
-			corrente = int(dlg.DivisaoFria.comboBox_2.currentText())
-
+		quantidade = int(dlg.DivisaoQuente.comboBox_3.currentText())
+		estagio = int(dlg.DivisaoQuente.comboBox.currentText())
+		corrente = int(dlg.DivisaoQuente.comboBox_2.currentText())
 		if verificar_trocador_estagio(estagio):
-			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
+			print("ja tem trocador")
 			return
-
-		if divtype == "Q":
-			dlg.DivisaoQuente.pushButton_3.setEnabled(True)
-			dlg.DivisaoQuente.pushButton.setEnabled(False)
-		if divtype == "F":
-			dlg.DivisaoFria.pushButton_3.setEnabled(True)
-			dlg.DivisaoFria.pushButton.setEnabled(False)
-
+		dlg.DivisaoQuente.pushButton_3.setEnabled(True)
+		dlg.DivisaoQuente.pushButton.setEnabled(False)
 		caixa_fracao = [0] * quantidade
 		caixa_corrente = [0] * quantidade
-
 		for i in range(quantidade):
 			caixa_fracao[i] = QtWidgets.QDoubleSpinBox(dlg)
 			caixa_corrente[i] = QtWidgets.QLabel(dlg)
-			if divtype == "Q":
-				dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_corrente[i])
-				dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_fracao[i])
-			if divtype == "F":
-				dlg.DivisaoFria.verticalLayout_3.addWidget(caixa_corrente[i])
-				dlg.DivisaoFria.verticalLayout_3.addWidget(caixa_fracao[i])
+			dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_corrente[i])
+			dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_fracao[i])
 			caixa_fracao[i].setSingleStep(float(0.1))
 			caixa_fracao[i].setMaximum(1)
 			caixa_fracao[i].setMinimum(0)
@@ -949,25 +918,19 @@ def dividir_corrente_acima(divisao):
 		fracao = [0] * quantidade
 		for i in range(quantidade):
 			soma += float(caixa_fracao[i].value())
-			fracao[i] = float(caixa_fracao[i].value())
 		if soma != 1:
-			QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
-			return
+			print("erro de soma")
+			#return
+		#else:
+		#	for i in range(quantidade):
+		fracao[0] = 0.1#float(caixa_fracao[i].value())
+		fracao[1] = 0.9
 
-		divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
-		if divtype == "Q":
-			dlg.DivisaoQuente.close()
-		if divtype == "F":
-			dlg.DivisaoFria.close()
+		divisao_de_correntes("Q", estagio, corrente, quantidade, fracao)
+
 
 	dlg.DivisaoQuente.pushButton.clicked.connect(lambda: confirm())
 	dlg.DivisaoQuente.pushButton_3.clicked.connect(lambda: split())
-	dlg.DivisaoQuente.pushButton_2.clicked.connect(lambda: dlg.DivisaoQuente.close())
-	dlg.DivisaoFria.pushButton.clicked.connect(lambda: confirm())
-	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split())
-	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
-
-
 
 #streams
 dlg.pinchbutton.setEnabled(False) #block o botao pinch até apertar done
@@ -995,8 +958,8 @@ dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 1 and kW(dlg))
 dlg.radioButton.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_4.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(False)) #block o heat load quando max heat ta ativado
 dlg.radioButton_4.setChecked(True) #por padrao abre o prog com max heat selecionado
-dlg.pushButton_9.clicked.connect(lambda: dividir_corrente_acima("Q"))
-dlg.pushButton_13.clicked.connect(lambda: dividir_corrente_acima("F"))
+dlg.pushButton_9.clicked.connect(dividir_corrente)
+dlg.pushButton_13.clicked.connect(coldsplit1)
 dlg.comboBox_9.setEnabled(False) #corrente quente que vai utilizade
 dlg.comboBox_10.setEnabled(False) #corrente fria que vai utilidade
 dlg.pushButton_7.setEnabled(False) #add utility hot

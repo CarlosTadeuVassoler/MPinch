@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>277</width>
-    <height>105</height>
+    <height>136</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,22 @@
         </font>
        </property>
        <property name="text">
-        <string>Violated dTmin</string>
+        <string>Violated ΔTmin</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Δ</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
