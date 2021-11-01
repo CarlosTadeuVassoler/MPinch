@@ -1090,11 +1090,6 @@
                   <height>16777215</height>
                  </size>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </item>
                </widget>
               </item>
               <item row="4" column="2">
@@ -1105,11 +1100,6 @@
                   <height>16777215</height>
                  </size>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </item>
                </widget>
               </item>
              </layout>
@@ -1677,11 +1667,6 @@
                   <height>16777215</height>
                  </size>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </item>
                </widget>
               </item>
               <item row="5" column="4">
@@ -1702,11 +1687,6 @@
                   <height>16777215</height>
                  </size>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>1</string>
-                 </property>
-                </item>
                </widget>
               </item>
               <item row="5" column="5">
