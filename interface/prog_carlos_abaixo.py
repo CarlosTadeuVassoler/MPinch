@@ -585,14 +585,15 @@ def inserir_trocador_abaixo(dlg, vetor):
 								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] - (Qestagiof[j][k]/CPc[j])
 								temperatura_atual_fria_mesclada_abaixo[j] = Tcoutk[i][si][j][sj][sk][k]
 
-								tempdif = (Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k])
+								tempdif = (Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k])
+								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
 								violou = False
 								violou_termo = False
 
-								if tempdif < 0:
-									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation")
+								if tempdif < 0 or tempdif_terminal_frio < 0:
+									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
 									violou_termo = True
-								if tempdif >= dTmin:
+								elif tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
 									violou = False
 								else:
 									violou = True
@@ -647,8 +648,12 @@ def inserir_trocador_abaixo(dlg, vetor):
 
 	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
 		fracao_quente = 1
+	else:
+		fracao_quente = Fharr[estagio-1][chot-1][sbhot-1]/100
 	if Fharr[estagio-1][ccold-1][sestagio-1] == 0:
 		fracao_fria = 1
+	else:
+		fracao_fria = Fcarr[estagio-1][ccold-1][sbcold-1]/100
 
 	calor_atual_quente_abaixo[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	calor_atual_frio_abaixo[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
@@ -662,14 +667,14 @@ def inserir_trocador_abaixo(dlg, vetor):
 							Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1],
 							Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
 							Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1],
-							Fharr[estagio-1][chot-1][sbhot-1],
-							Fcarr[estagio-1][ccold-1][sbcold-1]])
+							fracao_quente,
+							fracao_fria])
 
 	for trocador in linha_interface_abaixo:
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, violou_termo, tempdif
+	return linha_interface_abaixo, violou, violou_termo, tempdif, tempdif_terminal_frio
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]

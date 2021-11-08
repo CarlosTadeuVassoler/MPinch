@@ -642,7 +642,7 @@ def printar():
 
 def inserir_teste():
 	dados_do_trocador = ler_dados(dlg)
-	nova_matriz, violou, violou_termo, dtminviolado = inserir_trocador(dlg, dados_do_trocador)
+	nova_matriz, violou, violou_termo, dtminviolado, dtminvioladofrio = inserir_trocador(dlg, dados_do_trocador)
 	try:
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
@@ -653,8 +653,14 @@ def inserir_teste():
 	elif violou:
 		dlg.dtmin = uic.loadUi("dtmin.ui")
 		dlg.dtmin.show()
-		text = ("(ΔT = " + str(float('{:.1f}'.format(dtminviolado))) + ")")
+		text = "ΔT = " + str(float('{:.1f}'.format(dtminviolado)))
+		textfrio = "ΔT = " + str(float('{:.1f}'.format(dtminvioladofrio)))
 		dlg.dtmin.label_3.setText(text)
+		dlg.dtmin.label_4.setText(textfrio)
+		if dtminviolado < dTmin:
+			dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
+		if dtminvioladofrio < dTmin:
+			dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
 		dlg.dtmin.pushButton.clicked.connect(lambda: violou_dtmin(dados_do_trocador, "above"))
 		dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
 		printar()
@@ -723,7 +729,7 @@ def calcular_calor_teste():
 #below
 def inserir_teste_abaixo():
 	dados_do_trocador = ler_dados_abaixo(dlg)
-	nova_matriz, violou, violou_termo, dtminviolado = inserir_trocador_abaixo(dlg, dados_do_trocador)
+	nova_matriz, violou, violou_termo, dtminviolado, dtminvioladofrio = inserir_trocador_abaixo(dlg, dados_do_trocador)
 	try:
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
@@ -734,8 +740,14 @@ def inserir_teste_abaixo():
 	elif violou:
 		dlg.dtmin = uic.loadUi("dtmin.ui")
 		dlg.dtmin.show()
-		text = ("(ΔT = " + str(float('{:.1f}'.format(dtminviolado))) + ")")
+		text = "ΔT = " + str(float('{:.1f}'.format(dtminviolado)))
+		textfrio = "ΔT = " + str(float('{:.1f}'.format(dtminvioladofrio)))
 		dlg.dtmin.label_3.setText(text)
+		dlg.dtmin.label_4.setText(textfrio)
+		if dtminviolado < dTmin:
+			dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
+		if dtminvioladofrio < dTmin:
+			dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
 		dlg.dtmin.pushButton.clicked.connect(lambda: violou_dtmin(dados_do_trocador, "below"))
 		dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
 		printar_abaixo()
