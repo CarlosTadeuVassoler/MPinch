@@ -36,7 +36,7 @@ utilidades = []
 utilidades_abaixo = []
 
 app=QtWidgets.QApplication([])
-dlg=uic.loadUi("untitlednova.ui")
+dlg=uic.loadUi("MPinch.ui")
 dlg.TempLoad=uic.loadUi("TempLoad.ui")
 
 dlg.lineEdit.setPlaceholderText("K")
@@ -595,6 +595,8 @@ def dividir_corrente(divisao, onde):
 		if divtype == "F":
 			dlg.DivisaoFria.close()
 
+		printar()
+
 	dlg.DivisaoQuente.pushButton.clicked.connect(lambda: confirm())
 	dlg.DivisaoQuente.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoQuente.pushButton_2.clicked.connect(lambda: dlg.DivisaoQuente.close())
@@ -604,18 +606,67 @@ def dividir_corrente(divisao, onde):
 
 #above
 def printar():
-	dlg.tableWidget_3.setRowCount(nhot)
-	dlg.tableWidget_4.setRowCount(ncold)
-	for corrente in range(nhot):
-		dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-		dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-		dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
-		dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
-	for corrente in range(ncold):
-		dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-		dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-		dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
-		dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+	dlg.tableWidget_3.clearContents()
+	dlg.tableWidget_4.clearContents()
+
+	if dlg.checkBox.isChecked():
+		linha = 0
+		linhas = 0
+		for i in quantidade_quente:
+			linhas += i
+		dlg.tableWidget_3.setRowCount(linhas)
+		for corrente in range(nhot):
+			if dividida_quente[corrente]:
+				for sub in range(quantidade_quente[corrente]):
+					text = str(corrente+1) + "." + str(sub+1)
+					dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(text))
+					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente][sub])))))
+					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub[corrente][sub])))))
+					linha += 1
+			else:
+				dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
+				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+				linha += 1
+	else:
+		dlg.tableWidget_3.setRowCount(nhot)
+		for corrente in range(nhot):
+			dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
+			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+
+	if dlg.checkBox_2.isChecked():
+		linha = 0
+		linhas = 0
+		for i in quantidade_fria:
+			linhas += i
+		dlg.tableWidget_4.setRowCount(linhas)
+		for corrente in range(ncold):
+			if dividida_fria[corrente]:
+				for sub in range(quantidade_fria[corrente]):
+					text = str(corrente+1) + "." + str(sub+1)
+					dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(text))
+					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente][sub])))))
+					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub[corrente][sub])))))
+					linha += 1
+			else:
+				dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
+				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+				linha += 1
+	else:
+		dlg.tableWidget_4.setRowCount(ncold)
+		for corrente in range(ncold):
+			dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
+			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+
 
 	dlg.tableWidget_2.setRowCount(len(matriz_armazenada))
 	if len(matriz_armazenada) > 0:
@@ -642,15 +693,12 @@ def printar():
 
 def inserir_teste():
 	dados_do_trocador = ler_dados(dlg)
-	nova_matriz, violou, violou_termo, dtminviolado, dtminvioladofrio = inserir_trocador(dlg, dados_do_trocador)
 	try:
+		nova_matriz, violou, dtminviolado, dtminvioladofrio = inserir_trocador(dlg, dados_do_trocador)
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
-		pass
-	if violou_termo:
-		indice = len(matriz_armazenada) - 1
-		remover_trocador(dlg, dados_do_trocador, indice, matriz_armazenada)
-	elif violou:
+		return
+	if violou:
 		dlg.dtmin = uic.loadUi("dtmin.ui")
 		dlg.dtmin.show()
 		text = "ΔT = " + str(float('{:.1f}'.format(dtminviolado)))
@@ -884,6 +932,8 @@ dlg.comboBox_9.setEnabled(False) #corrente quente que vai utilizade
 dlg.comboBox_10.setEnabled(False) #corrente fria que vai utilidade
 dlg.pushButton_7.setEnabled(False) #add utility hot
 dlg.pushButton_8.setEnabled(False) #add utility cold
+dlg.checkBox.stateChanged.connect(printar)
+dlg.checkBox_2.stateChanged.connect(printar)
 dlg.pushButton_6.clicked.connect(inserir_teste)
 dlg.pushButton_10.clicked.connect(remover_teste)
 dlg.pushButton_14.clicked.connect(calcular_calor_teste)

@@ -6,6 +6,9 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+import os
+
+clear = lambda: os.system('cls')
 
 Th0 = []
 Thf = []
@@ -45,6 +48,8 @@ Qestagioq = []
 Qestagiof = []
 calor_atual_quente = []
 calor_atual_frio = []
+calor_atual_quente_sub = []
+calor_atual_frio_sub = []
 Qtotalestagio = Qtotalestagiof = Qmax = Qtotalhaux = Qtotalcaux = 0
 
 
@@ -84,6 +89,10 @@ Fcarr = []
 Qarr = []
 Q = []
 Qaux = []
+dividida_quente = []
+dividida_fria = []
+quantidade_quente = []
+quantidade_fria = []
 
 def limpar_lista(lista):
 	for i in range(len(lista)):
@@ -100,8 +109,11 @@ def preparar_dados_e_rede():
 	limpar_lista(temperatura_atual_fria)
 	limpar_lista(calor_atual_quente)
 	limpar_lista(calor_atual_frio)
+	limpar_lista(calor_atual_quente_sub)
+	limpar_lista(calor_atual_frio_sub)
 	limpar_lista(Qtotalh01)
 	limpar_lista(Qtotalc01)
+
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)
@@ -206,19 +218,33 @@ def preparar_dados_e_rede():
 	map(float, Qaux)
 
 	for quente in range(nhot):
-		temperatura_atual_quente.append(pinchq)
+		temperatura_atual_quente.append([])
 		temperatura_atual_quente_mesclada.append(pinchq)
+		calor_atual_quente_sub.append([])
+		dividida_quente.append(False)
+		quantidade_quente.append(1)
+		for fria in range(ncold):
+			calor_atual_quente_sub[quente].append(0)
+			temperatura_atual_quente[quente].append(pinchq)
 	for fria in range(ncold):
-		temperatura_atual_fria.append(pinchf)
+		temperatura_atual_fria.append([])
 		temperatura_atual_fria_mesclada.append(pinchf)
+		calor_atual_frio_sub.append([])
+		dividida_fria.append(False)
+		quantidade_fria.append(1)
+		for quente in range(nhot):
+			calor_atual_frio_sub[fria].append(0)
+			temperatura_atual_fria[fria].append(pinchf)
 
 	#CÁLCULOS DOS CALORES TOTAIS
 	for i in range (nhot):
 		Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
 		calor_atual_quente.append(CPh[i] * (Th0[i] - Thf[i]))
+		calor_atual_quente_sub[i][0] = CPh[i] * (Th0[i] - Thf[i])
 	for j in range (ncold):
 		Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
 		calor_atual_frio.append(CPc[j] * (Tcf[j] - Tc0[j]))
+		calor_atual_frio_sub[j][0] = CPc[j] * (Tcf[j] - Tc0[j])
 
 	for i in range(nhot):
 		for j in range(ncold):
@@ -432,6 +458,9 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 				for si in range(ncold-1, -1, -1):
 					if Fharr[estagio-1][corrente-1][si] != 0:
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
+						calor_atual_quente_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
+			dividida_quente[corrente-1] = True
+			quantidade_quente[corrente-1] = qsi
 
 			nhotc = qsi + (nhot - 1)
 
@@ -452,6 +481,9 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 				for sj in range(nhot-1, -1, -1):
 					if Fcarr[estagio-1][corrente-1][sj] != 0:
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
+						calor_atual_frio_sub[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
+			dividida_fria[corrente-1] = True
+			quantidade_fria[corrente-1] = qsj
 
 			ncoldc = qsj + (ncold - 1)
 
@@ -460,8 +492,8 @@ def ler_dados(dlg):
 	j = int(dlg.comboBox_5.currentText())
 	si = int(dlg.comboBox_50.currentText())
 	sj = int(dlg.comboBox_51.currentText())
-	sk = int(dlg.comboBox_7.currentText())
 	k = int(dlg.comboBox_8.currentText())
+	sk = int(dlg.comboBox_7.currentText())
 
 	if ((Qtotalh0[i-1][si-1][k-1]) > (Qtotalc0[j-1][sj-1][k-1])):
 		Qmax = Qtotalc0[j-1][sj-1][k-1]
@@ -565,32 +597,36 @@ def inserir_trocador(dlg, vetor):
 
 								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
 								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPh[i]*Fharr[k][i][si]/100))
-								temperatura_atual_quente[i] = Thout[i][si][j][sj][sk][k]
 
 								Think[i][si][j][sj][sk][k] = Thki[i][k]
 								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] + (Qestagioq[i][k]/CPh[i])
-								temperatura_atual_quente_mesclada[i] = Thoutk[i][si][j][sj][sk][k]
 
 								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
 								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPc[j]*Fcarr[k][j][sj]/100))
-								temperatura_atual_fria[j] = Tcout[i][si][j][sj][sk][k]
 
 								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
 								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] + (Qestagiof[j][k]/CPc[j])
-								temperatura_atual_fria_mesclada[j] = Tcoutk[i][si][j][sj][sk][k]
 
 								tempdif = (Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k])
 								tempdif_terminal_frio = Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
-								violou_termo = False
 								violou = False
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
 									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									violou_termo = True
-								elif tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
-									violou = False
+									Q[i][si][j][sj][sk][k] = 0
+									return
 								else:
-									violou = True
+									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
+										violou = False
+									else:
+										violou = True
+
+									if dividida_quente[i]:
+										temperatura_atual_quente[i][si] = Thout[i][si][j][sj][sk][k]
+									if dividida_fria[j]:
+										temperatura_atual_fria[j][sj] = Tcout[i][si][j][sj][sk][k]
+									temperatura_atual_quente_mesclada[i] = Thoutk[i][si][j][sj][sk][k]
+									temperatura_atual_fria_mesclada[j] = Tcoutk[i][si][j][sj][sk][k]
 
 								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
 								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
@@ -647,10 +683,15 @@ def inserir_trocador(dlg, vetor):
 	if Fcarr[estagio-1][ccold-1][sbcold-1] == 0:
 		fracao_fria = 1
 	else:
-		fracao_fria = Fcarr[estagio-1][ccold-1][sbcold-1]
+		fracao_fria = Fcarr[estagio-1][ccold-1][sbcold-1]/100
 
 	calor_atual_quente[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	calor_atual_frio[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+
+	if dividida_quente[chot-1]:
+		calor_atual_quente_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	if dividida_fria[ccold-1]:
+		calor_atual_frio_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 	linha_interface.append([chot,
 							ccold,
@@ -668,7 +709,7 @@ def inserir_trocador(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface, violou, violou_termo, tempdif, tempdif_terminal_frio
+	return linha_interface, violou, tempdif, tempdif_terminal_frio
 
 def remover_trocador(dlg, vetor, indice, linha_interface):
 	chot = vetor[0]
@@ -677,10 +718,6 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 	sbcold = vetor[3]
 	sestagio = vetor[4]
 	estagio = vetor[5]
-
-	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] == 0:
-		QMessageBox.about(dlg,"Error!","There is no heat exchanger in this position.")
-		return
 
 	adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
@@ -744,7 +781,8 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 
 								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
 								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPh[i]*(Fharr[k][i][si]/100)))
-								temperatura_atual_quente[i] = Thout[i][si][j][sj][sk][k]
+								if dividida_quente[i]:
+									temperatura_atual_quente[i][si] = Thout[i][si][j][sj][sk][k]
 
 								Think[i][si][j][sj][sk][k] = Thki[i][k]
 								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] + (Qestagioq[i][k]/CPh[i])
@@ -752,7 +790,8 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 
 								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
 								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] + (Q[i][si][j][sj][sk][k]/(CPc[j]*(Fcarr[k][j][sj]/100)))
-								temperatura_atual_fria[j] = Tcout[i][si][j][sj][sk][k]
+								if dividida_fria[j]:
+									temperatura_atual_fria[j][sj] = Tcout[i][si][j][sj][sk][k]
 
 								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
 								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] + (Qestagiof[j][k]/CPc[j])
@@ -804,25 +843,31 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
 
-	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
+	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
-	if Fharr[estagio-1][ccold-1][sestagio-1] == 0:
+	if Fcarr[estagio-1][ccold-1][sbcold-1] == 0:
 		fracao_fria = 1
 
 	calor_atual_quente[chot-1] += vetor[6]
 	calor_atual_frio[ccold-1] += vetor[6]
+	if dividida_quente[chot-1]:
+		calor_atual_quente_sub[chot-1][sbhot-1] += vetor[6]
+	if dividida_fria[ccold-1]:
+		calor_atual_frio_sub[ccold-1][sbcold-1] += vetor[6]
 
 	if calor_atual_quente[chot-1] == Qtotalh01[chot-1]:
-		temperatura_atual_quente[chot-1] = pinchq
 		temperatura_atual_quente_mesclada[chot-1] = pinchq
 	if calor_atual_frio[ccold-1] == Qtotalc01[ccold-1]:
-		temperatura_atual_fria[ccold-1] = pinchf
 		temperatura_atual_fria_mesclada[ccold-1] = pinchf
 
-	try:
-		linha_interface.pop(indice)
-	except:
-		QMessageBox.about(dlg, "Error!", "There is no heat exchanger in this position.")
+	if dividida_quente[chot-1]:
+		if calor_atual_quente_sub[chot-1][sbhot-1] == Qtotalh01[chot-1] * Fharr[estagio-1][chot-1][sbhot-1]/100:
+			temperatura_atual_quente[chot-1][sbhot-1] = pinchq
+	if dividida_fria[ccold-1]:
+		if calor_atual_frio_sub[ccold-1][sbcold-1] == Qtotalc01[ccold-1] * Fcarr[estagio-1][ccold-1][sbcold-1]/100:
+			temperatura_atual_fria[ccold-1][sbcold-1] = pinchf
+
+	linha_interface.pop(indice)
 
 	return linha_interface
 

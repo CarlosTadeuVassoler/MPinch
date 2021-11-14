@@ -58,7 +58,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Number of Divisions</string>
+        <string>Number of Branches</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
