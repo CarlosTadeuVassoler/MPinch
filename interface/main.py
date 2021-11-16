@@ -16,12 +16,12 @@ from functrocador import trocador
 import re
 import sys
 import random
-from variaveistempload2 import VariaveisTempLoad
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
+
 from prog_carlos import *
 from prog_carlos_abaixo import *
 from converter_unidades import *
@@ -37,7 +37,6 @@ utilidades_abaixo = []
 
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
-dlg.TempLoad=uic.loadUi("TempLoad.ui")
 
 dlg.lineEdit.setPlaceholderText("K")
 dlg.lineEdit2.setPlaceholderText("K")
@@ -367,7 +366,6 @@ def correntesnoscombos(nhot,ncold): #preenche as caixinhas
 		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
 		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
 		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
-		dlg.TempLoad.comboBox.addItem(str(i+1))
 		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
 		dlg.comboBox_54.addItem(str(i+1))
 	for i in range (ncold):
@@ -375,7 +373,6 @@ def correntesnoscombos(nhot,ncold): #preenche as caixinhas
 		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
 		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
 		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
-		dlg.TempLoad.comboBox_2.addItem(str(i+1))
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
 	for i in range (nstages):

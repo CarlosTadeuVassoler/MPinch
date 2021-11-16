@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import os
+import threading
 
 clear = lambda: os.system('cls')
 
@@ -614,6 +615,11 @@ def inserir_trocador(dlg, vetor):
 								if tempdif < 0 or tempdif_terminal_frio < 0:
 									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
 									Q[i][si][j][sj][sk][k] = 0
+									Qaux[i][si][j][sj][sk][k] = 0
+									if Fharr[k][i][si] == 100:
+										Fharr[k][i][si] = 0
+									if Fcarr[k][j][sj] == 100:
+										Fcarr[k][j][sj] = 0
 									return
 								else:
 									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
