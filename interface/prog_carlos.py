@@ -9,8 +9,6 @@ import sys
 import os
 import threading
 
-clear = lambda: os.system('cls')
-
 Th0 = []
 Thf = []
 CPh = []
@@ -224,7 +222,7 @@ def preparar_dados_e_rede():
 		calor_atual_quente_sub.append([])
 		dividida_quente.append(False)
 		quantidade_quente.append(1)
-		for fria in range(ncold):
+		for sub in range(ncold):
 			calor_atual_quente_sub[quente].append(0)
 			temperatura_atual_quente[quente].append(pinchq)
 	for fria in range(ncold):
@@ -233,7 +231,7 @@ def preparar_dados_e_rede():
 		calor_atual_frio_sub.append([])
 		dividida_fria.append(False)
 		quantidade_fria.append(1)
-		for quente in range(nhot):
+		for sub in range(nhot):
 			calor_atual_frio_sub[fria].append(0)
 			temperatura_atual_fria[fria].append(pinchf)
 
@@ -448,7 +446,6 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 			for si in range(ncold-1, qsi-1, -1):#ex: antes 3 divisoes porem agora 2, zera a 3
 				Fharr[estagio-1][corrente-1][si] = 0
 				Qtotalh0[corrente-1][si][estagio-1] = 0
-
 			#faz a nova divisao
 			if qsi > nsi[corrente-1]:
 				print('Erro! O número de divisões é muito grande.')

@@ -772,17 +772,101 @@ def calcular_calor_teste():
 
 
 #below
+def printar_abaixo():
+	dlg.tableWidget_15.clearContents()
+	dlg.tableWidget_17.clearContents()
+
+	if dlg.checkBox_9.isChecked():
+		linha = 0
+		linhas = 0
+		for i in quantidade_quente_abaixo:
+			linhas += i
+		dlg.tableWidget_15.setRowCount(linhas)
+		for corrente in range(nhot):
+			if dividida_quente_abaixo[corrente]:
+				for sub in range(quantidade_quente_abaixo[corrente]):
+					text = str(corrente+1) + "." + str(sub+1)
+					dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(text))
+					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_abaixo[corrente][sub])))))
+					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub_abaixo[corrente][sub])))))
+					linha += 1
+			else:
+				dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
+				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+				linha += 1
+	else:
+		dlg.tableWidget_15.setRowCount(nhot)
+		for corrente in range(nhot):
+			dlg.tableWidget_15.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
+			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+
+	if dlg.checkBox_10.isChecked():
+		linha = 0
+		linhas = 0
+		for i in quantidade_fria_abaixo:
+			linhas += i
+		dlg.tableWidget_17.setRowCount(linhas)
+		for corrente in range(ncold):
+			if dividida_fria_abaixo[corrente]:
+				for sub in range(quantidade_fria_abaixo[corrente]):
+					text = str(corrente+1) + "." + str(sub+1)
+					dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(text))
+					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
+					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
+					linha += 1
+			else:
+				dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
+				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+				linha += 1
+	else:
+		dlg.tableWidget_17.setRowCount(ncold)
+		for corrente in range(ncold):
+			dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
+			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+
+
+	dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo))
+	if len(matriz_trocadores_abaixo) > 0:
+		for trocador in range(0, len(matriz_trocadores_abaixo)):
+			dlg.tableWidget_14.setItem(trocador, 0, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][0]))) #chot
+			dlg.tableWidget_14.setItem(trocador, 1, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][1]))) #ccold
+			dlg.tableWidget_14.setItem(trocador, 2, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][2]))) #sbhot
+			dlg.tableWidget_14.setItem(trocador, 3, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][3]))) #sbcold
+			dlg.tableWidget_14.setItem(trocador, 4, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][4]))) #sk
+			dlg.tableWidget_14.setItem(trocador, 5, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][5]))) #k
+			dlg.tableWidget_14.setItem(trocador, 6, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][6]))))) # calor trocado
+			dlg.tableWidget_14.setItem(trocador, 7, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][7]))))) #Thin
+			dlg.tableWidget_14.setItem(trocador, 8, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][8]))))) #Tcout
+			dlg.tableWidget_14.setItem(trocador, 9, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][9]))) #fração hot
+			dlg.tableWidget_14.setItem(trocador, 10, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][10]))) #fraçao cold
+		dlg.lineEdit_25.setText(str("0"))
+
+	if len(utilidades_abaixo) > 0:
+		dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo) + len(utilidades_abaixo))
+		for utilidade in range(0, len(utilidades_abaixo)):
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 0, QTableWidgetItem(str("Cold Utility")))
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 1, QTableWidgetItem(str(utilidades_abaixo[utilidade][0])))
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades_abaixo[utilidade][1])))))
+
 def inserir_teste_abaixo():
 	dados_do_trocador = ler_dados_abaixo(dlg)
-	nova_matriz, violou, violou_termo, dtminviolado, dtminvioladofrio = inserir_trocador_abaixo(dlg, dados_do_trocador)
+	nova_matriz, violou, dtminviolado, dtminvioladofrio = inserir_trocador_abaixo(dlg, dados_do_trocador)
 	try:
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
 		pass
-	if violou_termo:
-		indice = len(matriz_trocadores_abaixo) - 1
-		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
-	elif violou:
+	if violou:
+		print(trocador_violou)
 		dlg.dtmin = uic.loadUi("dtmin.ui")
 		dlg.dtmin.show()
 		text = "ΔT = " + str(float('{:.1f}'.format(dtminviolado)))
@@ -833,43 +917,6 @@ def utilidade_teste_abaixo():
 	except:
 		pass
 	printar_abaixo()
-
-def printar_abaixo():
-	dlg.tableWidget_15.setRowCount(nhot)
-	dlg.tableWidget_17.setRowCount(ncold)
-	for corrente in range(nhot):
-		dlg.tableWidget_15.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-		dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
-		dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-		dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
-	for corrente in range(ncold):
-		dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-		dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
-		dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-		dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
-
-	dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo))
-	if len(matriz_trocadores_abaixo) > 0:
-		for trocador in range(0, len(matriz_trocadores_abaixo)):
-			dlg.tableWidget_14.setItem(trocador, 0, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][0]))) #chot
-			dlg.tableWidget_14.setItem(trocador, 1, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][1]))) #ccold
-			dlg.tableWidget_14.setItem(trocador, 2, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][2]))) #sbhot
-			dlg.tableWidget_14.setItem(trocador, 3, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][3]))) #sbcold
-			dlg.tableWidget_14.setItem(trocador, 4, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][4]))) #sk
-			dlg.tableWidget_14.setItem(trocador, 5, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][5]))) #k
-			dlg.tableWidget_14.setItem(trocador, 6, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][6]))))) # calor trocado
-			dlg.tableWidget_14.setItem(trocador, 7, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][7]))))) #Thin
-			dlg.tableWidget_14.setItem(trocador, 8, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][8]))))) #Tcout
-			dlg.tableWidget_14.setItem(trocador, 9, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][9]))) #fração hot
-			dlg.tableWidget_14.setItem(trocador, 10, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][10]))) #fraçao cold
-		dlg.lineEdit_25.setText(str("0"))
-
-	if len(utilidades_abaixo) > 0:
-		dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo) + len(utilidades_abaixo))
-		for utilidade in range(0, len(utilidades_abaixo)):
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 0, QTableWidgetItem(str("Cold Utility")))
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 1, QTableWidgetItem(str(utilidades_abaixo[utilidade][0])))
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades_abaixo[utilidade][1])))))
 
 def calcular_calor_abaixo():
 	dlg.TempLoadBelow = uic.loadUi("TempLoadBelow.ui")
@@ -947,6 +994,8 @@ dlg.comboBox_43.setEnabled(False) #corrente quente que vai utilizade
 dlg.comboBox_44.setEnabled(False) #corrente fria que vai utilidade
 dlg.pushButton_20.setEnabled(False) #add utility hot
 dlg.pushButton_21.setEnabled(False) #add utility cold
+dlg.checkBox_9.stateChanged.connect(printar_abaixo)
+dlg.checkBox_10.stateChanged.connect(printar_abaixo)
 dlg.pushButton_18.clicked.connect(inserir_teste_abaixo)
 dlg.pushButton_15.clicked.connect(remover_teste_abaixo)
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo)
