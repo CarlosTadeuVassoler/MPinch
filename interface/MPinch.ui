@@ -496,7 +496,7 @@
           <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="tab_6">
+          <widget class="QWidget" name="ABOVEEABA">
            <attribute name="title">
             <string>Above Pinch</string>
            </attribute>
@@ -1250,7 +1250,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_7">
+          <widget class="QWidget" name="BELOWWABA">
            <attribute name="title">
             <string>Below Pinch</string>
            </attribute>

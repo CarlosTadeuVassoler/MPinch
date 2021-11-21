@@ -813,7 +813,7 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 												Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
 												Thski[i][si][sk1][k1] = Thfinal01[i][si]
 
-										#Temperatura final dos estágios e sub-estágios
+								#Temperatura final dos estágios e sub-estágios
 								for k1 in range(nstages):
 									for sk1 in range(nsk):
 										if k1 < (k):

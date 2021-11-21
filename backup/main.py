@@ -21,41 +21,85 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
+
 from prog_carlos import *
 from prog_carlos_abaixo import *
 from converter_unidades import *
+
 from matplotlib.figure import Figure
 
-
-
-app=QtWidgets.QApplication([])
-dlg=uic.loadUi("MPinch.ui")
-dlg.lineEdit.setPlaceholderText("K")
-dlg.lineEdit2.setPlaceholderText("K")
-dlg.lineEdit3.setPlaceholderText("kW/K")
-dlg.lineEdit3_2.setPlaceholderText("kW/(m²K)")
 
 matriz = []
 matriz_armazenada = []
 matriz_trocadores_abaixo = []
 utilidades = []
 utilidades_abaixo = []
+
+app=QtWidgets.QApplication([])
+dlg=uic.loadUi("MPinch.ui")
+
+dlg.lineEdit.setPlaceholderText("K")
+dlg.lineEdit2.setPlaceholderText("K")
+dlg.lineEdit3.setPlaceholderText("kW/K")
+dlg.lineEdit3_2.setPlaceholderText("kW/(m²K)")
+
+n=0
+pinch=0
+correntes=[]
+dT=[2,2,2]
+Tmin=0
+Tmax=0
 dTmin = 10
+Tdecre=[]
+cascat2certo=[]
 donee=0
+caixinha=dlg.caixinha
+tabwid=dlg.tableWidget
+flagplot=0
+dH=0
 cascat=[]
+utilidadesquente=0
+caixinha3=dlg.caixinha3
+caixinha4=dlg.caixinha4
+estagios=[0]
 nstages=2
+pinchf=0
+pinchq=0
+menor=0
+cascat2=[]
 unidadeusada=["Temperature (K)","Enthalpy (kJ)","Enthalpy (kJ)"]
 alreadypinched=0
 plotou=0
+utilidadesquente=0
+ncold=0
+nhot=0
 correntesncorrigidas=[]
 correntestrocador=[]
+nlinhas=1
+nlinhas2=1
+somatorio=0
+somatorio2=0
+estagio=0
+qsi=0
+qsj=0
+fracao_quente=0
+fracao_fria=0
+ccold=0
+chot=0
+Fharr=0
+Fcarr=0
+ncoldc=0
+nhotc=0
+Qtabela0 = Qhot0 = Qcold0 = Thin0 = Tcout0 =0
+opcao = 0
+alternativa = 0
+ntrocadores = []
+Qarr = np.array ([0])
 
 
 def openfile():
-	global n
-	n = 0
-
 	dlg.tableWidget.blockSignals(True)
+	global n
 	Tk().withdraw()
 	filename = askopenfilename()
 	workbook = xlrd.open_workbook(filename)
@@ -95,6 +139,7 @@ def openfile():
 
 def colocarunidadestemp(temptable):
 	temptable=str(temptable)
+	#print(temptable)
 	if (dlg.comboBox.currentText()) == 'Kelvin':
 		temptable=temptable[0:] + ' K'
 	else:
@@ -103,13 +148,14 @@ def colocarunidadestemp(temptable):
 
 def colocarunidadescp(temptable):
 	temptable=str(temptable)
+	#print(temptable)
 	if (dlg.comboBox.currentText()) == 'Kelvin':
 		temptable=temptable[0:] + ' kW/K'
 	else:
 		temptable=temptable[0:] + ' Btu/ºF'
 	return temptable
 
-def HotnCold (tin,ten,i) :      #ve se é corrente quente ou fria
+def HotnCold (tin,ten,i,) :      #ve se é corrente quente ou fria
 	global ncold,nhot
 	if tin < ten:
 		dlg.tableWidget.setItem(i, 3, QTableWidgetItem('Cold'))
@@ -179,9 +225,8 @@ def apertaradd () :
 	dlg.tableWidget.blockSignals(False)
 
 def apertardone () :
-	global correntes, dTmin, correntesncorrigidas
+	global correntes, dTmin, correntesncorrigidas, ntrocadores
 	global donee
-	correntes = []
 	donee=1
 	for i in range (n):#[0]=Tent  [1]=Tsai  [2]=CP  [3]=tipo
 		x1=[]
@@ -204,38 +249,24 @@ def apertardone () :
 	#print(correntesncorrigidas,correntes)
 	correntes[1][2]=1.5
 	correntestrocadorr()
+	ntrocadores=[0]*n
 
 def apertarpinchbutton():
 	global donee,alreadypinched,plotou, Th0, Thf, CPh, Tc0, Tcf, CPc
+	#print(donee)
 	Th0, Thf, CPh, Tc0, Tcf, CPc = [], [], [], [], [], []
 	if donee == 1 :
 		global correntes, dTmin, Tdecre, Tmin, Tmax, cascat2certo ,dT, estagios,cascat2,utilidadesquente,menor,pinchf,pinchq
 		global n
 		global dT
-		Tdecre = []
-		Tmin=0
-		Tmax=0
-		cascat2certo=[]
-		dT=[2,2,2]
-		estagios=[0]
-		cascat2=[]
-		utilidadesquente=0
-		pinchf=0
-		pinchq=0
-		menor=0
-		pinch=0
-		dH = 0
 		dTmin, Tdecre, Tmin, Tmax, cascat2certo,dT,pinchf,pinchq,cascat2,utilidadesquente,menor = pontopinch(correntes, n, dTmin, Tdecre, Tmin, Tmax, cascat2certo, dT,pinch,dH,cascat,utilidadesquente,menor,cascat2)
-		caixinha=dlg.caixinha
-		tabwid=dlg.tableWidget
-		flagplot=0
-		caixinha3=dlg.caixinha3
-		caixinha4=dlg.caixinha4
+		#print(dT)
 		plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch,unidadeusada,plotou)
 		plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
 		plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
 		estagios=estruturas(correntes, n, dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,estagios)
 		trocador(correntes, n,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,estagios)
+		#print(nhot,ncold,correntesncorrigidas)
 		for i in range (n): #correção das temperaturas
 			if correntesncorrigidas[i][3] == "Hot":
 				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) + (dTmin)/2
@@ -253,7 +284,10 @@ def apertarpinchbutton():
 				Tc0.append(correntesncorrigidas[i][0])
 				Tcf.append(correntesncorrigidas[i][1])
 				CPc.append(correntesncorrigidas[i][2])
+		#tudo(Th0, Thf, CPh, Tc0, Tcf, CPc)
 
+		#abaixo(correntes,pinchq,pinchf,n,nhot,ncold)
+		#acima(correntes,pinchq,pinchf,n,nhot,ncold)
 		dlg.tabWidget.setTabEnabled(1,True)
 		dlg.tabWidget.setTabEnabled(2,True)
 		dlg.tabWidget.setTabEnabled(3,True)
@@ -270,12 +304,31 @@ def apertarpinchbutton():
 		printar()
 		printar_abaixo()
 		correntesnoscombos(nhot,ncold)
+		#print(correntes,correntes,correntes)
 		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
 		dlg.comboBox_51.setEnabled(True) #fechar combobox de subcold stream
 		dlg.comboBox_53.setEnabled(True) #fechar combobox de subhot stream
 		dlg.comboBox_54.setEnabled(True) #fechar combobox de subcold stream
 
 		return alreadypinched,plotou
+
+def grandcomposite () :
+	dlg.canvas2.hide()
+	dlg.canvas3.show()
+
+def THD () :
+	dlg.canvas3.hide()
+	dlg.canvas2.show()
+
+def ligarspins():
+	if dlg.comboBox_5.currentIndex() != 0:
+		dlg.doubleSpinBox.setEnabled(True)
+	else:
+		dlg.doubleSpinBox.setEnabled(False)
+	if dlg.comboBox_50.currentIndex() != 0:
+		dlg.doubleSpinBox_2.setEnabled(True)
+	else:
+		dlg.doubleSpinBox_2.setEnabled(False)
 
 def addsetashot ():
 	dlg.label_12 = QtWidgets.QLabel(dlg)
@@ -302,6 +355,49 @@ def addsetascold ():
 	dlg.label_12.setMaximumSize(750,150)
 	dlg.gridLayout_7.addWidget(dlg.label_12)
 	dlg.label_12.show()
+
+def correntesnoscombos(nhot,ncold): #preenche as caixinhas
+
+	nstages=2
+	nsubstages=2
+
+	for i in range (nhot):
+		dlg.comboBox_2.addItem(str(i+1))     #acima   add heat ex
+		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
+		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
+		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
+		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
+		dlg.comboBox_54.addItem(str(i+1))
+	for i in range (ncold):
+		dlg.comboBox_5.addItem(str(i+1))      #acima add heat ex
+		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
+		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
+		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
+		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
+		dlg.comboBox_53.addItem(str(i+1))
+	for i in range (nstages):
+		dlg.comboBox_8.addItem(str(i+1))    #acima
+		dlg.comboBox_39.addItem(str(i+1))   #abaixo
+	for i in range (nsubstages):
+		dlg.comboBox_7.addItem(str(i+1))    #acima
+		dlg.comboBox_40.addItem(str(i+1))    #abaixo
+
+def criarrede2():      #funçao nao utilizada
+	dlg.rede=pg.GraphicsLayoutWidget()
+	hour = [1,2,3,4,5,6,7,8,9,10]
+	temperature = [30,32,34,32,33,31,29,32,35,45]
+	a1 = pg.ArrowItem(angle=0, tipAngle=90, headLen=40, tailLen=50, tailWidth=15, pen={'color': 'r', 'width': 3}, clickable=True)
+	a1.setPos(10,0)
+	p=dlg.rede.addPlot(row=0, col=0)
+	p.addItem(a1)
+	c=pg.plot(hour, temperature)
+	dlg.rede.setBackground('w')
+	p.hideAxis('left')
+	dlg.gridLayout_8.addWidget(dlg.rede)
+	p.addItem(c)
+	def cormud():
+		c.setPen('rgb'[2], width=3)
+	c.sigClicked.connect(cormud)
 
 def criarrede():       #funçao que cria as setas
 	dlg.rede=pg.PlotWidget()
@@ -344,42 +440,98 @@ def correntestrocadorr():
 		for j in range (4):
 			x.append(correntes[i][j])
 		correntestrocador.append(x)
+	#print("correntestrocador",correntestrocador)
+
+def checaresgotadosacima():
+	contadordutycold = 0
+	contadordutyhot = 0
+
+	for corrente in range(nhot):
+		if dividida_quente[corrente]:
+			for sub in range(quantidade_quente[corrente]):
+				if calor_atual_quente_sub[corrente][sub] == 0:
+					contadordutyhot += 1
+		else:
+			if calor_atual_quente[corrente] == 0:
+				contadordutyhot += 1
+	for corrente in range(ncold):
+		if dividida_fria[corrente]:
+			for sub in range(quantidade_fria[corrente]):
+				if calor_atual_frio_sub[corrente][sub] == 0:
+					contadordutycold += 1
+		else:
+			if calor_atual_frio[corrente] == 0:
+				contadordutycold += 1
+
+	objetivo_quente = 0
+	objetivo_frio = 0
+
+	for i in quantidade_quente:
+		objetivo_quente += i
+	for i in quantidade_fria:
+		objetivo_frio += i
+
+	if contadordutyhot == objetivo_quente:
+		dlg.comboBox_10.setEnabled(True)
+		dlg.pushButton_8.setEnabled(True)
+	if contadordutycold == objetivo_frio:
+		dlg.comboBox_9.setEnabled(True)
+		dlg.pushButton_7.setEnabled(True)
+	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
+		dlg.comboBox_9.setEnabled(False)
+		dlg.comboBox_10.setEnabled(False)
+		dlg.pushButton_7.setEnabled(False)
+		dlg.pushButton_8.setEnabled(False)
+
+def checaresgotadosabaixo():
+	contadordutyhot=0
+	contadordutycold=0
+
+	for corrente in range(nhot):
+		if dividida_quente_abaixo[corrente]:
+			for sub in range(quantidade_quente_abaixo[corrente]):
+				if calor_atual_quente_sub_abaixo[corrente][sub] == 0:
+					contadordutyhot += 1
+		else:
+			if calor_atual_quente_abaixo[corrente] == 0:
+				contadordutyhot += 1
+	for corrente in range(ncold):
+		if dividida_fria_abaixo[corrente]:
+			for sub in range(quantidade_fria_abaixo[corrente]):
+				if calor_atual_frio_sub_abaixo[corrente][sub] == 0:
+					contadordutycold += 1
+		else:
+			if calor_atual_frio_abaixo[corrente] == 0:
+				contadordutycold += 1
+
+	objetivo_quente = 0
+	objetivo_frio = 0
+
+	for i in quantidade_quente_abaixo:
+		objetivo_quente += i
+	for i in quantidade_fria_abaixo:
+		objetivo_frio += i
+
+	if contadordutyhot == objetivo_quente:
+		dlg.comboBox_44.setEnabled(True)
+		dlg.pushButton_21.setEnabled(True)
+	if contadordutycold == objetivo_frio:
+		dlg.comboBox_43.setEnabled(True)
+		dlg.pushButton_20.setEnabled(True)
+	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
+		dlg.comboBox_43.setEnabled(False)
+		dlg.comboBox_44.setEnabled(False)
+		dlg.pushButton_20.setEnabled(False)
+		dlg.pushButton_21.setEnabled(False)
 
 
 
 
 
 
-def correntesnoscombos(nhot,ncold):
-
-	nstages=2
-	nsubstages=2
-
-	for i in range (nhot):
-		dlg.comboBox_2.addItem(str(i+1))     #acima   add heat ex
-		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
-		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
-		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
-		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
-		dlg.comboBox_54.addItem(str(i+1))
-	for i in range (ncold):
-		dlg.comboBox_5.addItem(str(i+1))      #acima add heat ex
-		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
-		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
-		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
-		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
-		dlg.comboBox_53.addItem(str(i+1))
-	for i in range (nstages):
-		dlg.comboBox_8.addItem(str(i+1))    #acima
-		dlg.comboBox_39.addItem(str(i+1))   #abaixo
-	for i in range (nsubstages):
-		dlg.comboBox_7.addItem(str(i+1))    #acima
-		dlg.comboBox_40.addItem(str(i+1))    #abaixo
-
-def violou_dtmin(dados_do_trocador, onde):
+def violou_dtmin(dados_do_trocador, onde, indice):
 	trocadores_comparacao = []
 	if onde == "below":
-		indice = len(matriz_armazenada) - 1
 		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
 		printar_abaixo()
 		checaresgotadosabaixo()
@@ -489,75 +641,6 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
 
-
-def teste(violou, trocadores_violados):
-	dlg.dteste = uic.loadUi("dteste.ui")
-	dlg.dteste.show()
-
-	def ignore(violou, trocadores_violados, i):
-		trocadores_violados.pop(i-1)
-		violou -= 1
-		if violou > 0:
-			teste(violou, trocadores_violados)
-		else:
-			dlg.dteste.close()
-
-	def remove(violou, trocadores_violados, r):
-		trocadores_comparacao = []
-		violado_comparacao = trocadores_violados[r-1][:6]
-		for i in range(len(matriz_armazenada)):
-			trocadores_comparacao.append(matriz_armazenada[i][:6])
-			for j in range(len(trocadores_comparacao[i])):
-				trocadores_comparacao[i][j] -= 1
-
-		indice = ([i for i in range(len(matriz_armazenada)) if violado_comparacao == trocadores_comparacao[i]])
-		dados_do_trocador = matriz_armazenada[indice[0]][:7]
-		violou, trocadores_violados = remover_trocador(dlg, dados_do_trocador, indice[0], matriz_armazenada)
-		if violou > 0:
-			teste(violou, trocadores_violados)
-		else:
-			dlg.dteste.close()
-		printar()
-		checaresgotadosacima()
-
-	trocador = [0] * violou
-	dtquente = [0] * violou
-	dtfrio = [0] * violou
-	botao_ignore = [0] * violou
-	botao_remove = [0] * violou
-
-	for i in range(violou):
-		trocador[i] = QtWidgets.QLabel("Heat Exchanger: {}".format(i+1))
-		dtquente[i] = QtWidgets.QLabel("Hot Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][6])))))
-		dtfrio[i] = QtWidgets.QLabel("Cold Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][7])))))
-		botao_ignore[i] = QtWidgets.QPushButton("Ignore")
-		botao_remove[i] = QtWidgets.QPushButton("Remove Heat Exchanger")
-
-		dlg.dteste.informacoes.addWidget(trocador[i])
-		dlg.dteste.informacoes.addWidget(dtquente[i])
-		dlg.dteste.informacoes.addWidget(dtfrio[i])
-		dlg.dteste.informacoes.addWidget(botao_ignore[i])
-		dlg.dteste.informacoes.addWidget(botao_remove[i])
-
-		trocador[i].setAlignment(Qt.AlignCenter)
-		trocador[i].setStyleSheet("QLabel {font: 12pt}")
-		dtquente[i].setAlignment(Qt.AlignCenter)
-		dtquente[i].setStyleSheet("QLabel {font: 12pt}")
-		dtfrio[i].setAlignment(Qt.AlignCenter)
-		dtfrio[i].setStyleSheet("QLabel {font: 12pt}")
-		botao_ignore[i].setStyleSheet("QPushButton {font: 10pt}")
-		botao_remove[i].setStyleSheet("QPushButton {font: 10pt}")
-
-		if trocadores_violados[i][6] < dTmin:
-			dtquente[i].setStyleSheet("QLabel {color: red; font: 12pt}")
-		if trocadores_violados[i][7] < dTmin:
-			dtfrio[i].setStyleSheet("QLabel {color: red; font: 12pt}")
-
-
-
-		#botao_ignore[i].clicked.connect(lambda: ignore(violou, trocadores_violados, i))
-		#botao_remove[i].clicked.connect(lambda: remove(violou, trocadores_violados, i))
-
 #above
 def printar():
 	dlg.tableWidget_3.clearContents()
@@ -648,12 +731,23 @@ def printar():
 def inserir_teste():
 	dados_do_trocador = ler_dados(dlg)
 	try:
-		nova_matriz, violou, trocadores_violados = inserir_trocador(dlg, dados_do_trocador)
+		nova_matriz, violou, dtminviolado, dtminvioladofrio = inserir_trocador(dlg, dados_do_trocador)
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
 		return
-	if violou > 0:
-		teste(violou, trocadores_violados)
+	if violou:
+		dlg.dtmin = uic.loadUi("dtmin.ui")
+		dlg.dtmin.show()
+		text = "ΔT = " + str(float('{:.1f}'.format(dtminviolado)))
+		textfrio = "ΔT = " + str(float('{:.1f}'.format(dtminvioladofrio)))
+		dlg.dtmin.label_3.setText(text)
+		dlg.dtmin.label_4.setText(textfrio)
+		if dtminviolado < dTmin:
+			dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
+		if dtminvioladofrio < dTmin:
+			dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
+		dlg.dtmin.pushButton.clicked.connect(lambda: violou_dtmin(dados_do_trocador, "above"))
+		dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
 		printar()
 		checaresgotadosacima()
 	else:
@@ -715,47 +809,6 @@ def calcular_calor_teste():
 
 	dlg.TempLoadAbove.pushButton_2.clicked.connect(lambda: dlg.TempLoadAbove.close())
 	dlg.TempLoadAbove.pushButton.clicked.connect(lambda: caixa_de_temperatura(dlg))
-
-def checaresgotadosacima():
-	contadordutycold = 0
-	contadordutyhot = 0
-
-	for corrente in range(nhot):
-		if dividida_quente[corrente]:
-			for sub in range(quantidade_quente[corrente]):
-				if calor_atual_quente_sub[corrente][sub] == 0:
-					contadordutyhot += 1
-		else:
-			if calor_atual_quente[corrente] == 0:
-				contadordutyhot += 1
-	for corrente in range(ncold):
-		if dividida_fria[corrente]:
-			for sub in range(quantidade_fria[corrente]):
-				if calor_atual_frio_sub[corrente][sub] == 0:
-					contadordutycold += 1
-		else:
-			if calor_atual_frio[corrente] == 0:
-				contadordutycold += 1
-
-	objetivo_quente = 0
-	objetivo_frio = 0
-
-	for i in quantidade_quente:
-		objetivo_quente += i
-	for i in quantidade_fria:
-		objetivo_frio += i
-
-	if contadordutyhot == objetivo_quente:
-		dlg.comboBox_10.setEnabled(True)
-		dlg.pushButton_8.setEnabled(True)
-	if contadordutycold == objetivo_frio:
-		dlg.comboBox_9.setEnabled(True)
-		dlg.pushButton_7.setEnabled(True)
-	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
-		dlg.comboBox_9.setEnabled(False)
-		dlg.comboBox_10.setEnabled(False)
-		dlg.pushButton_7.setEnabled(False)
-		dlg.pushButton_8.setEnabled(False)
 
 
 #below
@@ -940,48 +993,6 @@ def calcular_calor_abaixo():
 
 	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg))
 	dlg.TempLoadBelow.pushButton_2.clicked.connect(lambda: dlg.TempLoadBelow.close())
-
-def checaresgotadosabaixo():
-	contadordutyhot=0
-	contadordutycold=0
-
-	for corrente in range(nhot):
-		if dividida_quente_abaixo[corrente]:
-			for sub in range(quantidade_quente_abaixo[corrente]):
-				if calor_atual_quente_sub_abaixo[corrente][sub] == 0:
-					contadordutyhot += 1
-		else:
-			if calor_atual_quente_abaixo[corrente] == 0:
-				contadordutyhot += 1
-	for corrente in range(ncold):
-		if dividida_fria_abaixo[corrente]:
-			for sub in range(quantidade_fria_abaixo[corrente]):
-				if calor_atual_frio_sub_abaixo[corrente][sub] == 0:
-					contadordutycold += 1
-		else:
-			if calor_atual_frio_abaixo[corrente] == 0:
-				contadordutycold += 1
-
-	objetivo_quente = 0
-	objetivo_frio = 0
-
-	for i in quantidade_quente_abaixo:
-		objetivo_quente += i
-	for i in quantidade_fria_abaixo:
-		objetivo_frio += i
-
-	if contadordutyhot == objetivo_quente:
-		dlg.comboBox_44.setEnabled(True)
-		dlg.pushButton_21.setEnabled(True)
-	if contadordutycold == objetivo_frio:
-		dlg.comboBox_43.setEnabled(True)
-		dlg.pushButton_20.setEnabled(True)
-	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
-		dlg.comboBox_43.setEnabled(False)
-		dlg.comboBox_44.setEnabled(False)
-		dlg.pushButton_20.setEnabled(False)
-		dlg.pushButton_21.setEnabled(False)
-
 
 
 

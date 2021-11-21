@@ -564,6 +564,9 @@ def inserir_trocador_abaixo(dlg, vetor):
 			Tcki[j][k] = Tcf[j]
 			Tckf[j][k] = Tcf[j]
 
+	violou_teste = 0
+	trocador_violou.clear()
+
 	# CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range (nstages):
 		for sk in range (nsk):
@@ -629,7 +632,8 @@ def inserir_trocador_abaixo(dlg, vetor):
 										violou = False
 									else:
 										violou = True
-										trocador_violou.append([i, j, si, sj, sk, k])
+										trocador_violou.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
+										violou_teste += 1
 
 									if dividida_quente_abaixo[i]:
 										temperatura_atual_quente_abaixo[i][si] = Thout[i][si][j][sj][sk][k]
@@ -719,7 +723,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, tempdif, tempdif_terminal_frio
+	return linha_interface_abaixo, violou_teste, tempdif, tempdif_terminal_frio
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]
