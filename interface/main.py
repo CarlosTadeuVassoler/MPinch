@@ -350,6 +350,8 @@ def correntestrocadorr():
 
 
 
+
+
 def correntesnoscombos(nhot,ncold):
 
 	nstages=2
@@ -489,74 +491,86 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
 
-
 def teste(violou, trocadores_violados):
 	dlg.dteste = uic.loadUi("dteste.ui")
 	dlg.dteste.show()
 
-	def ignore(violou, trocadores_violados, i):
-		trocadores_violados.pop(i-1)
-		violou -= 1
-		if violou > 0:
-			teste(violou, trocadores_violados)
-		else:
-			dlg.dteste.close()
+	class botao_ignore:
+		def __init__(self, violou, trocadores_violados, i):
+			self.botao = QtWidgets.QPushButton("Ignore")
+			self.botao.clicked.connect(lambda: self.ignore(violou, trocadores_violados, i))
+			self.botao.setStyleSheet("QPushButton {font: 10pt}")
+			dlg.dteste.informacoes.addWidget(self.botao)
 
-	def remove(violou, trocadores_violados, r):
-		trocadores_comparacao = []
-		violado_comparacao = trocadores_violados[r-1][:6]
-		for i in range(len(matriz_armazenada)):
-			trocadores_comparacao.append(matriz_armazenada[i][:6])
-			for j in range(len(trocadores_comparacao[i])):
-				trocadores_comparacao[i][j] -= 1
+		def ignore(self, violou, trocadores_violados, i):
+			trocadores_violados.pop(i)
+			violou -= 1
+			if violou > 0:
+				teste(violou, trocadores_violados)
+			else:
+				printar()
+				dlg.dteste.close()
 
-		indice = ([i for i in range(len(matriz_armazenada)) if violado_comparacao == trocadores_comparacao[i]])
-		dados_do_trocador = matriz_armazenada[indice[0]][:7]
-		violou, trocadores_violados = remover_trocador(dlg, dados_do_trocador, indice[0], matriz_armazenada)
-		if violou > 0:
-			teste(violou, trocadores_violados)
-		else:
-			dlg.dteste.close()
-		printar()
-		checaresgotadosacima()
+	class botao_remove:
+		def __init__(self, violou, trocadores_violados, i):
+			self.botao = QtWidgets.QPushButton("Remove Heat Exchanger")
+			self.botao.clicked.connect(lambda: self.remove(violou, trocadores_violados, i))
+			self.botao.setStyleSheet("QPushButton {font: 10pt}")
+			dlg.dteste.informacoes.addWidget(self.botao)
+
+		def remove(self, violou, trocadores_violados, r):
+			trocadores_comparacao = []
+			violado_comparacao = trocadores_violados[r][:6]
+			for i in range(len(matriz_armazenada)):
+				trocadores_comparacao.append(matriz_armazenada[i][:6])
+				for j in range(len(trocadores_comparacao[i])):
+					trocadores_comparacao[i][j] -= 1
+
+			indice = ([i for i in range(len(matriz_armazenada)) if violado_comparacao == trocadores_comparacao[i]])
+			dados_do_trocador = matriz_armazenada[indice[0]][:7]
+			violou, trocadores_violados = remover_trocador(dlg, dados_do_trocador, indice[0], matriz_armazenada)
+			if violou > 0:
+				teste(violou, trocadores_violados)
+			else:
+				dlg.dteste.close()
+			printar()
+			checaresgotadosacima()
 
 	trocador = [0] * violou
 	dtquente = [0] * violou
 	dtfrio = [0] * violou
-	botao_ignore = [0] * violou
-	botao_remove = [0] * violou
 
 	for i in range(violou):
-		trocador[i] = QtWidgets.QLabel("Heat Exchanger: {}".format(i+1))
-		dtquente[i] = QtWidgets.QLabel("Hot Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][6])))))
-		dtfrio[i] = QtWidgets.QLabel("Cold Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][7])))))
-		botao_ignore[i] = QtWidgets.QPushButton("Ignore")
-		botao_remove[i] = QtWidgets.QPushButton("Remove Heat Exchanger")
+		#obter qual o trocador que violou pra printar
+		trocador_atual = trocadores_violados[i][:6]
+		trocadores_comparacao = []
+		for j in range(len(matriz_armazenada)):
+			trocadores_comparacao.append(matriz_armazenada[j][:6])
+			for k in range(len(trocadores_comparacao[j])):
+				trocadores_comparacao[j][k] -= 1
+		num = ([j for j in range(len(matriz_armazenada)) if trocadores_comparacao[j] == trocador_atual])
+		trocador[i] = QtWidgets.QLabel("Heat Exchanger: {}".format(num[0]+1))
 
+		#criando o resto das Label
+		dtquente[i] = QtWidgets.QLabel("Hot Terminal:  ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][6])))))
+		dtfrio[i] = QtWidgets.QLabel("Cold Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][7])))))
 		dlg.dteste.informacoes.addWidget(trocador[i])
 		dlg.dteste.informacoes.addWidget(dtquente[i])
 		dlg.dteste.informacoes.addWidget(dtfrio[i])
-		dlg.dteste.informacoes.addWidget(botao_ignore[i])
-		dlg.dteste.informacoes.addWidget(botao_remove[i])
-
+		botao_atual_ignore = botao_ignore(violou, trocadores_violados, i)
+		botao_atual_remove = botao_remove(violou, trocadores_violados, i)
 		trocador[i].setAlignment(Qt.AlignCenter)
 		trocador[i].setStyleSheet("QLabel {font: 12pt}")
 		dtquente[i].setAlignment(Qt.AlignCenter)
 		dtquente[i].setStyleSheet("QLabel {font: 12pt}")
 		dtfrio[i].setAlignment(Qt.AlignCenter)
 		dtfrio[i].setStyleSheet("QLabel {font: 12pt}")
-		botao_ignore[i].setStyleSheet("QPushButton {font: 10pt}")
-		botao_remove[i].setStyleSheet("QPushButton {font: 10pt}")
 
 		if trocadores_violados[i][6] < dTmin:
 			dtquente[i].setStyleSheet("QLabel {color: red; font: 12pt}")
 		if trocadores_violados[i][7] < dTmin:
 			dtfrio[i].setStyleSheet("QLabel {color: red; font: 12pt}")
 
-
-
-		#botao_ignore[i].clicked.connect(lambda: ignore(violou, trocadores_violados, i))
-		#botao_remove[i].clicked.connect(lambda: remove(violou, trocadores_violados, i))
 
 #above
 def printar():
@@ -674,7 +688,9 @@ def remover_teste():
 		dlg.comboBox_10.setEnabled(False)
 		dlg.pushButton_8.setEnabled(False)
 		trocador_remover = matriz_armazenada[indice_remover]
-		remover_trocador(dlg, trocador_remover, indice_remover, matriz_armazenada)
+		violou, trocadores_violados = remover_trocador(dlg, trocador_remover, indice_remover, matriz_armazenada)
+		if violou > 0:
+			teste(violou, trocadores_violados)
 		atualizar_matriz(matriz_armazenada)
 	else:
 		indice_remover = dlg.tableWidget_2.currentRow() - len(matriz_armazenada)

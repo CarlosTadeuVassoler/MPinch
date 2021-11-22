@@ -615,8 +615,6 @@ def inserir_trocador_abaixo(dlg, vetor):
 
 								tempdif = (Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k])
 								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
-								violou = False
-								violou_termo = False
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
 									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
