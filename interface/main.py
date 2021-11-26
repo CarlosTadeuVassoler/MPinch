@@ -525,7 +525,6 @@ def teste(violou, trocadores_violados):
 				trocadores_comparacao.append(matriz_armazenada[i][:6])
 				for j in range(len(trocadores_comparacao[i])):
 					trocadores_comparacao[i][j] -= 1
-
 			indice = ([i for i in range(len(matriz_armazenada)) if violado_comparacao == trocadores_comparacao[i]])
 			dados_do_trocador = matriz_armazenada[indice[0]][:7]
 			violou, trocadores_violados = remover_trocador(dlg, dados_do_trocador, indice[0], matriz_armazenada)
@@ -665,7 +664,7 @@ def inserir_teste():
 		nova_matriz, violou, trocadores_violados = inserir_trocador(dlg, dados_do_trocador)
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
-		return
+		print("erro inserir teste")
 	if violou > 0:
 		teste(violou, trocadores_violados)
 		printar()
@@ -684,7 +683,7 @@ def remover_teste():
 						try:
 							remover_utilidade(i+1, j, utilidades)
 						except:
-							pass
+							print("erro remover teste")
 		dlg.comboBox_10.setEnabled(False)
 		dlg.pushButton_8.setEnabled(False)
 		trocador_remover = matriz_armazenada[indice_remover]
@@ -706,7 +705,7 @@ def utilidade_teste_acima():
 		utilidades.append(utilidadee[-1])
 		utilidades.sort()
 	except:
-		pass
+		print("erro utilidade teste acima")
 	printar()
 
 def calcular_calor_teste():
@@ -737,29 +736,15 @@ def checaresgotadosacima():
 	contadordutyhot = 0
 
 	for corrente in range(nhot):
-		if dividida_quente[corrente]:
-			for sub in range(quantidade_quente[corrente]):
-				if calor_atual_quente_sub[corrente][sub] == 0:
-					contadordutyhot += 1
-		else:
-			if calor_atual_quente[corrente] == 0:
-				contadordutyhot += 1
+		if calor_atual_quente[corrente] == 0:
+			contadordutyhot += 1
 	for corrente in range(ncold):
-		if dividida_fria[corrente]:
-			for sub in range(quantidade_fria[corrente]):
-				if calor_atual_frio_sub[corrente][sub] == 0:
-					contadordutycold += 1
-		else:
-			if calor_atual_frio[corrente] == 0:
-				contadordutycold += 1
+		if calor_atual_frio[corrente] == 0:
+			contadordutycold += 1
 
-	objetivo_quente = 0
-	objetivo_frio = 0
+	objetivo_quente = nhot
+	objetivo_frio = ncold
 
-	for i in quantidade_quente:
-		objetivo_quente += i
-	for i in quantidade_fria:
-		objetivo_frio += i
 
 	if contadordutyhot == objetivo_quente:
 		dlg.comboBox_10.setEnabled(True)
@@ -867,7 +852,7 @@ def inserir_teste_abaixo():
 	try:
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
-		print("nao foi")
+		print("erro, inserir teste abaixo")
 		return
 	violados_comparacao = []
 	if violou > 0:
@@ -910,7 +895,7 @@ def remover_teste_abaixo():
 						try:
 							remover_utilidade_abaixo(i+1, j, utilidades_abaixo)
 						except:
-							pass
+							print("erro remover teste abaixo")
 		dlg.comboBox_43.setEnabled(False)
 		dlg.pushButton_20.setEnabled(False)
 		trocador_remover = matriz_trocadores_abaixo[indice_remover]
@@ -930,7 +915,7 @@ def utilidade_teste_abaixo():
 		utilidades_abaixo.append(utilidadee[-1])
 		utilidades_abaixo.sort()
 	except:
-		pass
+		print("utilidade teste abaixo")
 	printar_abaixo()
 
 def calcular_calor_abaixo():
