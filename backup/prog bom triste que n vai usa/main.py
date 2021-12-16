@@ -378,47 +378,24 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_7.addItem(str(i+1))    #acima
 		dlg.comboBox_40.addItem(str(i+1))    #abaixo
 
-def violou_dtmin(trocador_violado, onde, dados_do_trocador):
-	dlg.dtmin = uic.loadUi("dtmin.ui")
-	dlg.dtmin.show()
-	text = "ΔT = " + str(float('{:.1f}'.format(trocador_violado[6])))
-	textfrio = "ΔT = " + str(float('{:.1f}'.format(trocador_violado[7])))
-
-	if onde == "above":
-		dlg.dtmin.label_7.setText(str(len(matriz_armazenada)))
-		dlg.dtmin.pushButton.clicked.connect(lambda: above(dados_do_trocador))
+def violou_dtmin(dados_do_trocador, onde):
+	trocadores_comparacao = []
 	if onde == "below":
-		dlg.dtmin.label_7.setText(str(len(matriz_trocadores_abaixo)))
-		dlg.dtmin.pushButton.clicked.connect(lambda: below(dados_do_trocador))
-
-	dlg.dtmin.label_3.setText(text)
-	dlg.dtmin.label_4.setText(textfrio)
-
-	if trocador_violado[6] < dTmin:
-		dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
-	if trocador_violado[7] < dTmin:
-		dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
-
-	dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
-
-
-	def above(dados_do_trocador):
+		indice = len(matriz_armazenada) - 1
+		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
+		printar_abaixo()
+		checaresgotadosabaixo()
+		dlg.comboBox_43.setEnabled(False)
+		dlg.pushButton_20.setEnabled(False)
+		dlg.dtmin.close()
+	if onde == "above":
 		indice = len(matriz_armazenada) - 1
 		remover_trocador(dlg, dados_do_trocador, indice, matriz_armazenada)
 		printar()
 		checaresgotadosacima()
+		dlg.comboBox_10.setEnabled(False)
+		dlg.pushButton_8.setEnabled(False)
 		dlg.dtmin.close()
-
-	def below(dados_do_trocacdor):
-		indice = len(matriz_trocadores_abaixo) - 1
-		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
-		printar_abaixo()
-		checaresgotadosabaixo()
-		dlg.dtmin.close()
-
-
-
-
 
 def dividir_corrente(divisao, onde):
 	global divtype
@@ -514,6 +491,85 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
 
+def teste(violou, trocadores_violados):
+	dlg.dteste = uic.loadUi("dteste.ui")
+	dlg.dteste.show()
+
+	class botao_ignore:
+		def __init__(self, violou, trocadores_violados, i):
+			self.botao = QtWidgets.QPushButton("Ignore")
+			self.botao.clicked.connect(lambda: self.ignore(violou, trocadores_violados, i))
+			self.botao.setStyleSheet("QPushButton {font: 10pt}")
+			dlg.dteste.informacoes.addWidget(self.botao)
+
+		def ignore(self, violou, trocadores_violados, i):
+			trocadores_violados.pop(i)
+			violou -= 1
+			if violou > 0:
+				teste(violou, trocadores_violados)
+			else:
+				printar()
+				dlg.dteste.close()
+
+	class botao_remove:
+		def __init__(self, violou, trocadores_violados, i):
+			self.botao = QtWidgets.QPushButton("Remove Heat Exchanger")
+			self.botao.clicked.connect(lambda: self.remove(violou, trocadores_violados, i))
+			self.botao.setStyleSheet("QPushButton {font: 10pt}")
+			dlg.dteste.informacoes.addWidget(self.botao)
+
+		def remove(self, violou, trocadores_violados, r):
+			trocadores_comparacao = []
+			violado_comparacao = trocadores_violados[r][:6]
+			for i in range(len(matriz_armazenada)):
+				trocadores_comparacao.append(matriz_armazenada[i][:6])
+				for j in range(len(trocadores_comparacao[i])):
+					trocadores_comparacao[i][j] -= 1
+			indice = ([i for i in range(len(matriz_armazenada)) if violado_comparacao == trocadores_comparacao[i]])
+			dados_do_trocador = matriz_armazenada[indice[0]][:7]
+			violou, trocadores_violados = remover_trocador(dlg, dados_do_trocador, indice[0], matriz_armazenada)
+			if violou > 0:
+				teste(violou, trocadores_violados)
+			else:
+				dlg.dteste.close()
+			printar()
+			checaresgotadosacima()
+
+	trocador = [0] * violou
+	dtquente = [0] * violou
+	dtfrio = [0] * violou
+
+	for i in range(violou):
+		#obter qual o trocador que violou pra printar
+		trocador_atual = trocadores_violados[i][:6]
+		trocadores_comparacao = []
+		for j in range(len(matriz_armazenada)):
+			trocadores_comparacao.append(matriz_armazenada[j][:6])
+			for k in range(len(trocadores_comparacao[j])):
+				trocadores_comparacao[j][k] -= 1
+		num = ([j for j in range(len(matriz_armazenada)) if trocadores_comparacao[j] == trocador_atual])
+		trocador[i] = QtWidgets.QLabel("Heat Exchanger: {}".format(num[0]+1))
+
+		#criando o resto das Label
+		dtquente[i] = QtWidgets.QLabel("Hot Terminal:  ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][6])))))
+		dtfrio[i] = QtWidgets.QLabel("Cold Terminal: ΔT = {}".format(str(float('{:.1f}'.format(trocadores_violados[i][7])))))
+		dlg.dteste.informacoes.addWidget(trocador[i])
+		dlg.dteste.informacoes.addWidget(dtquente[i])
+		dlg.dteste.informacoes.addWidget(dtfrio[i])
+		botao_atual_ignore = botao_ignore(violou, trocadores_violados, i)
+		botao_atual_remove = botao_remove(violou, trocadores_violados, i)
+		trocador[i].setAlignment(Qt.AlignCenter)
+		trocador[i].setStyleSheet("QLabel {font: 12pt}")
+		dtquente[i].setAlignment(Qt.AlignCenter)
+		dtquente[i].setStyleSheet("QLabel {font: 12pt}")
+		dtfrio[i].setAlignment(Qt.AlignCenter)
+		dtfrio[i].setStyleSheet("QLabel {font: 12pt}")
+
+		if trocadores_violados[i][6] < dTmin:
+			dtquente[i].setStyleSheet("QLabel {color: red; font: 12pt}")
+		if trocadores_violados[i][7] < dTmin:
+			dtfrio[i].setStyleSheet("QLabel {color: red; font: 12pt}")
+
 
 #above
 def printar():
@@ -605,12 +661,12 @@ def printar():
 def inserir_teste():
 	dados_do_trocador = ler_dados(dlg)
 	try:
-		nova_matriz, violou, trocador_violado = inserir_trocador(dlg, dados_do_trocador)
+		nova_matriz, violou, trocadores_violados = inserir_trocador(dlg, dados_do_trocador)
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
 		print("erro inserir teste")
-	if violou:
-		violou_dtmin(trocador_violado, "above", dados_do_trocador)
+	if violou > 0:
+		teste(violou, trocadores_violados)
 		printar()
 		checaresgotadosacima()
 	else:
@@ -631,7 +687,9 @@ def remover_teste():
 		dlg.comboBox_10.setEnabled(False)
 		dlg.pushButton_8.setEnabled(False)
 		trocador_remover = matriz_armazenada[indice_remover]
-		remover_trocador(dlg, trocador_remover, indice_remover, matriz_armazenada)
+		violou, trocadores_violados = remover_trocador(dlg, trocador_remover, indice_remover, matriz_armazenada)
+		if violou > 0:
+			teste(violou, trocadores_violados)
 		atualizar_matriz(matriz_armazenada)
 	else:
 		indice_remover = dlg.tableWidget_2.currentRow() - len(matriz_armazenada)
@@ -691,17 +749,9 @@ def checaresgotadosacima():
 	if contadordutyhot == objetivo_quente:
 		dlg.comboBox_10.setEnabled(True)
 		dlg.pushButton_8.setEnabled(True)
-	else:
-		dlg.comboBox_10.setEnabled(False)
-		dlg.pushButton_8.setEnabled(False)
-
 	if contadordutycold == objetivo_frio:
 		dlg.comboBox_9.setEnabled(True)
 		dlg.pushButton_7.setEnabled(True)
-	else:
-		dlg.comboBox_9.setEnabled(False)
-		dlg.pushButton_7.setEnabled(False)
-
 	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
 		dlg.comboBox_9.setEnabled(False)
 		dlg.comboBox_10.setEnabled(False)
@@ -798,13 +848,37 @@ def printar_abaixo():
 
 def inserir_teste_abaixo():
 	dados_do_trocador = ler_dados_abaixo(dlg)
+	nova_matriz, violou, dtminviolado, dtminvioladofrio = inserir_trocador_abaixo(dlg, dados_do_trocador)
 	try:
-		nova_matriz, violou, trocador_violado = inserir_trocador_abaixo(dlg, dados_do_trocador)
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
 		print("erro, inserir teste abaixo")
-	if violou:
-		violou_dtmin(trocador_violado, "below", dados_do_trocador)
+		return
+	violados_comparacao = []
+	if violou > 0:
+		trocadores_comparacao = []
+		for i in range(len(matriz_trocadores_abaixo)):
+			trocadores_comparacao.append(matriz_trocadores_abaixo[i][:7])
+		indice = ([i for i in range(len(trocadores_comparacao)) if trocadores_comparacao[i] == dados_do_trocador])
+		([violados_comparacao.append(trocador_violou[i][:6]) for i in range(violou)])
+		trocador_comparacao = dados_do_trocador[:6]
+		for i in range(len(trocador_comparacao)):
+			trocador_comparacao[i] -= 1
+		for i in range(violou):
+			if violados_comparacao[i] == trocador_comparacao:
+				dlg.dtmin = uic.loadUi("dtmin.ui")
+				dlg.dtmin.show()
+				text = "ΔT = " + str(float('{:.1f}'.format(trocador_violou[i][6])))
+				textfrio = "ΔT = " + str(float('{:.1f}'.format(trocador_violou[i][7])))
+				dlg.dtmin.label_7.setText(str(indice[0]+1))
+				dlg.dtmin.label_3.setText(text)
+				dlg.dtmin.label_4.setText(textfrio)
+				if trocador_violou[i][6] < dTmin:
+					dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
+				if trocador_violou[i][7] < dTmin:
+					dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
+				dlg.dtmin.pushButton.clicked.connect(lambda: violou_dtmin(dados_do_trocador, "below", indice[0]))
+				dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
 		printar_abaixo()
 		checaresgotadosabaixo()
 	else:
@@ -900,17 +974,9 @@ def checaresgotadosabaixo():
 	if contadordutyhot == objetivo_quente:
 		dlg.comboBox_44.setEnabled(True)
 		dlg.pushButton_21.setEnabled(True)
-	else:
-		dlg.comboBox_44.setEnabled(False)
-		dlg.pushButton_21.setEnabled(False)
-
 	if contadordutycold == objetivo_frio:
 		dlg.comboBox_43.setEnabled(True)
 		dlg.pushButton_20.setEnabled(True)
-	else:
-		dlg.comboBox_43.setEnabled(False)
-		dlg.pushButton_20.setEnabled(False)
-
 	if contadordutyhot == objetivo_quente and contadordutycold == objetivo_frio:
 		dlg.comboBox_43.setEnabled(False)
 		dlg.comboBox_44.setEnabled(False)

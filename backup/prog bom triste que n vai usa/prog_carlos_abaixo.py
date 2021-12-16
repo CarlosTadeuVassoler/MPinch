@@ -431,150 +431,6 @@ def verificar_trocador_estagio_abaixo(estagio):
 						if Q[i][si][j][sj][sk][estagio-1] != 0:
 							return True
 
-def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
-	for i in range (nhot):
-		for si in range (ncold):
-			for sk in range (nsk):
-				for k in range (nstages):
-					Thski[i][si][sk][k] = Th0[i]
-					Thskf[i][si][sk][k] = Th0[i]
-
-		for k in range (nstages):
-			Thki[i][k] = Th0[i]
-			Thkf[i][k] = Th0[i]
-
-	for j in range (ncold):
-		for sj in range (nhot):
-			for sk in range(nsk-1, -1, -1):
-				for k in range(nstages-1, -1, -1):
-					Tcski[j][sj][sk][k] = Tcf[j]
-					Tcskf[j][sj][sk][k] = Tcf[j]
-		for k in range (nstages-1, -1, -1):
-			Tcki[j][k] = Tcf[j]
-			Tckf[j][k] = Tcf[j]
-
-	violou = False
-	trocador_violado = []
-
-	# CÁLCULO DE TODA A SUPERESTRUTURA
-	for k in range (nstages):
-		for sk in range (nsk):
-			for i in range (nhot):
-				for si in range (ncold):
-					for j in range(ncold):
-						for sj in range(nhot):
-
-							Qaux[i][si][j][sj][sk][k] = Q[i][si][j][sj][sk][k]
-
-							if Qaux[i][si][j][sj][sk][k] != 0:
-
-								#CALORES DOS ESTÁGIOS
-								Qtotalhaux = 0
-								for si1 in range (ncold):
-									for j1 in range(ncold):
-										for sj1 in range(nhot):
-											for sk1 in range (nsk):
-												Qtotalhaux += Qaux[chot-1][si1][j1][sj1][sk1][estagio-1]
-								Qtotalcaux = 0
-								for sj1 in range (nhot):
-									for i1 in range(nhot):
-										for si1 in range(ncold):
-											for sk1 in range (nsk):
-												Qtotalcaux += Qaux[i1][si1][ccold-1][sj1][sk1][estagio-1]
-
-								Qestagioq[chot-1][estagio-1] = Qtotalhaux
-								Qestagiof[ccold-1][estagio-1] = Qtotalcaux
-
-								if Fharr[k][i][si] == 0:
-									Fharr[k][i][si] = 100
-								if Fcarr[k][j][sj] == 0:
-									Fcarr[k][j][sj] = 100
-
-								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
-								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] - (Q[i][si][j][sj][sk][k]/(CPh[i]*Fharr[k][i][si]/100))
-
-								Think[i][si][j][sj][sk][k] = Thki[i][k]
-								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] - (Qestagioq[i][k]/CPh[i])
-
-								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
-								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] - (Q[i][si][j][sj][sk][k]/(CPc[j]*Fcarr[k][j][sj]/100))
-
-								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
-								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] - (Qestagiof[j][k]/CPc[j])
-
-								tempdif = Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
-								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
-
-								if tempdif < 0 or tempdif_terminal_frio < 0:
-									#QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									#violou_termo += 1
-									#trocador_violou_termo.append([i, j, si, sj, sk, k])
-									#violou += 1
-									#trocadores_violados.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
-									pass
-								else:
-									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
-										pass
-									else:
-										violou = True
-										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
-
-									if dividida_quente_abaixo[i]:
-										temperatura_atual_quente_abaixo[i][si] = Thout[i][si][j][sj][sk][k]
-									if dividida_fria_abaixo[j]:
-										temperatura_atual_fria_abaixo[j][sj] = Tcout[i][si][j][sj][sk][k]
-									temperatura_atual_quente_mesclada_abaixo[i] = Thoutk[i][si][j][sj][sk][k]
-									temperatura_atual_fria_mesclada_abaixo[j] = Tcoutk[i][si][j][sj][sk][k]
-
-								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
-								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
-								Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
-								Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
-
-								#Temperatura de estágios e sub-estágios
-								for k1 in range(nstages):
-									for sk1 in range(nsk):
-										if k1 > (k):
-											#entrada
-											Tcki[j][k1] = Tcfinal01k[j][k]
-											Thki[i][k1] = Thfinal01k[i][k]
-
-											#saída
-											Tckf[j][k1] = Tcfinal01k[j][k]
-											Thkf[i][k1] = Thfinal01k[i][k]
-
-											for sub_fria in range(nhot):
-												Tcski[j][sub_fria][sk1][k1] = Tcfinal01k[j][k]
-												Tcskf[j][sub_fria][sk1][k1] = Tcfinal01k[j][k]
-											for sub_quente in range(ncold):
-												Thski[i][sub_quente][sk1][k1] = Thfinal01k[i][k]
-												Thskf[i][sub_quente][sk1][k1] = Thfinal01k[i][k]
-
-										if k1 == (k):
-											if sk1 >= (sk):
-												if sk1 > sk:
-													Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
-													Thski[i][si][sk1][k1] = Thfinal01[i][si]
-												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
-												Thskf[i][si][sk1][k1] = Thfinal01[i][si]
-
-											Tckf[j][k1] = Tcfinal01k[j][k]
-											Thkf[i][k1] = Thfinal01k[i][k]
-
-								if Fharr[k][i][si] == 100:
-									Fharr[k][i][si] = 0
-								if Fcarr[k][j][sj] == 100:
-									Fcarr[k][j][sj] = 0
-	for k in range (nstages):
-		for sk in range (nsk):
-			for i in range (nhot):
-				for si in range (ncold):
-					for j in range(ncold):
-						for sj in range(nhot):
-							Qaux[i][si][j][sj][sk][k] = 0
-
-	return violou, trocador_violado
-
 def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 	global nhot, ncold
 	cont = 0
@@ -611,7 +467,6 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 			for sj in range(nhot-1, qsj-1, -1):
 				Fcarr[estagio-1][corrente-1][sj] = 0
 				Qtotalc0[corrente-1][sj][estagio-1] = 0
-			#faz a nova divisao
 			if qsj > nsj[corrente-1]:
 				print('Erro! O número de divisões é muito grande.')
 				return
@@ -667,17 +522,11 @@ def inserir_trocador_abaixo(dlg, vetor):
 		return
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = vetor[6]
-	calor_frio = 0
-	calor_quente = 0
-	for si in range(ncold):
-		calor_quente += Qtotalh0[chot-1][si][estagio-1]
-	for sj in range(nhot):
-		calor_frio += Qtotalc0[ccold-1][sj][estagio-1]
 
-	if calor_quente > calor_frio:
-		Qmax = calor_frio
+	if ((Qtotalh0[chot-1][sbhot-1][estagio-1]) > (Qtotalc0[ccold-1][sbcold-1][estagio-1])):
+		Qmax = Qtotalc0[ccold-1][sbcold-1][estagio-1]
 	else:
-		Qmax = calor_quente
+		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
@@ -693,9 +542,151 @@ def inserir_trocador_abaixo(dlg, vetor):
 		QMessageBox.about(dlg,"Error!","The inputed heat must be greater than 0.")
 		return
 
-	violou, trocador_violado = calcular_superestrutura_abaixo(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+
+	for i in range (nhot):
+		for si in range (ncold):
+			for sk in range (nsk):
+				for k in range (nstages):
+					Thski[i][si][sk][k] = Th0[i]
+					Thskf[i][si][sk][k] = Th0[i]
+
+		for k in range (nstages):
+			Thki[i][k] = Th0[i]
+			Thkf[i][k] = Th0[i]
+
+	for j in range (ncold):
+		for sj in range (nhot):
+			for sk in range(nsk-1, -1, -1):
+				for k in range(nstages-1, -1, -1):
+					Tcski[j][sj][sk][k] = Tcf[j]
+					Tcskf[j][sj][sk][k] = Tcf[j]
+		for k in range (nstages-1, -1, -1):
+			Tcki[j][k] = Tcf[j]
+			Tckf[j][k] = Tcf[j]
+
+	violou_teste = 0
+	trocador_violou.clear()
+
+	# CÁLCULO DE TODA A SUPERESTRUTURA
+	for k in range (nstages):
+		for sk in range (nsk):
+			for i in range (nhot):
+				for si in range (ncold):
+					for j in range(ncold):
+						for sj in range(nhot):
+
+							Qaux[i][si][j][sj][sk][k] = Q[i][si][j][sj][sk][k]
+
+							if Qaux[i][si][j][sj][sk][k] != 0:
+
+								#CALORES DOS ESTÁGIOS
+								Qtotalhaux = 0
+								for si1 in range (ncold):
+									for j1 in range(ncold):
+										for sj1 in range(nhot):
+											for sk1 in range (nsk):
+												Qtotalhaux += Qaux[chot-1][si1][j1][sj1][sk1][estagio-1]
+								Qtotalcaux = 0
+								for sj1 in range (nhot):
+									for i1 in range(nhot):
+										for si1 in range(ncold):
+											for sk1 in range (nsk):
+												Qtotalcaux += Qaux[i1][si1][ccold-1][sj1][sk1][estagio-1]
+
+								Qestagioq[chot-1][estagio-1] = Qtotalhaux
+								Qestagiof[ccold-1][estagio-1] = Qtotalcaux
+
+								if Fharr[k][i][si] == 0:
+									Fharr[k][i][si] = 100
+								if Fcarr[k][j][sj] == 0:
+									Fcarr[k][j][sj] = 100
+
+								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
+								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] - (Qaux[i][si][j][sj][sk][k]/(CPh[i]*(Fharr[k][i][si]/100)))
+
+								Think[i][si][j][sj][sk][k] = Thki[i][k]
+								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] - (Qestagioq[i][k]/CPh[i])
+
+								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
+								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] - (Qaux[i][si][j][sj][sk][k]/(CPc[j]*(Fcarr[k][j][sj]/100)))
+
+								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
+								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] - (Qestagiof[j][k]/CPc[j])
+
+								tempdif = (Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k])
+								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
+
+								if tempdif < 0 or tempdif_terminal_frio < 0:
+									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
+									Q[i][si][j][sj][sk][k] = 0
+									Qaux[i][si][j][sj][sk][k] = 0
+									if Fharr[k][i][si] == 100:
+										Fharr[k][i][si] = 0
+									if Fcarr[k][j][sj] == 100:
+										Fcarr[k][j][sj] = 0
+									return
+								else:
+									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
+										violou = False
+									else:
+										violou = True
+										trocador_violou.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
+										violou_teste += 1
+
+									if dividida_quente_abaixo[i]:
+										temperatura_atual_quente_abaixo[i][si] = Thout[i][si][j][sj][sk][k]
+									if dividida_fria_abaixo[j]:
+										temperatura_atual_fria_abaixo[j][sj] = Tcout[i][si][j][sj][sk][k]
+									temperatura_atual_quente_mesclada_abaixo[i] = Thoutk[i][si][j][sj][sk][k]
+									temperatura_atual_fria_mesclada_abaixo[j] = Tcoutk[i][si][j][sj][sk][k]
+
+								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
+								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
+								Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
+								Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
+
+								#Temperatura inicial de estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in range(nsk):
+										if k1 > (k):
+											Tcki[j][k1] = Tcfinal01k[j][k]
+											Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
+											Thki[i][k1] = Thfinal01k[i][k]
+											Thski[i][si][sk1][k1] = Thfinal01k[i][k]
+										if k1 == (k):
+											if sk1 > (sk):
+												Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
+												Thski[i][si][sk1][k1] = Thfinal01[i][si]
+
+								#Temperatura final dos estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in range(nsk):
+										if k1 > (k):
+											Tckf[j][k1] = Tcfinal01k[j][k]
+											Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
+											Thkf[i][k1] = Thfinal01k[i][k]
+											Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
+										if k1 == (k):
+											if sk1 >= (sk):
+												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
+												Thskf[i][si][sk1][k1] = Thfinal01[i][si]
+											Tckf[j][k1] = Tcfinal01k[j][k]
+											Thkf[i][k1] = Thfinal01k[i][k]
+
+								if Fharr[k][i][si] == 100:
+									Fharr[k][i][si] = 0
+								if Fcarr[k][j][sj] == 100:
+									Fcarr[k][j][sj] = 0
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
+
+	for k in range (nstages):
+		for sk in range (nsk):
+			for i in range (nhot):
+				for si in range (ncold):
+					for j in range(ncold):
+						for sj in range(nhot):
+							Qaux[i][si][j][sj][sk][k] = 0
 
 	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
 		fracao_quente = 1
@@ -730,7 +721,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, trocador_violado
+	return linha_interface_abaixo, violou_teste, tempdif, tempdif_terminal_frio
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]
@@ -740,11 +731,125 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	sestagio = vetor[4]
 	estagio = vetor[5]
 
+	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] == 0:
+		QMessageBox.about(dlg,"Error!","There is no heat exchanger in this position.")
+		return
+
 	adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 
-	calcular_superestrutura_abaixo(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	for i in range (nhot):
+		#Este loop iguala as temperaturas iniciais de todos os SUB-ESTÁGIOS à temperatura inicial da corrente
+		for si in range (ncold):
+			for sk in range (nsk):
+				for k in range (nstages):
+					Thski[i][si][sk][k] = Th0[i]
+					Thskf[i][si][sk][k] = Th0[i] #Thsk é a temperatura inicial do sub-estágio
+		#Este loop iguala as temperaturas iniciais de todos os ESTÁGIOS à temperatura inicial da corrente
+		for k in range (nstages):
+			Thki[i][k] = Th0[i]
+			Thkf[i][k] = Th0[i] #Thk é a temperatura inicial do estágio
+
+	for j in range (ncold):
+		for sj in range (nhot):
+			for sk in range(nsk-1, -1, -1):
+				for k in range(nstages-1, -1, -1):
+					Tcski[j][sj][sk][k] = Tcf[j]
+					Tcskf[j][sj][sk][k] = Tcf[j]
+		for k in range (nstages-1, -1, -1):
+			Tcki[j][k] = Tcf[j]
+			Tckf[j][k] = Tcf[j]
+
+	#CÁLCULO DA SUPERESTRUTURA
+	for k in range (nstages):
+		for sk in range (nsk):
+			for i in range (nhot):
+				for si in range (ncold):
+					for j in range(ncold):
+						for sj in range(nhot):
+
+							Qaux[i][si][j][sj][sk][k] = Q[i][si][j][sj][sk][k]
+
+							if Qaux[i][si][j][sj][sk][k] != 0:
+
+								#CALORES DOS ESTÁGIOS
+								Qtotalhaux = 0
+								for si1 in range (ncold):
+									for j1 in range(ncold):
+										for sj1 in range(nhot):
+											for sk1 in range (nsk):
+												Qtotalhaux += Qaux[chot-1][si1][j1][sj1][sk1][estagio-1]
+								Qtotalcaux = 0
+								for sj1 in range (nhot):
+									for i1 in range(nhot):
+										for si1 in range(ncold):
+											for sk1 in range (nsk):
+												Qtotalcaux += Qaux[i1][si1][ccold-1][sj1][sk1][estagio-1]
+
+								Qestagioq[chot-1][estagio-1] = Qtotalhaux
+								Qestagiof[ccold-1][estagio-1] = Qtotalcaux
+
+								if Fharr[k][i][si] == 0:
+									Fharr[k][i][si] = 100
+								if Fcarr[k][j][sj] == 0:
+									Fcarr[k][j][sj] = 100
+
+								Thin[i][si][j][sj][sk][k] = Thski[i][si][sk][k]
+								Thout[i][si][j][sj][sk][k] = Thin[i][si][j][sj][sk][k] - (Q[i][si][j][sj][sk][k]/(CPh[i]*(Fharr[k][i][si]/100)))
+								if dividida_quente_abaixo[i]:
+									temperatura_atual_quente_abaixo[i][si] = Thout[i][si][j][sj][sk][k]
+
+								Think[i][si][j][sj][sk][k] = Thki[i][k]
+								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] - (Qestagioq[i][k]/CPh[i])
+								temperatura_atual_quente_mesclada_abaixo[i] = Thoutk[i][si][j][sj][sk][k]
+
+								Tcin[i][si][j][sj][sk][k] = Tcski[j][sj][sk][k]
+								Tcout[i][si][j][sj][sk][k] = Tcin[i][si][j][sj][sk][k] - (Q[i][si][j][sj][sk][k]/(CPc[j]*(Fcarr[k][j][sj]/100)))
+								if dividida_fria_abaixo[j]:
+									temperatura_atual_fria_abaixo[j][sj] = Tcout[i][si][j][sj][sk][k]
+
+								Tcink[i][si][j][sj][sk][k] = Tcki[j][k]
+								Tcoutk[i][si][j][sj][sk][k] = Tcink[i][si][j][sj][sk][k] - (Qestagiof[j][k]/CPc[j])
+								temperatura_atual_fria_mesclada_abaixo[j] = Tcoutk[i][si][j][sj][sk][k]
+
+								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
+								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
+								Thfinal01k[i][k] = Thoutk[i][si][j][sj][sk][k]
+								Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
+
+								#Temperatura inicial de estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in range(nsk):
+										if k1 > (k):
+											Tcki[j][k1] = Tcfinal01k[j][k]
+											Tcski[j][sj][sk1][k1] = Tcfinal01k[j][k]
+											Thki[i][k1] = Thfinal01k[i][k]
+											Thski[i][si][sk1][k1] = Thfinal01k[i][k]
+										if k1 == (k):
+											if sk1 > (sk):
+												Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
+												Thski[i][si][sk1][k1] = Thfinal01[i][si]
+
+										#Temperatura final dos estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in range(nsk):
+										if k1 > (k):
+											Tckf[j][k1] = Tcfinal01k[j][k]
+											Tcskf[j][sj][sk1][k1] = Tcfinal01k[j][k]
+											Thkf[i][k1] = Thfinal01k[i][k]
+											Thskf[i][si][sk1][k1] = Thfinal01k[i][k]
+										if k1 == (k):
+											if sk1 >= (sk):
+												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj]
+												Thskf[i][si][sk1][k1] = Thfinal01[i][si]
+											Tckf[j][k1] = Tcfinal01k[j][k]
+											Thkf[i][k1] = Thfinal01k[i][k]
+
+								if Fharr[k][i][si] == 100:
+									Fharr[k][i][si] = 0
+								if Fcarr[k][j][sj] == 100:
+									Fcarr[k][j][sj] = 0
 
 	for k in range (nstages):
 		for sk in range (nsk):
@@ -779,6 +884,8 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 			temperatura_atual_fria_abaixo[ccold-1][sbcold-1] = pinchf
 
 	linha_interface_abaixo.pop(indice)
+
+	return linha_interface_abaixo
 
 def atualizar_matriz_abaixo(matriz):
 	for trocador in matriz:

@@ -459,10 +459,11 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 			Tcki[j][k] = Tc0[j]
 			Tckf[j][k] = Tc0[j]
 
-	violou = False
-	trocador_violado = []
+	violou = 0
+	violou_termo = 0
+	trocador_violou_termo = []
+	trocadores_violados = []
 
-	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range (nstages-1, -1, -1):
 		for sk in range (nsk-1, -1, -1):
 			for i in range (nhot-1, -1, -1):
@@ -512,18 +513,17 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								tempdif_terminal_frio = Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
-									#QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									#violou_termo += 1
-									#trocador_violou_termo.append([i, j, si, sj, sk, k])
-									#violou += 1
-									#trocadores_violados.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
-									pass
+									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
+									violou_termo += 1
+									trocador_violou_termo.append([i, j, si, sj, sk, k])
+									violou += 1
+									trocadores_violados.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
 								else:
 									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
 										pass
 									else:
-										violou = True
-										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
+										violou += 1
+										trocadores_violados.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
 
 									if dividida_quente[i]:
 										temperatura_atual_quente[i][si] = Thout[i][si][j][sj][sk][k]
@@ -560,47 +560,45 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 											if sk1 <= (sk): #para os subestagios a esquerda ou atual da superestrutura, depende se entra ou sai
 												if sk1 < sk: #para os a esquerda, entra recebe após troca
 													Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
-													Thski[i][si][sk1][k1] = Thfinal01[i][si]
 												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj] #atual e a esquerda, final recebe após troca
+												if sk1 < sk:
+													Thski[i][si][sk1][k1] = Thfinal01[i][si]
 												Thskf[i][si][sk1][k1] = Thfinal01[i][si]
-
 											Tckf[j][k1] = Tcfinal01k[j][k]
 											Thkf[i][k1] = Thfinal01k[i][k]
+
 
 								if Fharr[k][i][si] == 100:
 									Fharr[k][i][si] = 0
 								if Fcarr[k][j][sj] == 100:
 									Fcarr[k][j][sj] = 0
+	#print("tin trocador 1", Thski[0][0][0][0])
+	#print("tout trocador 1", Thskf[0][0][0][0])
+	#print("tin trocador 2", Thski[0][1][0][1])
+	#print("tout trocador 2", Thskf[0][1][0][1])
+	#print("tin trocador 3", Thski[0][0][1][1])
+	#print("tout trocador 3", Thskf[0][0][1][1])
+	print()
+	print()
+	print()
+	print("_____________________________________________________________")
+	for k in range(nstages):
+		print('ESTÁGIO ', k+1)
+		print('Tentra:', Thki[chot-1][k])
+		print('Tsai:', Thkf[chot-1][k])
+		print()
 
-	for k in range (nstages):
-		for sk in range (nsk):
-			for i in range (nhot):
-				for si in range (ncold):
-					for j in range(ncold):
-						for sj in range(nhot):
-							Qaux[i][si][j][sj][sk][k] = 0
-
-#	print()
-#	print()
-#	print()
-#	print("_____________________________________________________________")
-#	for k in range(nstages):
-#		print('ESTÁGIO ', k+1)
-#		print('Tentra:', Thki[chot-1][k])
-#		print('Tsai:', Thkf[chot-1][k])
-#		print()
-
-#		for sk in range(nsk):
-#			print('SUB-ESTÁGIO ', sk+1)
-#			for sub in range(ncold):
-#				print("SUB", sub+1)
-#				print('Tentra:', Thski[chot-1][sub][sk][k])
-#				print('Tsai:', Thskf[chot-1][sub][sk][k])
-#			print()
-#		print()
+		for sk in range(nsk):
+			print('SUB-ESTÁGIO ', sk+1)
+			for sub in range(ncold):
+				print("SUB", sub+1)
+				print('Tentra:', Thski[chot-1][sub][sk][k])
+				print('Tsai:', Thskf[chot-1][sub][sk][k])
+			print()
+		print()
 
 
-	return violou, trocador_violado
+	return violou, trocadores_violados, violou_termo, trocador_violou_termo
 
 def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 	global nhotc, ncoldc
@@ -628,6 +626,7 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 						calor_atual_quente_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
 			dividida_quente[corrente-1] = True
 			quantidade_quente[corrente-1] = qsi
+		#dividida_quente[corrente-1][estagio-1] = True
 
 			nhotc = qsi + (nhot - 1)
 
@@ -715,9 +714,17 @@ def inserir_trocador(dlg, vetor):
 		return
 
 	# CÁLCULO DE TODA A SUPERESTRUTURA
-	violou, trocador_violado = calcular_superestrutura(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	violou, trocadores_violados, violou_termo, trocador_violou_termo = calcular_superestrutura(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
+
+	for k in range (nstages):
+		for sk in range (nsk):
+			for i in range (nhot):
+				for si in range (ncold):
+					for j in range(ncold):
+						for sj in range(nhot):
+							Qaux[i][si][j][sj][sk][k] = 0
 
 	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
@@ -752,7 +759,7 @@ def inserir_trocador(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface, violou, trocador_violado
+	return linha_interface, violou, trocadores_violados
 
 def remover_trocador(dlg, vetor, indice, linha_interface):
 	chot = vetor[0]
@@ -767,7 +774,7 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 
 	#CÁLCULO DA SUPERESTRUTURA
-	calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	violou, trocadores_violados, violou_termo, trocador_violou_termo = calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	for k in range (nstages):
 		for sk in range (nsk):
@@ -802,6 +809,8 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 			temperatura_atual_fria[ccold-1][sbcold-1] = pinchf
 
 	linha_interface.pop(indice)
+
+	return violou, trocadores_violados
 
 def atualizar_matriz(matriz):
 	for trocador in matriz:
