@@ -216,32 +216,37 @@ def preparar_dados_e_rede2():
 
 	for quente in range(nhot):
 		temperatura_atual_quente_abaixo.append([])
-		temperatura_atual_quente_mesclada_abaixo.append(pinchq)
+		temperatura_atual_quente_mesclada_abaixo.append(Th0[quente])
 		calor_atual_quente_sub_abaixo.append([])
 		dividida_quente_abaixo.append(False)
 		quantidade_quente_abaixo.append(1)
 		for sub in range(ncold):
 			calor_atual_quente_sub_abaixo[quente].append(0)
-			temperatura_atual_quente_abaixo[quente].append(pinchq)
+			temperatura_atual_quente_abaixo[quente].append(Th0[quente])
 	for fria in range(ncold):
 		temperatura_atual_fria_abaixo.append([])
-		temperatura_atual_fria_mesclada_abaixo.append(pinchf)
+		temperatura_atual_fria_mesclada_abaixo.append(Tcf[fria])
 		calor_atual_frio_sub_abaixo.append([])
 		dividida_fria_abaixo.append(False)
 		quantidade_fria_abaixo.append(1)
 		for sub in range(nhot):
 			calor_atual_frio_sub_abaixo[fria].append(0)
-			temperatura_atual_fria_abaixo[fria].append(pinchf)
+			temperatura_atual_fria_abaixo[fria].append(Tcf[fria])
 
 	#CÁLCULOS DOS CALORES TOTAIS
 	for i in range (nhot):
+		if Th0[i] <= Thf[i]:
+			CPh[i] = 0
 		Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
 		calor_atual_quente_abaixo.append(CPh[i] * (Th0[i] - Thf[i]))
 		calor_atual_quente_sub_abaixo[i][0] = CPh[i] * (Th0[i] - Thf[i])
 	for j in range (ncold):
+		if Tcf[j] <= Tc0[j]:
+			CPc[j] = 0
 		Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
 		calor_atual_frio_abaixo.append(CPc[j] * (Tcf[j] - Tc0[j]))
 		calor_atual_frio_sub_abaixo[j][0] = CPc[j] * (Tcf[j] - Tc0[j])
+
 
 	for i in range(nhot):
 		for j in range(ncold):
@@ -272,18 +277,18 @@ def preparar_dados_e_rede2():
 			Tcki[j][k] = Tcf[j]
 			Tckf[j][k] = Tcf[j]
 
-def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio):
+def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
 	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, nsi, nsj
 	Th0, Thf, Tc0, Tcf = [], [], [], []
 	limpar_lista(CPh)
 	limpar_lista(CPc)
 	for corrente in range(nquentes):
 		Thf.append(matriz_quente[corrente])
-		Th0.append(pinch_quente)
+		Th0.append(matriz_quente_in[corrente])
 		CPh.append(CPquente[corrente])
 	for corrente in range(nfrias):
 		Tc0.append(matriz_fria[corrente])
-		Tcf.append(pinch_frio)
+		Tcf.append(matriz_fria_in[corrente])
 		CPc.append(CPfrio[corrente])
 	pinchq = pinch_quente
 	pinchf = pinch_frio
@@ -866,33 +871,16 @@ def testar_correntes_abaixo():
 
 	for i in CPh:
 		somaCPh += i
+		if i != 0:
+			nhotc += 1
 
 	for j in CPc:
 		somaCPc += j
-
-	for i in range(nhot):
-		compq = Th0[i] - pinchq
-		complistq.append(compq)
-
-	for j in range(ncold):
-		compf = Tcf[j] - pinchf
-		complistf.append(compf)
-
-	for i in complistq:
-		if i == 0:
-			nhotc += 1
-
-	for j in complistf:
-		if j == 0:
+		if j != 0:
 			ncoldc += 1
 
-	if somaCPc >= somaCPh:
-		print('BELOW A somatória dos CPs das correntes frias é maior que a somatória dos CPs das correntes quentes!')
+	if somaCPc > somaCPh:
+		print('soma cp frias maior que soma cp quentes abaixo do pinch')
 
 	elif ncoldc > nhotc:
-		#divop = str(input('A quantidade de correntes frias é maior do que a quantidade de correntes quentes. Você gostaria de dividir correntes? ')).strip().upper()[0]
-		#if divop == 'Y':
-		#	divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
-		#	estagio = int(input('Em qual estágio ocorrerá a divisão? '))
-		#	divisao_de_correntes()
-		print("correntes BELOW")
+		print("mais correntes frias que quentes acima do pinch")
