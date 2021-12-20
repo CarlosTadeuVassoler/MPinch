@@ -512,16 +512,11 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								tempdif_terminal_frio = Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
-									#QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									#violou_termo += 1
-									#trocador_violou_termo.append([i, j, si, sj, sk, k])
-									#violou += 1
-									#trocadores_violados.append([i, j, si, sj, sk, k, tempdif, tempdif_terminal_frio])
-									pass
+									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
+									Q[i][si][j][sj][sk][k] = 0
+									return
 								else:
-									if tempdif >= dTmin and tempdif_terminal_frio >= dTmin:
-										pass
-									else:
+									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
 										violou = True
 										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
 
@@ -580,24 +575,24 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
 
-#	print()
-#	print()
-#	print()
-#	print("_____________________________________________________________")
-#	for k in range(nstages):
-#		print('ESTÁGIO ', k+1)
-#		print('Tentra:', Thki[chot-1][k])
-#		print('Tsai:', Thkf[chot-1][k])
-#		print()
+	print()
+	print()
+	print()
+	print("_____________________________________________________________")
+	for k in range(nstages):
+		print('ESTÁGIO ', k+1)
+		print('Tentra:', Thki[chot-1][k])
+		print('Tsai:', Thkf[chot-1][k])
+		print()
 
-#		for sk in range(nsk):
-#			print('SUB-ESTÁGIO ', sk+1)
-#			for sub in range(ncold):
-#				print("SUB", sub+1)
-#				print('Tentra:', Thski[chot-1][sub][sk][k])
-#				print('Tsai:', Thskf[chot-1][sub][sk][k])
-#			print()
-#		print()
+		for sk in range(nsk):
+			print('SUB-ESTÁGIO ', sk+1)
+			for sub in range(ncold):
+				print("SUB", sub+1)
+				print('Tentra:', Thski[chot-1][sub][sk][k])
+				print('Tsai:', Thskf[chot-1][sub][sk][k])
+			print()
+		print()
 
 
 	return violou, trocador_violado
@@ -871,6 +866,7 @@ def caixa_de_temperatura(dlg):
 	dlg.TempLoadAbove.close()
 
 def testar_correntes():
+	global somaCPh, somaCPc, compq, compf, nhotc, ncoldc
 	for i in CPh:
 		somaCPh += i
 
@@ -893,16 +889,13 @@ def testar_correntes():
 		if j == 0:
 			ncoldc += 1
 
-	while nhotc > ncoldc or somaCPh >= somaCPc:
-		print('Erro')
-		if somaCPh >= somaCPc:
-			sys.exit('A somatória dos CPs das correntes quentes é maior que a somatória dos CPs das correntes frias!')
+	if somaCPh >= somaCPc:
+		print('ABOVE somatória dos CPs das correntes quentes é maior que a somatória dos CPs das correntes frias!')
 
-		elif nhotc > ncoldc:
-			divop = str(input('A quantidade de correntes quentes é maior do que a quantidade de correntes frias. Você gostaria de dividir correntes? ')).strip().upper()[0]
-			if divop == 'Y':
-				divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
-				estagio = int(input('Em qual estágio ocorrerá a divisão? '))
-				divisao_de_correntes()
-			else:
-				break
+	elif nhotc > ncoldc:
+		#divop = str(input('A quantidade de correntes quentes é maior do que a quantidade de correntes frias. Você gostaria de dividir correntes? ')).strip().upper()[0]
+		#if divop == 'Y':
+		#	divtype = input("Deseja dividir correntes quentes, frias ou ambas? ").strip().upper()[0]
+		#	estagio = int(input('Em qual estágio ocorrerá a divisão? '))
+		#	divisao_de_correntes()
+		print("correntes ABOVE")

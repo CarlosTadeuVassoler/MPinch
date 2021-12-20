@@ -11,8 +11,6 @@ from canvas import plotargrafico1,plotargrafico2,plotargrafico3
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import xlrd
-from estruturas import estruturas
-from functrocador import trocador
 import re
 import sys
 import random
@@ -51,6 +49,10 @@ correntesncorrigidas=[]
 correntestrocador=[]
 
 
+
+
+
+
 def openfile():
 	global n
 	n = 0
@@ -68,29 +70,33 @@ def openfile():
 				n=n+1
 		except IndexError:
 			break
+	correntes = []
 	dlg.tableWidget.setRowCount(n)
 	for i in range (n):#[0]=Tent  [1]=Tsai  [2]=CP  [3]=tipo
-		x1=0
+		dados_da_corrente = []
 		for j in range (3):
-			x1=(worksheet.cell(i+1, j+1).value)
-			dlg.tableWidget.setItem(i, j, QTableWidgetItem(str(x1)))
+			dados_da_corrente.append(worksheet.cell(i+1, j+1).value)
+			#x1=(worksheet.cell(i+1, j+1).value)
+			#dlg.tableWidget.setItem(i, j, QTableWidgetItem(str(x1)))
+		correntes.append(dados_da_corrente)
+		print(correntes)
 	for i in range (n):
-		HotnCold (float(dlg.tableWidget.item(i,0).text()), float(dlg.tableWidget.item(i,1).text()), i)
-		for j in range (2):
-			temptable=str(dlg.tableWidget.item(i, j).text())
-			if (dlg.comboBox.currentText()) == 'Kelvin':
-				temptable=temptable[0:] + ' K'
-				if j==1:
-					cptable=str(dlg.tableWidget.item(i, 2).text())
-					cptable=cptable[0:] + ' kW/K'
-					dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
-			else:
-				temptable=temptable[0:] + ' ºF'
-				if j==1:
-					cptable=str(dlg.tableWidget.item(i, 2).text())
-					cptable=cptable[0:] + ' Btu/ºF'
-					dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
-			dlg.tableWidget.setItem(i, j, QTableWidgetItem(temptable))
+		HotnCold(float(dlg.tableWidget.item(i,0).text()), float(dlg.tableWidget.item(i,1).text()), i)
+		#for j in range (2):
+		#	temptable=str(dlg.tableWidget.item(i, j).text())
+		#	if (dlg.comboBox.currentText()) == 'Kelvin':
+		#		temptable=temptable[0:] + ' K'
+		#		if j==1:
+		#			cptable=str(dlg.tableWidget.item(i, 2).text())
+		#			cptable=cptable[0:] + ' kW/K'
+		#			dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
+		#	else:
+		#		temptable=temptable[0:] + ' ºF'
+		#		if j==1:
+		#			cptable=str(dlg.tableWidget.item(i, 2).text())
+		#			cptable=cptable[0:] + ' Btu/ºF'
+		#			dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
+		#	dlg.tableWidget.setItem(i, j, QTableWidgetItem(temptable))
 	dlg.tableWidget.blockSignals(False)
 
 def colocarunidadestemp(temptable):
@@ -113,10 +119,10 @@ def HotnCold (tin,ten,i) :      #ve se é corrente quente ou fria
 	global ncold,nhot
 	if tin < ten:
 		dlg.tableWidget.setItem(i, 3, QTableWidgetItem('Cold'))
-		nhot=nhot+1
+		ncold=ncold+1
 	if tin > ten:
 		dlg.tableWidget.setItem(i, 3, QTableWidgetItem('Hot'))
-		ncold=ncold+1
+		nhot=nhot+1
 
 	return(ncold,nhot)
 
@@ -155,7 +161,7 @@ def itemedited(item):
     dlg.tableWidget.blockSignals(False)
 
 def apertaradd () :
-	global n
+	global n, ncold, nhot
 	n=n+1
 	dlg.tableWidget.blockSignals(True)
 	dlg.tableWidget.setRowCount(n)
@@ -166,8 +172,10 @@ def apertaradd () :
 	g2=float(dlg.lineEdit2.text())
 	if g1 < g2:
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Cold'))
+		ncold += 1
 	if g1 > g2:
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Hot'))
+		nhot += 1
 	if (dlg.comboBox.currentText()) == 'Celsius':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºC'))
 	if (dlg.comboBox.currentText()) == 'Fahrenheit':
@@ -186,15 +194,18 @@ def apertardone () :
 	for i in range (n):#[0]=Tent  [1]=Tsai  [2]=CP  [3]=tipo
 		x1=[]
 		for j in range (4):
-			x2=dlg.tableWidget.item(i, j).text()
 			if j<3:
-				x2=re.findall("\d+", x2)
-				x2=float(x2[0])
+				x2=float(dlg.tableWidget.item(i, j).text())
+			else:
+				x2=dlg.tableWidget.item(i, j).text()
+			#if j<3:
+			#	x2=re.findall("\d+", x2)
+			#	x2=float(x2[0])
 			x1.append(x2)
 		correntes.append(x1)
 	#print(type(correntes[0][2]))
 	dlg.pinchbutton.setEnabled(True)
-	#print(n)
+	#'print(n)
 	if (dlg.tempcombo1.currentText()) == 'Imperial units':
 		unidadeusada[0]="Temperature (ºF)"
 		unidadeusada[1]="Enthalpy (Btu)"
@@ -202,14 +213,14 @@ def apertardone () :
 	dTmin=float(dlg.lineEdit_2.text())
 	correntesncorrigidas=correntes
 	#print(correntesncorrigidas,correntes)
-	correntes[1][2]=1.5
+	#correntes[1][2]=1.5
 	correntestrocadorr()
 
 def apertarpinchbutton():
 	global donee,alreadypinched,plotou, Th0, Thf, CPh, Tc0, Tcf, CPc
 	Th0, Thf, CPh, Tc0, Tcf, CPc = [], [], [], [], [], []
 	if donee == 1 :
-		global correntes, dTmin, Tdecre, Tmin, Tmax, cascat2certo ,dT, estagios,cascat2,utilidadesquente,menor,pinchf,pinchq
+		global correntes, dTmin, Tdecre, Tmin, Tmax, cascat2certo ,dT,cascat2,utilidadesquente,menor,pinchf,pinchq
 		global n
 		global dT
 		Tdecre = []
@@ -217,7 +228,6 @@ def apertarpinchbutton():
 		Tmax=0
 		cascat2certo=[]
 		dT=[2,2,2]
-		estagios=[0]
 		cascat2=[]
 		utilidadesquente=0
 		pinchf=0
@@ -234,8 +244,6 @@ def apertarpinchbutton():
 		plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch,unidadeusada,plotou)
 		plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
 		plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
-		estagios=estruturas(correntes, n, dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,estagios)
-		trocador(correntes, n,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,estagios)
 		for i in range (n): #correção das temperaturas
 			if correntesncorrigidas[i][3] == "Hot":
 				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) + (dTmin)/2
@@ -244,6 +252,9 @@ def apertarpinchbutton():
 				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) - (dTmin)/2
 				correntesncorrigidas [i][1]=(correntesncorrigidas[i][1]) - (dTmin)/2
 
+		print(n)
+		print(nhot)
+		print(ncold)
 		for i in range(n):
 			if correntesncorrigidas[i][3] == "Hot":
 				Th0.append(correntesncorrigidas[i][0])
@@ -270,6 +281,8 @@ def apertarpinchbutton():
 		printar()
 		printar_abaixo()
 		correntesnoscombos(nhot,ncold)
+		testar_correntes()
+		testar_correntes_abaixo()
 		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
 		dlg.comboBox_51.setEnabled(True) #fechar combobox de subcold stream
 		dlg.comboBox_53.setEnabled(True) #fechar combobox de subhot stream
@@ -348,6 +361,96 @@ def correntestrocadorr():
 
 
 
+def openfile_teste():
+	global n, nhot, ncold, correntes
+	n, nhot, ncold = 0, 0, 0
+
+	#le o excel
+	dlg.tableWidget.blockSignals(True)
+	Tk().withdraw()
+	filename = askopenfilename()
+	workbook = xlrd.open_workbook(filename)
+	worksheet = workbook.sheet_by_index(0)
+	k=0
+	while k != -1:
+		try:
+			if (worksheet.cell(k+1, 0).value) != '':
+				k=k+1
+				n=n+1
+		except IndexError:
+			break
+
+	#armazena as correntes e calcula a quantidade de quentes e frias
+	correntes = []
+	dlg.tableWidget.setRowCount(n)
+	for i in range (n):
+		dados_da_corrente = []
+		for j in range (3):
+			dados_da_corrente.append(worksheet.cell(i+1, j+1).value)
+		if dados_da_corrente[0] > dados_da_corrente[1]:
+			dados_da_corrente.append("Hot")
+			nhot += 1
+		else:
+			dados_da_corrente.append("Cold")
+			ncold += 1
+		correntes.append(dados_da_corrente)
+
+	#printa as correntes pro usuário na tabela de streams
+	for corrente in range(len(correntes)):
+		for coluna in range(4):
+			dlg.tableWidget.setItem(corrente, coluna, QTableWidgetItem(str(correntes[corrente][coluna])))
+	dlg.tableWidget.blockSignals(False)
+
+def done_teste():
+	global correntes, dTmin, correntesncorrigidas, done
+
+	#libera o pinch e armazena as correntes numa variável que vai ser mudada de acordo com o pinch
+	done = True
+	dlg.pinchbutton.setEnabled(True)
+	dTmin=float(dlg.lineEdit_2.text())
+	correntesncorrigidas = correntes
+
+def pinch_teste():
+	global done, Th0, Thf, CPh, Tc0, Tcf, CPc
+	Th0, Thf, CPh, Tc0, Tcf, CPc = [], [], [], [], [], []
+	if done:
+		global correntes, dTmin, pinchf, pinchq, n
+		pinchf, pinchq = pontopinch(correntes, n, dTmin)
+
+		#arruma as temperaturas baseado no pinch
+		for i in range (n): #correção das temperaturas
+			if correntesncorrigidas[i][3] == "Hot":
+				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) + (dTmin)/2
+				correntesncorrigidas [i][1]=(correntesncorrigidas[i][1]) + (dTmin)/2
+				Th0.append(correntesncorrigidas[i][0])
+				Thf.append(correntesncorrigidas[i][1])
+				CPh.append(correntesncorrigidas[i][2])
+			if correntesncorrigidas[i][3] == "Cold":
+				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) - (dTmin)/2
+				correntesncorrigidas [i][1]=(correntesncorrigidas[i][1]) - (dTmin)/2
+				Tc0.append(correntesncorrigidas[i][0])
+				Tcf.append(correntesncorrigidas[i][1])
+				CPc.append(correntesncorrigidas[i][2])
+
+		#manda tudo pro backend
+		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf)
+		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf)
+		printar()
+		printar_abaixo()
+		correntesnoscombos(nhot,ncold)
+		testar_correntes()
+		testar_correntes_abaixo()
+
+
+		#libera botões e coisas
+		dlg.tabWidget.setTabEnabled(1,True)
+		dlg.tabWidget.setTabEnabled(2,True)
+		dlg.tabWidget.setTabEnabled(3,True)
+		dlg.tabWidget.setTabEnabled(4,True)
+		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
+		dlg.comboBox_51.setEnabled(True) #fechar combobox de subcold stream
+		dlg.comboBox_53.setEnabled(True) #fechar combobox de subhot stream
+		dlg.comboBox_54.setEnabled(True) #fechar combobox de subcold stream
 
 
 
@@ -415,10 +518,6 @@ def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 		printar_abaixo()
 		checaresgotadosabaixo()
 		dlg.dtmin.close()
-
-
-
-
 
 def dividir_corrente(divisao, onde):
 	global divtype
@@ -531,23 +630,26 @@ def printar():
 				for sub in range(quantidade_quente[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente][sub])))))
-					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
-					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub[corrente][sub])))))
+					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente][sub])))))
+					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+					dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub[corrente][sub])))))
 					linha += 1
 			else:
 				dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-				dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
-				dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+				dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
 				linha += 1
 	else:
 		dlg.tableWidget_3.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-			dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
-			dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+			dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
 
 	if dlg.checkBox_2.isChecked():
 		linha = 0
@@ -560,23 +662,26 @@ def printar():
 				for sub in range(quantidade_fria[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente][sub])))))
-					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
-					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub[corrente][sub])))))
+					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente][sub])))))
+					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+					dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub[corrente][sub])))))
 					linha += 1
 			else:
 				dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-				dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
-				dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+				dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
 				linha += 1
 	else:
 		dlg.tableWidget_4.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-			dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
-			dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+			dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
 
 
 	dlg.tableWidget_2.setRowCount(len(matriz_armazenada))
@@ -609,6 +714,7 @@ def inserir_teste():
 		matriz_armazenada.append(nova_matriz[-1])
 	except:
 		print("erro inserir teste")
+		return
 	if violou:
 		violou_dtmin(trocador_violado, "above", dados_do_trocador)
 		printar()
@@ -708,7 +814,6 @@ def checaresgotadosacima():
 		dlg.pushButton_7.setEnabled(False)
 		dlg.pushButton_8.setEnabled(False)
 
-
 #below
 def printar_abaixo():
 	dlg.tableWidget_15.clearContents()
@@ -725,23 +830,26 @@ def printar_abaixo():
 				for sub in range(quantidade_quente_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_abaixo[corrente][sub])))))
-					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub_abaixo[corrente][sub])))))
+					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_abaixo[corrente][sub])))))
+					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+					dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub_abaixo[corrente][sub])))))
 					linha += 1
 			else:
 				dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
-				dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-				dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+				dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
 				linha += 1
 	else:
 		dlg.tableWidget_15.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_15.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
-			dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-			dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
+			dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
 
 	if dlg.checkBox_10.isChecked():
 		linha = 0
@@ -754,23 +862,26 @@ def printar_abaixo():
 				for sub in range(quantidade_fria_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
-					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
+					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
+					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
 					linha += 1
 			else:
 				dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
-				dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-				dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+				dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
 				linha += 1
 	else:
 		dlg.tableWidget_17.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
-			dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-			dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+			dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
 
 
 	dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo))
@@ -803,6 +914,7 @@ def inserir_teste_abaixo():
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
 	except:
 		print("erro, inserir teste abaixo")
+		return
 	if violou:
 		violou_dtmin(trocador_violado, "below", dados_do_trocador)
 		printar_abaixo()
@@ -927,10 +1039,10 @@ dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
 dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.pushButton.clicked.connect(apertaradd) #add stream
-dlg.donebutton.clicked.connect(apertardone) #done
-dlg.pinchbutton.clicked.connect(apertarpinchbutton) #pinch
-dlg.actionOpen_2.triggered.connect(openfile) #file > open
-dlg.tableWidget.itemChanged.connect(itemedited) #le excel?
+dlg.actionOpen_2.triggered.connect(openfile_teste) #file > open
+dlg.donebutton.clicked.connect(done_teste) #done
+dlg.pinchbutton.clicked.connect(pinch_teste) #pinch
+#dlg.tableWidget.itemChanged.connect(itemedited)
 dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 0 and SI(dlg))
 dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 1 and sistemaingles(dlg))
 dlg.comboBox.currentIndexChanged.connect(lambda i: i == 1 and celsius(dlg))

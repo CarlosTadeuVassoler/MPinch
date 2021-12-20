@@ -10,6 +10,12 @@
     <height>618</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>MPinch</string>
   </property>
@@ -866,7 +872,7 @@
                    </size>
                   </property>
                   <property name="editTriggers">
-                   <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+                   <set>QAbstractItemView::NoEditTriggers</set>
                   </property>
                   <property name="selectionMode">
                    <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -1034,8 +1040,14 @@
                     <property name="sizeAdjustPolicy">
                      <enum>QAbstractScrollArea::AdjustToContents</enum>
                     </property>
+                    <property name="editTriggers">
+                     <set>QAbstractItemView::NoEditTriggers</set>
+                    </property>
                     <attribute name="horizontalHeaderDefaultSectionSize">
-                     <number>150</number>
+                     <number>125</number>
+                    </attribute>
+                    <attribute name="horizontalHeaderMinimumSectionSize">
+                     <number>125</number>
                     </attribute>
                     <attribute name="verticalHeaderDefaultSectionSize">
                      <number>30</number>
@@ -1047,7 +1059,12 @@
                     </column>
                     <column>
                      <property name="text">
-                      <string>Inlet Temp.</string>
+                      <string>Pinch Temp.</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Intermediate Temp.</string>
                      </property>
                      <property name="font">
                       <font>
@@ -1190,8 +1207,14 @@
                       <height>16777215</height>
                      </size>
                     </property>
+                    <property name="editTriggers">
+                     <set>QAbstractItemView::NoEditTriggers</set>
+                    </property>
                     <attribute name="horizontalHeaderDefaultSectionSize">
-                     <number>150</number>
+                     <number>125</number>
+                    </attribute>
+                    <attribute name="horizontalHeaderMinimumSectionSize">
+                     <number>125</number>
                     </attribute>
                     <column>
                      <property name="text">
@@ -1200,7 +1223,12 @@
                     </column>
                     <column>
                      <property name="text">
-                      <string>Outlet Temp.</string>
+                      <string>Pinch Temp.</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Intermediate Temp.</string>
                      </property>
                      <property name="font">
                       <font>
@@ -1626,6 +1654,9 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="editTriggers">
+                   <set>QAbstractItemView::NoEditTriggers</set>
+                  </property>
                   <property name="showGrid">
                    <bool>true</bool>
                   </property>
@@ -1783,9 +1814,20 @@
                     <property name="sizeAdjustPolicy">
                      <enum>QAbstractScrollArea::AdjustToContents</enum>
                     </property>
+                    <property name="editTriggers">
+                     <set>QAbstractItemView::NoEditTriggers</set>
+                    </property>
                     <attribute name="horizontalHeaderDefaultSectionSize">
-                     <number>150</number>
+                     <number>125</number>
                     </attribute>
+                    <attribute name="horizontalHeaderMinimumSectionSize">
+                     <number>125</number>
+                    </attribute>
+                    <column>
+                     <property name="text">
+                      <string>Stream</string>
+                     </property>
+                    </column>
                     <column>
                      <property name="text">
                       <string>Pinch Temp.</string>
@@ -1793,10 +1835,12 @@
                     </column>
                     <column>
                      <property name="text">
-                      <string>Outlet Temp.</string>
+                      <string>Intermediate Temp.</string>
                      </property>
                      <property name="font">
                       <font>
+                       <family>MS Shell Dlg 2</family>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
                       </font>
@@ -1910,9 +1954,20 @@
                   </item>
                   <item>
                    <widget class="QTableWidget" name="tableWidget_17">
+                    <property name="editTriggers">
+                     <set>QAbstractItemView::NoEditTriggers</set>
+                    </property>
                     <attribute name="horizontalHeaderDefaultSectionSize">
-                     <number>150</number>
+                     <number>125</number>
                     </attribute>
+                    <attribute name="horizontalHeaderMinimumSectionSize">
+                     <number>125</number>
+                    </attribute>
+                    <column>
+                     <property name="text">
+                      <string>Stream</string>
+                     </property>
+                    </column>
                     <column>
                      <property name="text">
                       <string>Pinch Temp.</string>
@@ -1920,7 +1975,7 @@
                     </column>
                     <column>
                      <property name="text">
-                      <string>Inlet Temp.</string>
+                      <string>Intermediate Temp.</string>
                      </property>
                      <property name="font">
                       <font>

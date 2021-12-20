@@ -4,7 +4,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-def pontopinch (correntes, n, dTmin, Tdecre, Tmin, Tmax, cascat2certo, dT,pinch,dH,cascat,utilidadesquente, menor,cascat2) :
+def pontopinch (correntes, n, dTmin) :
 	#(n)
 	for i in range (n): #correção das temperaturas
 		if correntes[i][3] == "Hot":
@@ -120,4 +120,4 @@ def pontopinch (correntes, n, dTmin, Tdecre, Tmin, Tmax, cascat2certo, dT,pinch,
 	menor = menor*(-1)
 	menorc = ['%.2f' % menor]
 	utilidadesquente = menorc[0]
-	return (dTmin, Tdecre, Tmin, Tmax, cascat2certo,dT,pinchf,pinchq,cascat2,utilidadesquente,menor)
+	return pinchf, pinchq
