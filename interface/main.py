@@ -23,6 +23,7 @@ from prog_carlos import *
 from prog_carlos_abaixo import *
 from converter_unidades import *
 from matplotlib.figure import Figure
+import turtle
 
 
 
@@ -473,10 +474,13 @@ def pinch_teste():
 		dlg.tabWidget.setTabEnabled(2,True)
 		dlg.tabWidget.setTabEnabled(3,True)
 		dlg.tabWidget.setTabEnabled(4,True)
-		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
-		dlg.comboBox_51.setEnabled(True) #fechar combobox de subcold stream
-		dlg.comboBox_53.setEnabled(True) #fechar combobox de subhot stream
-		dlg.comboBox_54.setEnabled(True) #fechar combobox de subcold stream
+		dlg.comboBox_50.setEnabled(True)
+		dlg.comboBox_51.setEnabled(True)
+		dlg.comboBox_53.setEnabled(True)
+		dlg.comboBox_54.setEnabled(True)
+
+		# dlg.caixinha3 = turtle.Turtle()
+		# turtle.done()
 
 
 
@@ -505,7 +509,7 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_39.addItem(str(i+1))   #abaixo
 	for i in range (nsubstages):
 		dlg.comboBox_7.addItem(str(i+1))    #acima
-		dlg.comboBox_40.addItem(str(i+1))    #abaixo
+		dlg.comboBox_40.addItem(str(i+1))
 
 def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 	dlg.dtmin = uic.loadUi("dtmin.ui")
