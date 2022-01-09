@@ -576,24 +576,24 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
 
-	print()
-	print()
-	print()
-	print("_____________________________________________________________")
-	for k in range(nstages):
-		print('ESTÁGIO ', k+1)
-		print('Tentra:', Thki[chot-1][k])
-		print('Tsai:', Thkf[chot-1][k])
-		print()
-
-		for sk in range(nsk):
-			print('SUB-ESTÁGIO ', sk+1)
-			for sub in range(ncold):
-				print("SUB", sub+1)
-				print('Tentra:', Thski[chot-1][sub][sk][k])
-				print('Tsai:', Thskf[chot-1][sub][sk][k])
-			print()
-		print()
+	# print()
+	# print()
+	# print()
+	# print("_____________________________________________________________")
+	# for k in range(nstages):
+	# 	print('ESTÁGIO ', k+1)
+	# 	print('Tentra:', Thki[chot-1][k])
+	# 	print('Tsai:', Thkf[chot-1][k])
+	# 	print()
+	#
+	# 	for sk in range(nsk):
+	# 		print('SUB-ESTÁGIO ', sk+1)
+	# 		for sub in range(ncold):
+	# 			print("SUB", sub+1)
+	# 			print('Tentra:', Thski[chot-1][sub][sk][k])
+	# 			print('Tsai:', Thskf[chot-1][sub][sk][k])
+	# 		print()
+	# 	print()
 
 
 	return violou, trocador_violado
@@ -866,20 +866,31 @@ def caixa_de_temperatura(dlg):
 	dlg.comboBox_51.setCurrentText(str(dlg.TempLoadAbove.comboBox_4.currentText())) #sj
 	dlg.TempLoadAbove.close()
 
-def testar_correntes():
+def testar_correntes(dlg):
 	global somaCPh, somaCPc, compq, compf, nhotc, ncoldc
-	for i in CPh:
-		somaCPh += i
-		if i != 0:
-			nhotc += 1
 
-	for j in CPc:
-		somaCPc += j
-		if j != 0:
-			ncoldc += 1
+	for quente in range(nhot):
+		if Thf[quente] == pinchq: #se tocar o pinch
+			somaCPh += CPh[quente]
+			if CPh[quente] != 0:
+				nhotc += 1
+
+	for fria in range(ncold):
+		if Tc0[fria] == pinchf: #se tocar o pinch
+			somaCPc += CPc[fria]
+			if CPc[fria] != 0:
+				ncoldc += 1
+
+	# print("nhot toca pinch acima: ", nhotc)
+	# print("ncold toca pinch acima: ", ncoldc)
+	# print("soma cpquente acima: ", somaCPh)
+	# print("soma cpfrio acima: ", somaCPc)
+
 
 	if somaCPh > somaCPc:
 		print('soma cp quente maior que soma cp frio acima do pinch')
+		dlg.label_24.setText("The sum of the Hot Streams CPs is greater than the sum of the Cold Streams Cps")
 
 	elif nhotc > ncoldc:
 		print("mais correntes quentes que frias acima do pinch")
+		dlg.label_23.setText("The number of Hot Streams is greater than the number of Cold Streams above the Pinch")

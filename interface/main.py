@@ -48,9 +48,9 @@ alreadypinched=0
 plotou=0
 correntesncorrigidas=[]
 correntestrocador=[]
-chega_no_pinch_quente_acima = []
-chega_no_pinch_fria_acima = []
-chega_no_pinch_quente_abaixo = []
+corrente_quente_presente_acima = []
+corrente_fria_presente_acima = []
+corrente_quente_presente_abaixo = []
 chega_no_pinch_fria_abaixo = []
 
 
@@ -418,7 +418,6 @@ def pinch_teste():
 	if done:
 		global correntes, dTmin, pinchf, pinchq, n
 		pinchf, pinchq = pontopinch(correntes, n, dTmin)
-
 		#arruma as temperaturas baseado no pinch
 		for i in range (n): #correção das temperaturas
 			if correntes[i][3] == "Hot":
@@ -429,16 +428,16 @@ def pinch_teste():
 				CPh.append(correntes[i][2])
 				if correntes[i][1] > pinchq: #corrente quente nao bate no pinch acima
 					Thf_acima.append(correntes[i][1])
-					chega_no_pinch_quente_abaixo.append(False)
+					corrente_quente_presente_abaixo.append(False)
 				else:
 					Thf_acima.append(pinchq)
-					chega_no_pinch_quente_abaixo.append(True)
+					corrente_quente_presente_abaixo.append(True)
 				if correntes[i][0] < pinchq: #corrente quente não bate no pinch abaixo
 					Th0_abaixo.append(correntes[i][0])
-					chega_no_pinch_quente_acima.append(False)
+					corrente_quente_presente_acima.append(False)
 				else:
 					Th0_abaixo.append(pinchq)
-					chega_no_pinch_quente_acima.append(True)
+					corrente_quente_presente_acima.append(True)
 
 			if correntes[i][3] == "Cold":
 				correntes[i][0] -= dTmin/2
@@ -454,10 +453,10 @@ def pinch_teste():
 					chega_no_pinch_fria_abaixo.append(True)
 				if correntes[i][1] < pinchf: #corrente fria não bate no pinch abaixo
 					Tcf_abaixo.append(correntes[i][1])
-					chega_no_pinch_fria_acima.append(False)
+					corrente_fria_presente_acima.append(False)
 				else:
 					Tcf_abaixo.append(pinchf)
-					chega_no_pinch_fria_acima.append(True)
+					corrente_fria_presente_acima.append(True)
 
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
@@ -465,8 +464,8 @@ def pinch_teste():
 		printar()
 		printar_abaixo()
 		correntesnoscombos(nhot,ncold)
-		testar_correntes()
-		testar_correntes_abaixo()
+		testar_correntes(dlg)
+		testar_correntes_abaixo(dlg)
 
 
 		#libera botões e coisas
@@ -653,6 +652,12 @@ def printar():
 	dlg.tableWidget_3.clearContents()
 	dlg.tableWidget_4.clearContents()
 
+	pinch_quente_texto = "Hot Pinch Temperature: " + str(pinchq)
+	pinch_frio_texto = "Cold Pinch Temperature: " + str(pinchf)
+
+	dlg.label_15.setText(pinch_quente_texto)
+	dlg.label_12.setText(pinch_frio_texto)
+
 	if dlg.checkBox.isChecked():
 		linha = 0
 		linhas = 0
@@ -664,24 +669,26 @@ def printar():
 				for sub in range(quantidade_quente[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-					if chega_no_pinch_quente_acima[corrente]:
+					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+					if corrente_quente_presente_acima[corrente]:
 						dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente][sub])))))
-						dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+						dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
 						dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub[corrente][sub])))))
 					else:
+						dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem("-"))
 						dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem("-"))
 						dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem("-"))
 					linha += 1
 			else:
 				dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-				if chega_no_pinch_quente_acima[corrente]:
+				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+				if corrente_quente_presente_acima[corrente]:
 					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
 					dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
 				else:
+					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem("-"))
 					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem("-"))
 					dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem("-"))
@@ -690,12 +697,13 @@ def printar():
 		dlg.tableWidget_3.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-			if chega_no_pinch_quente_acima[corrente]:
+			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+			if corrente_quente_presente_acima[corrente]:
 				dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
 				dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
 			else:
+				dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem("-"))
@@ -711,24 +719,26 @@ def printar():
 				for sub in range(quantidade_fria[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-					if chega_no_pinch_fria_acima[corrnte]:
+					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+					if corrente_fria_presente_acima[corrnte]:
 						dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente][sub])))))
-						dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+						dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
 						dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub[corrente][sub])))))
 					else:
+						dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem("-"))
 						dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem("-"))
 						dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem("-"))
 					linha += 1
 			else:
 				dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-				if chega_no_pinch_fria_acima[corrente]:
+				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+				if corrente_fria_presente_acima[corrente]:
 					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
 					dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
 				else:
+					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem("-"))
 					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem("-"))
 					dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem("-"))
@@ -737,15 +747,16 @@ def printar():
 		dlg.tableWidget_4.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
-			if chega_no_pinch_fria_acima[corrente]:
+			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+			if corrente_fria_presente_acima[corrente]:
 				dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
 				dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
 			else:
-				dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem("-"))
-				dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem("-"))
-				dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem("-"))
+				dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem("-"))
+				dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem("-"))
+				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem("-"))
+				dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem("-"))
 
 
 	dlg.tableWidget_2.setRowCount(len(matriz_armazenada))
@@ -883,6 +894,12 @@ def printar_abaixo():
 	dlg.tableWidget_15.clearContents()
 	dlg.tableWidget_17.clearContents()
 
+	pinch_quente_texto = "Hot Pinch Temperature: " + str(pinchq)
+	pinch_frio_texto = "Cold Pinch Temperature: " + str(pinchf)
+
+	dlg.label_17.setText(pinch_quente_texto)
+	dlg.label_21.setText(pinch_frio_texto)
+
 	if dlg.checkBox_9.isChecked():
 		linha = 0
 		linhas = 0
@@ -894,24 +911,26 @@ def printar_abaixo():
 				for sub in range(quantidade_quente_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-					if chega_no_pinch_quente_abaixo[corrente]:
+					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+					if corrente_quente_presente_abaixo[corrente]:
 						dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_abaixo[corrente][sub])))))
 						dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
 						dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub_abaixo[corrente][sub])))))
 					else:
+						dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem("-"))
 						dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem("-"))
 						dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem("-"))
 					linha += 1
 			else:
 				dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-				if chega_no_pinch_quente_abaixo[corrente]:
+				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+				if corrente_quente_presente_abaixo[corrente]:
 					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
 					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
 					dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
 				else:
+					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem("-"))
 					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem("-"))
 					dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem("-"))
@@ -921,12 +940,13 @@ def printar_abaixo():
 		dlg.tableWidget_15.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_15.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchq)))))
-			if chega_no_pinch_quente_abaixo[corrente]:
+			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+			if corrente_quente_presente_abaixo[corrente]:
 				dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
 				dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
 				dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
 			else:
+				dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem("-"))
@@ -942,24 +962,26 @@ def printar_abaixo():
 				for sub in range(quantidade_fria_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
 					if chega_no_pinch_fria_abaixo[corrente]:
 						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
 						dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 						dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
 					else:
+						dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem("-"))
 						dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem("-"))
 						dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem("-"))
 					linha += 1
 			else:
 				dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
 				if chega_no_pinch_fria_abaixo[corrente]:
 					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
 					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
 				else:
+					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem("-"))
 					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem("-"))
 					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem("-"))
@@ -968,12 +990,13 @@ def printar_abaixo():
 		dlg.tableWidget_17.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(pinchf)))))
+			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
 			if chega_no_pinch_fria_abaixo[corrente]:
 				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
 				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
 			else:
+				dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem("-"))
