@@ -23,8 +23,8 @@ from prog_carlos import *
 from prog_carlos_abaixo import *
 from converter_unidades import *
 from matplotlib.figure import Figure
-import turtle
 from PIL import Image
+import turtle
 
 
 
@@ -430,13 +430,13 @@ def pinch_teste():
 				Th0.append(correntes[i][0])
 				Thf.append(correntes[i][1])
 				CPh.append(correntes[i][2])
-				if correntes[i][1] > pinchq: #corrente quente nao bate no pinch acima
+				if correntes[i][1] >= pinchq: #corrente quente nao bate no pinch acima
 					Thf_acima.append(correntes[i][1])
 					corrente_quente_presente_abaixo.append(False)
 				else:
 					Thf_acima.append(pinchq)
 					corrente_quente_presente_abaixo.append(True)
-				if correntes[i][0] < pinchq: #corrente quente não bate no pinch abaixo
+				if correntes[i][0] <= pinchq: #corrente quente não bate no pinch abaixo
 					Th0_abaixo.append(correntes[i][0])
 					corrente_quente_presente_acima.append(False)
 				else:
@@ -450,13 +450,13 @@ def pinch_teste():
 				Tc0.append(correntes[i][0])
 				Tcf.append(correntes[i][1])
 				CPc.append(correntes[i][2])
-				if correntes[i][0] > pinchf: #corrente fria não bate no pinch acima
+				if correntes[i][0] >= pinchf: #corrente fria não bate no pinch acima
 					Tc0_acima.append(correntes[i][0])
 					corrente_fria_presente_abaixo.append(False)
 				else:
 					Tc0_acima.append(pinchf)
 					corrente_fria_presente_abaixo.append(True)
-				if correntes[i][1] < pinchf: #corrente fria não bate no pinch abaixo
+				if correntes[i][1] <= pinchf: #corrente fria não bate no pinch abaixo
 					Tcf_abaixo.append(correntes[i][1])
 					corrente_fria_presente_acima.append(False)
 				else:
@@ -483,11 +483,11 @@ def pinch_teste():
 		dlg.comboBox_53.setEnabled(True)
 		dlg.comboBox_54.setEnabled(True)
 
-		#desenhar_rede(correntes_quentes, correntes_frias)
 
 
 
 def desenhar_rede(correntes_quentes, correntes_frias):
+	global y_acima, y_abaixo
 	turtle.delay(0)
 	turtle.setup(width=1.0, height=1.0)
 
@@ -497,60 +497,64 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		global y_acima, y_abaixo
 		distancia_x = 420
 		for i in range(len(correntes)):
-			correntes[i] = turtle.Turtle()
-			correntes[i].color("red")
-			correntes[i].pensize(3)
-			correntes[i].penup()
-			if onde == "above":
-				correntes[i].setx(-distancia_x)
-				correntes[i].sety(y_acima)
-				if presente[i]:
+			if presente[i]:
+				correntes[i] = turtle.Turtle()
+				correntes[i].color("red")
+				correntes[i].pensize(3)
+				correntes[i].penup()
+				if onde == "above":
+					correntes[i].setx(-distancia_x)
+					correntes[i].sety(y_acima)
 					correntes[i].pendown()
 					if Thf_acima[i] == pinchq:
 						correntes[i].forward(distancia_x - 4)
 					else:
 						correntes[i].forward(distancia_x - 200)
-						y_acima -= 30
-			elif onde == "below":
-				correntes[i].setx(4)
-				correntes[i].sety(y_abaixo)
-				if presente[i]:
-					correntes[i].pendown()
-					if Tc0_acima[i] == pinchf:
+				elif onde == "below":
+					correntes[i].sety(y_abaixo)
+					if Th0_abaixo[i] == pinchq:
+						correntes[i].setx(4)
+						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 4)
 					else:
+						correntes[i].setx(200)
+						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 200)
-						y_abaixo -= 30
+			y_acima -= 30
+			y_abaixo -= 30
 
-	def frias(onde, correntes):
+	def frias(onde, correntes, presente):
 		global y_acima, y_abaixo
 		distancia_x = 420
-		for i in range(len(fria)):
-			correntes[i] = turtle.Turtle()
-			correntes[i].color("blue")
-			correntes[i].pensize(3)
-			correntes[i].penup()
-			if onde == "above":
-				correntes[i].setx(-4)
-				correntes[i].sety(y_acima)
-				correntes[i].pendown()
-				correntes[i].left(180)
-				# if toca_pinch[i]:
-				# 	correntes[i].forward(distancia_x - 4)
-				# else:
-				# 	correntes[i].forward(distancia_x - 200)
-				y_acima -= 30
-			elif onde == "below":
-				correntes[i].setx(420)
-				correntes[i].sety(y_abaixo)
-				correntes[i].pendown()
-				correntes[i].left(180)
-				correntes[i].forward(distancia_x - 4)
-				# if toca_pinch[i]:
-				# 	correntes[i].forward(distancia_x - 4)
-				# else:
-				# 	correntes[i].forward(distancia_x - 200)
-				y_abaixo -= 30
+		for i in range(len(correntes)):
+			if presente[i]:
+				correntes[i] = turtle.Turtle()
+				correntes[i].color("blue")
+				correntes[i].pensize(3)
+				correntes[i].penup()
+				if onde == "above":
+					correntes[i].sety(y_acima)
+					correntes[i].left(180)
+					if Tc0_acima[i] == pinchf:
+						correntes[i].setx(-4)
+						correntes[i].pendown()
+						correntes[i].forward(distancia_x - 4)
+					else:
+						correntes[i].setx(-200)
+						correntes[i].pendown()
+						correntes[i].forward(distancia_x - 200)
+				elif onde == "below":
+					correntes[i].sety(y_abaixo)
+					correntes[i].left(180)
+					correntes[i].setx(420)
+					if Tcf_abaixo[i] == pinchf:
+						correntes[i].pendown()
+						correntes[i].forward(distancia_x - 4)
+					else:
+						correntes[i].pendown()
+						correntes[i].forward(distancia_x - 200)
+			y_acima -= 30
+			y_abaixo -= 30
 
 	def pinch(correntes):
 		pinch = turtle.Turtle()
@@ -566,10 +570,15 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 			pinch.penup()
 			pinch.forward(5)
 
-			quentes("above", correntes_quentes, corrente_quente_presente_acima)
-			pinch(correntes_quentes+correntes_frias)
+	quentes("above", correntes_quentes, corrente_quente_presente_acima)
+	frias("above", correntes_frias, corrente_fria_presente_acima)
+	y_acima, y_abaixo = 200, 200
+	quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
+	frias("below", correntes_frias, corrente_fria_presente_abaixo)
+	pinch(correntes_quentes+correntes_frias)
 
-			turtle.done()
+	turtle.done()
+
 
 
 def correntesnoscombos(nhot,ncold):
@@ -1276,7 +1285,7 @@ dlg.pushButton_6.clicked.connect(inserir_teste) #add heat exchanger
 dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
-
+dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias))
 
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
@@ -1294,6 +1303,7 @@ dlg.pushButton_18.clicked.connect(inserir_teste_abaixo) #add heat exchanger
 dlg.pushButton_15.clicked.connect(remover_teste_abaixo) #remove heat exchanger
 dlg.pushButton_17.clicked.connect(calcular_calor_abaixo) #choose stream temperature to calculate heat
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
+dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias))
 
 
 header = dlg.tableWidget.horizontalHeader()
@@ -1305,9 +1315,6 @@ header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
 
 
-
 dlg.show()
 dlg.showMaximized()
 app.exec()
-
-x = input("oi")

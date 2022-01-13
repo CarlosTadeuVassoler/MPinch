@@ -873,8 +873,8 @@ def testar_correntes(dlg):
 					nhotc += quantidade_quente[quente]
 				else:
 					nhotc += 1
-					if quente == 0:
-						nhotc += 1
+					# if quente == 0:
+					# 	nhotc += 1
 
 	for fria in range(ncold):
 		if Tc0[fria] == pinchf: #se tocar o pinch
@@ -905,8 +905,8 @@ def testar_correntes(dlg):
 		dlg.label_23.setStyleSheet("QLabel {color: green}")
 
 	if somaCPh <= somaCPc and ncoldc >= nhotc:
-		dlg.label_26.setText("Respected      ")
+		dlg.label_26.setText("Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: green}")
 	else:
-		dlg.label_26.setText("Not Respected   ")
+		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")

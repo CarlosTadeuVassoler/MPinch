@@ -884,8 +884,8 @@ def testar_correntes_abaixo(dlg):
 					ncoldc += quantidade_fria_abaixo[fria]
 				else:
 					ncoldc += 1
-					if fria == 1:
-						ncoldc += 2
+					# if fria == 1:
+					# 	ncoldc += 2
 
 	# print("nhot toca pinch abaixo: ", nhotc)
 	# print("ncold toca pinch abaixo: ", ncoldc)
@@ -907,8 +907,8 @@ def testar_correntes_abaixo(dlg):
 		dlg.label_22.setStyleSheet("QLabel {color: green}")
 
 	if somaCPh >= somaCPc and ncoldc <= nhotc:
-		dlg.label_27.setText("Respected      ")
+		dlg.label_27.setText("Respected")
 		dlg.label_27.setStyleSheet("QLabel {color: green}")
 	else:
-		dlg.label_27.setText("Not Respected   ")
+		dlg.label_27.setText("Not Respected")
 		dlg.label_27.setStyleSheet("QLabel {color: red}")
