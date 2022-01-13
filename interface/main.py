@@ -24,6 +24,7 @@ from prog_carlos_abaixo import *
 from converter_unidades import *
 from matplotlib.figure import Figure
 import turtle
+from PIL import Image
 
 
 
@@ -51,7 +52,9 @@ correntestrocador=[]
 corrente_quente_presente_acima = []
 corrente_fria_presente_acima = []
 corrente_quente_presente_abaixo = []
-chega_no_pinch_fria_abaixo = []
+corrente_fria_presente_abaixo = []
+correntes_quentes = []
+correntes_frias = []
 
 
 
@@ -421,6 +424,7 @@ def pinch_teste():
 		#arruma as temperaturas baseado no pinch
 		for i in range (n): #correção das temperaturas
 			if correntes[i][3] == "Hot":
+				correntes_quentes.append(1)
 				correntes[i][0] += dTmin/2
 				correntes[i][1] += dTmin/2
 				Th0.append(correntes[i][0])
@@ -440,6 +444,7 @@ def pinch_teste():
 					corrente_quente_presente_acima.append(True)
 
 			if correntes[i][3] == "Cold":
+				correntes_frias.append(1)
 				correntes[i][0] -= dTmin/2
 				correntes[i][1] -= dTmin/2
 				Tc0.append(correntes[i][0])
@@ -447,10 +452,10 @@ def pinch_teste():
 				CPc.append(correntes[i][2])
 				if correntes[i][0] > pinchf: #corrente fria não bate no pinch acima
 					Tc0_acima.append(correntes[i][0])
-					chega_no_pinch_fria_abaixo.append(False)
+					corrente_fria_presente_abaixo.append(False)
 				else:
 					Tc0_acima.append(pinchf)
-					chega_no_pinch_fria_abaixo.append(True)
+					corrente_fria_presente_abaixo.append(True)
 				if correntes[i][1] < pinchf: #corrente fria não bate no pinch abaixo
 					Tcf_abaixo.append(correntes[i][1])
 					corrente_fria_presente_acima.append(False)
@@ -478,10 +483,93 @@ def pinch_teste():
 		dlg.comboBox_53.setEnabled(True)
 		dlg.comboBox_54.setEnabled(True)
 
-		# dlg.caixinha3 = turtle.Turtle()
-		# turtle.done()
+		#desenhar_rede(correntes_quentes, correntes_frias)
 
 
+
+def desenhar_rede(correntes_quentes, correntes_frias):
+	turtle.delay(0)
+	turtle.setup(width=1.0, height=1.0)
+
+	y_acima, y_abaixo = 200, 200
+
+	def quentes(onde, correntes, presente):
+		global y_acima, y_abaixo
+		distancia_x = 420
+		for i in range(len(correntes)):
+			correntes[i] = turtle.Turtle()
+			correntes[i].color("red")
+			correntes[i].pensize(3)
+			correntes[i].penup()
+			if onde == "above":
+				correntes[i].setx(-distancia_x)
+				correntes[i].sety(y_acima)
+				if presente[i]:
+					correntes[i].pendown()
+					if Thf_acima[i] == pinchq:
+						correntes[i].forward(distancia_x - 4)
+					else:
+						correntes[i].forward(distancia_x - 200)
+						y_acima -= 30
+			elif onde == "below":
+				correntes[i].setx(4)
+				correntes[i].sety(y_abaixo)
+				if presente[i]:
+					correntes[i].pendown()
+					if Tc0_acima[i] == pinchf:
+						correntes[i].forward(distancia_x - 4)
+					else:
+						correntes[i].forward(distancia_x - 200)
+						y_abaixo -= 30
+
+	def frias(onde, correntes):
+		global y_acima, y_abaixo
+		distancia_x = 420
+		for i in range(len(fria)):
+			correntes[i] = turtle.Turtle()
+			correntes[i].color("blue")
+			correntes[i].pensize(3)
+			correntes[i].penup()
+			if onde == "above":
+				correntes[i].setx(-4)
+				correntes[i].sety(y_acima)
+				correntes[i].pendown()
+				correntes[i].left(180)
+				# if toca_pinch[i]:
+				# 	correntes[i].forward(distancia_x - 4)
+				# else:
+				# 	correntes[i].forward(distancia_x - 200)
+				y_acima -= 30
+			elif onde == "below":
+				correntes[i].setx(420)
+				correntes[i].sety(y_abaixo)
+				correntes[i].pendown()
+				correntes[i].left(180)
+				correntes[i].forward(distancia_x - 4)
+				# if toca_pinch[i]:
+				# 	correntes[i].forward(distancia_x - 4)
+				# else:
+				# 	correntes[i].forward(distancia_x - 200)
+				y_abaixo -= 30
+
+	def pinch(correntes):
+		pinch = turtle.Turtle()
+		pinch.shapesize(0.001, 0.001, 0.001)
+		pinch.pensize(2)
+		pinch.right(90)
+		pinch.penup()
+		pinch.sety(235)
+		tamanho = len(correntes)
+		for i in range(tamanho * 3 + 4):
+			pinch.pendown()
+			pinch.forward(5)
+			pinch.penup()
+			pinch.forward(5)
+
+			quentes("above", correntes_quentes, corrente_quente_presente_acima)
+			pinch(correntes_quentes+correntes_frias)
+
+			turtle.done()
 
 
 def correntesnoscombos(nhot,ncold):
@@ -629,8 +717,10 @@ def dividir_corrente(divisao, onde):
 
 		if onde == "above":
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
+			testar_correntes(dlg)
 		elif onde == "below":
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
+			testar_correntes_abaixo(dlg)
 
 		if divtype == "Q":
 			dlg.DivisaoQuente.close()
@@ -963,7 +1053,7 @@ def printar_abaixo():
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(text))
 					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
-					if chega_no_pinch_fria_abaixo[corrente]:
+					if corrente_fria_presente_abaixo[corrente]:
 						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
 						dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 						dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
@@ -976,7 +1066,7 @@ def printar_abaixo():
 			else:
 				dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
 				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
-				if chega_no_pinch_fria_abaixo[corrente]:
+				if corrente_fria_presente_abaixo[corrente]:
 					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
 					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
@@ -991,7 +1081,7 @@ def printar_abaixo():
 		for corrente in range(ncold):
 			dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
 			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
-			if chega_no_pinch_fria_abaixo[corrente]:
+			if corrente_fria_presente_abaixo[corrente]:
 				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
 				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
 				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))

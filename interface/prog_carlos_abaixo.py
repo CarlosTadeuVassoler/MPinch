@@ -31,9 +31,8 @@ sestagio = 0
 
 complistq = []
 complistf = []
-cont = compq = compf = opcao = 0
-chot = ccold = sbhot = sbcold = nhotc = ncoldc = qsi = qsj = chotutil = 0
-somaCPh = somaCPc = 0
+cont = opcao = 0
+chot = ccold = sbhot = sbcold = qsi = qsj = chotutil = 0
 tempdif = tempmeta = 0
 
 nsk = nstages = 2
@@ -621,8 +620,6 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 			dividida_quente_abaixo[corrente-1] = True
 			quantidade_quente_abaixo[corrente-1] = qsi
 
-			nhotc = qsi + (nhot - 1)
-
 		if divtype.upper() == 'F':
 			#desfaz divisoes anteriores
 			for sj in range(1, nhot):
@@ -643,8 +640,6 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 						calor_atual_frio_sub_abaixo[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
 			dividida_fria_abaixo[corrente-1] = True
 			quantidade_fria_abaixo[corrente-1] = qsj
-
-			ncoldc = qsj + (ncold - 1)
 
 def ler_dados_abaixo(dlg):
 	i = int(dlg.comboBox_35.currentText())
@@ -867,19 +862,30 @@ def caixa_de_temperatura_abaixo(dlg):
 	dlg.TempLoadBelow.close()
 
 def testar_correntes_abaixo(dlg):
-	global somaCPh, somaCPc, compq, compf, nhotc, ncoldc
+	nhotc = 0
+	ncoldc = 0
+	somaCPh = 0
+	somaCPc = 0
 
 	for quente in range(nhot):
 		if Th0[quente] == pinchq:
 			somaCPh += CPh[quente]
 			if CPh[quente] != 0:
-				nhotc += 1
+				if dividida_quente_abaixo[quente]:
+					nhotc += quantidade_quente_abaixo[quente]
+				else:
+					nhotc += 1
 
 	for fria in range(ncold):
 		if Tcf[fria] == pinchf:
 			somaCPc += CPc[fria]
 			if CPc[fria] != 0:
-				ncoldc += 1
+				if dividida_fria_abaixo[fria]:
+					ncoldc += quantidade_fria_abaixo[fria]
+				else:
+					ncoldc += 1
+					if fria == 1:
+						ncoldc += 2
 
 	# print("nhot toca pinch abaixo: ", nhotc)
 	# print("ncold toca pinch abaixo: ", ncoldc)
@@ -887,9 +893,22 @@ def testar_correntes_abaixo(dlg):
 	# print("soma cpfrio abaixo: ", somaCPc)
 
 	if somaCPc > somaCPh:
-		print('soma cp frias maior que soma cp quentes abaixo do pinch')
-		dlg.label_25.setText("The sum of the Cold Streams CPs is greater than the sum of the Hot Streams Cps")
+		dlg.label_25.setText("∑ColdCps > ∑HotCps")
+		dlg.label_25.setStyleSheet("QLabel {color: red}")
+	else:
+		dlg.label_25.setText("∑HotCps ≥ ∑ColdCps")
+		dlg.label_25.setStyleSheet("QLabel {color: green}")
 
-	elif ncoldc > nhotc:
-		print("mais correntes frias que quentes acima do pinch")
-		dlg.label_22.setText("The number of Cold Streams is greater than the number of Hot Streams below the Pinch")
+	if ncoldc > nhotc:
+		dlg.label_22.setText("ncold > nhot")
+		dlg.label_22.setStyleSheet("QLabel {color: red}")
+	else:
+		dlg.label_22.setText("nhot ≥ ncold")
+		dlg.label_22.setStyleSheet("QLabel {color: green}")
+
+	if somaCPh >= somaCPc and ncoldc <= nhotc:
+		dlg.label_27.setText("Respected      ")
+		dlg.label_27.setStyleSheet("QLabel {color: green}")
+	else:
+		dlg.label_27.setText("Not Respected   ")
+		dlg.label_27.setStyleSheet("QLabel {color: red}")
