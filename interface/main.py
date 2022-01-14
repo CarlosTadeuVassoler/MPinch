@@ -490,12 +490,15 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 	global y_acima, y_abaixo
 	turtle.delay(0)
 	turtle.setup(width=1.0, height=1.0)
+	temp = turtle.Turtle()
+	temp.shapesize(0.001, 0.001, 0.001)
+	temp.penup()
 
 	y_acima, y_abaixo = 200, 200
 
 	def quentes(onde, correntes, presente):
 		global y_acima, y_abaixo
-		distancia_x = 420
+		distancia_x = 600
 		for i in range(len(correntes)):
 			if presente[i]:
 				correntes[i] = turtle.Turtle()
@@ -503,6 +506,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 				correntes[i].pensize(3)
 				correntes[i].penup()
 				if onde == "above":
+					temp.sety(y_acima - 8)
 					correntes[i].setx(-distancia_x)
 					correntes[i].sety(y_acima)
 					correntes[i].pendown()
@@ -510,7 +514,12 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						correntes[i].forward(distancia_x - 4)
 					else:
 						correntes[i].forward(distancia_x - 200)
+						temp.setx(-194)
+						temp.write(str(Thf_acima[i]), align="left", font=("Arial", 10, "normal"))
+					temp.setx(-distancia_x - len(str(Th0[i]))*3 - 20)
+					temp.write(str(Th0[i]), align="left", font=("Arial", 10, "normal"))
 				elif onde == "below":
+					temp.sety(y_abaixo - 8)
 					correntes[i].sety(y_abaixo)
 					if Th0_abaixo[i] == pinchq:
 						correntes[i].setx(4)
@@ -520,12 +529,17 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						correntes[i].setx(200)
 						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 200)
+						temp.setx(200 - len(str(Th0[i]))*3 - 20)
+						temp.write(str(Th0_abaixo[i]), align="left", font=("Arial", 10, "normal"))
+					temp.setx(distancia_x + 6)
+					temp.write(str(Thf[i]), align="left", font=("Arial", 10, "normal"))
+
 			y_acima -= 30
 			y_abaixo -= 30
 
 	def frias(onde, correntes, presente):
 		global y_acima, y_abaixo
-		distancia_x = 420
+		distancia_x = 600
 		for i in range(len(correntes)):
 			if presente[i]:
 				correntes[i] = turtle.Turtle()
@@ -533,6 +547,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 				correntes[i].pensize(3)
 				correntes[i].penup()
 				if onde == "above":
+					temp.sety(y_acima - 8)
 					correntes[i].sety(y_acima)
 					correntes[i].left(180)
 					if Tc0_acima[i] == pinchf:
@@ -543,16 +558,25 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						correntes[i].setx(-200)
 						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 200)
+						temp.setx(-194)
+						temp.write(str(Tc0_acima[i]), align="left", font=("Arial", 10, "normal"))
+					temp.setx(-distancia_x - len(str(Tcf[i]))*3 - 20)
+					temp.write(str(Tcf[i]), align="left", font=("Arial", 10, "normal"))
 				elif onde == "below":
+					temp.sety(y_abaixo - 8)
 					correntes[i].sety(y_abaixo)
 					correntes[i].left(180)
-					correntes[i].setx(420)
+					correntes[i].setx(distancia_x)
 					if Tcf_abaixo[i] == pinchf:
 						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 4)
 					else:
 						correntes[i].pendown()
 						correntes[i].forward(distancia_x - 200)
+						temp.setx(200 - len(str(Tcf_abaixo[i]))*3 - 20)
+						temp.write(str(Tcf_abaixo[i]), align="left", font=("Arial", 10, "normal"))
+					temp.setx(distancia_x + 6)
+					temp.write(str(Tc0[i]), align="left", font=("Arial", 10, "normal"))
 			y_acima -= 30
 			y_abaixo -= 30
 
@@ -563,19 +587,56 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		pinch.right(90)
 		pinch.penup()
 		pinch.sety(235)
+		temp.sety(240)
+		temp.setx(-len(str(pinchq))*3)
+		temp.write(str(pinchq), align="left", font=("Arial", 10, "normal"))
+		temp.right(90)
 		tamanho = len(correntes)
 		for i in range(tamanho * 3 + 4):
 			pinch.pendown()
 			pinch.forward(5)
 			pinch.penup()
 			pinch.forward(5)
+			temp.forward(10)
+		temp.forward(20)
+		temp.write(str(pinchf), align="left", font=("Arial", 10, "normal"))
+
+	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, subestagio):
+		trocador = turtle.Turtle()
+		trocador.pensize(3)
+		trocador.color("black", "white")
+		trocador.shapesize(0.001, 0.001, 0.001)
+		trocador.penup()
+		if onde == "above":
+			trocador.setx((subestagio+1)*-40)
+		elif onde == "below":
+			trocador.setx((subestagio+1)*40)
+		trocador.sety(corrente_quente.pos()[1]-10)
+		trocador.pendown()
+		trocador.begin_fill()
+		trocador.circle(10)
+		trocador.end_fill()
+		trocador.sety(corrente_fria.pos()[1] - 10)
+		trocador.begin_fill()
+		trocador.circle(10)
+		trocador.end_fill()
 
 	quentes("above", correntes_quentes, corrente_quente_presente_acima)
 	frias("above", correntes_frias, corrente_fria_presente_acima)
 	y_acima, y_abaixo = 200, 200
 	quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
 	frias("below", correntes_frias, corrente_fria_presente_abaixo)
-	pinch(correntes_quentes+correntes_frias)
+	pinch(correntes_quentes + correntes_frias)
+	if len(matriz_armazenada) > 0:
+		subestagio = 0
+		for trocador in matriz_armazenada:
+			inserir_trocador_desenho("above", correntes_quentes[trocador[0]-1], correntes_frias[trocador[1]-1], subestagio)
+			subestagio += 1
+	if len(matriz_trocadores_abaixo) > 0:
+		subestagio = 0
+		for trocador in matriz_trocadores_abaixo:
+			inserir_trocador_desenho("below", correntes_quentes[trocador[0]-1], correntes_frias[trocador[1]-1], subestagio)
+			subestagio += 1
 
 	turtle.done()
 
