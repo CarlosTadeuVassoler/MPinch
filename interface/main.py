@@ -601,16 +601,18 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		temp.forward(20)
 		temp.write(str(pinchf), align="left", font=("Arial", 10, "normal"))
 
-	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, subestagio):
+	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, quente_toca_pinch, fria_toca_pinch, subestagio, calor):
 		trocador = turtle.Turtle()
-		trocador.pensize(3)
+		trocador.pensize(1.5)
 		trocador.color("black", "white")
 		trocador.shapesize(0.001, 0.001, 0.001)
 		trocador.penup()
 		if onde == "above":
-			trocador.setx((subestagio+1)*-40)
+			trocador.setx(-subestagio*50)
+			temp.setx(-subestagio*50 - len(str(calor))*3)
 		elif onde == "below":
-			trocador.setx((subestagio+1)*40)
+			trocador.setx(subestagio*50)
+			temp.setx(subestagio*50 - len(str(calor))*3)
 		trocador.sety(corrente_quente.pos()[1]-10)
 		trocador.pendown()
 		trocador.begin_fill()
@@ -620,6 +622,30 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		trocador.begin_fill()
 		trocador.circle(10)
 		trocador.end_fill()
+		temp.sety(corrente_quente.pos()[1]+10)
+		temp.write(str(calor), align="left", font=("Arial", 10, "normal"))
+
+	def utilidade_desenho(onde, corrente, subestagio, calor):
+		utilidade = turtle.Turtle()
+		utilidade.pensize(1.5)
+		utilidade.shapesize(0.001, 0.001, 0.001)
+		utilidade.penup()
+		if onde == "above":
+			utilidade.color("black", "red")
+			utilidade.setx(-subestagio*50)
+			temp.setx(-subestagio*50 - len(str(calor))*3)
+		elif onde == "below":
+			utilidade.color("black", "blue")
+			utilidade.setx(subestagio*50)
+			temp.setx(subestagio*50 - len(str(calor))*3)
+		utilidade.sety(corrente.pos()[1]-10)
+		utilidade.pendown()
+		utilidade.begin_fill()
+		utilidade.circle(10)
+		utilidade.end_fill()
+		temp.sety(corrente.pos()[1]+10)
+		temp.write(str(calor), align="left", font=("Arial", 10, "normal"))
+
 
 	quentes("above", correntes_quentes, corrente_quente_presente_acima)
 	frias("above", correntes_frias, corrente_fria_presente_acima)
@@ -627,16 +653,64 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 	quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
 	frias("below", correntes_frias, corrente_fria_presente_abaixo)
 	pinch(correntes_quentes + correntes_frias)
+
 	if len(matriz_armazenada) > 0:
 		subestagio = 0
-		for trocador in matriz_armazenada:
-			inserir_trocador_desenho("above", correntes_quentes[trocador[0]-1], correntes_frias[trocador[1]-1], subestagio)
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_armazenada:
+			if Thf_acima[trocadorr[0]-1] == pinchq:
+				quente_toca_pinch = True
+			else:
+				quente_toca_pinch = False
+				if not foi_pra_frente and i < 4:
+					subestagio += 4 - i
+					foi_pra_frente = True
+			if Tc0_acima[trocadorr[1]-1] == pinchf:
+				fria_toca_pinch = True
+			else:
+				fria_toca_pinch = False
+				if not foi_pra_frente and i < 4:
+					subestagio += 4 - i
+					foi_pra_frente = True
 			subestagio += 1
+			i += 1
+			inserir_trocador_desenho("above", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], quente_toca_pinch, fria_toca_pinch, subestagio, trocadorr[6])
+
+		if len(utilidades) > 0:
+			for utilidadee in utilidades:
+				subestagio += 1
+				utilidade_desenho("above", correntes_frias[utilidadee[0]-1], subestagio, utilidadee[1])
+
 	if len(matriz_trocadores_abaixo) > 0:
 		subestagio = 0
-		for trocador in matriz_trocadores_abaixo:
-			inserir_trocador_desenho("below", correntes_quentes[trocador[0]-1], correntes_frias[trocador[1]-1], subestagio)
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_trocadores_abaixo:
+			if Th0_abaixo[trocadorr[0]-1] == pinchq:
+				quente_toca_pinch = True
+			else:
+				quente_toca_pinch = False
+				if not foi_pra_frente:
+					subestagio += 4 - i
+					foi_pra_frente = True
+			if Tcf_abaixo[trocadorr[1]-1] == pinchf:
+				fria_toca_pinch = True
+			else:
+				fria_toca_pinch = False
+				if not foi_pra_frente and i < 4:
+					subestagio += 4 - 1
+					foi_pra_frente = True
 			subestagio += 1
+			i += 1
+			inserir_trocador_desenho("below", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], quente_toca_pinch, fria_toca_pinch, subestagio, trocadorr[6])
+
+		if len(utilidades_abaixo) > 0:
+			for utilidadee in utilidades_abaixo:
+				subestagio += 1
+				utilidade_desenho("below", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1])
+
+
 
 	turtle.done()
 
