@@ -496,84 +496,151 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 
 	y_acima, y_abaixo = 200, 200
 
-	def quentes(onde, correntes, presente):
+	def quentes(onde, correntes_desenho, presente):
 		global y_acima, y_abaixo
-		distancia_x = 600
-		for i in range(len(correntes)):
+		distancia_x = 500
+		for i in range(len(correntes_desenho)):
+			temp.sety(y_acima - 8)
+			temp.setx(-distancia_x - len("Cp = " + str(correntes[i][2]))*3 - 110)
+			temp.write("Cp = " + str(correntes[i][2]), align="left", font=("Arial", 10, "normal"))
 			if presente[i]:
-				correntes[i] = turtle.Turtle()
-				correntes[i].color("red")
-				correntes[i].pensize(3)
-				correntes[i].penup()
+				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].color("red")
+				correntes_desenho[i].pensize(3)
+				correntes_desenho[i].penup()
+				correntes_desenho_sub_acima = [0] * nhot
+				correntes_desenho_sub_abaixo = [0] * nhot
 				if onde == "above":
 					temp.sety(y_acima - 8)
-					correntes[i].setx(-distancia_x)
-					correntes[i].sety(y_acima)
-					correntes[i].pendown()
+					correntes_desenho[i].setx(-distancia_x)
+					correntes_desenho[i].sety(y_acima)
+					correntes_desenho[i].pendown()
+					if dividida_quente[i]:
+						correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
+						for j in range(quantidade_quente[i]-1):
+							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
+							correntes_desenho_sub_acima[i][j].color("red")
+							correntes_desenho_sub_acima[i][j].pensize(3)
+							correntes_desenho_sub_acima[i][j].penup()
+							correntes_desenho_sub_acima[i][j].setx(-distancia_x + 40)
+							correntes_desenho_sub_acima[i][j].sety(y_acima)
+							correntes_desenho_sub_acima[i][j].pendown()
+							correntes_desenho_sub_acima[i][j].right(90)
+							correntes_desenho_sub_acima[i][j].forward(30)
+							correntes_desenho_sub_acima[i][j].left(90)
+							if Thf_acima[i] == pinchq:
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - 84)
+							else:
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - 180)
+							correntes_desenho_sub_acima[i][j].left(90)
+							correntes_desenho_sub_acima[i][j].forward(30*(j+1))
+							correntes_desenho_sub_acima[i][j].right(90)
+							correntes_desenho_sub_acima[i][j].forward(40)
+							y_acima -= 30
 					if Thf_acima[i] == pinchq:
-						correntes[i].forward(distancia_x - 4)
+						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes[i].forward(distancia_x - 200)
-						temp.setx(-194)
+						correntes_desenho[i].forward(distancia_x - 100)
+						temp.setx(-94)
 						temp.write(str(Thf_acima[i]), align="left", font=("Arial", 10, "normal"))
+					if dividida_quente[i] and dividida_quente_abaixo[i]:
+						if quantidade_quente[i] < quantidade_quente_abaixo[i]:
+							y_acima -= 30 * (quantidade_quente_abaixo[i] - quantidade_quente[i])
+					elif dividida_quente_abaixo[i]:
+						y_acima -= 30 * (quantidade_quente_abaixo[i] - 1)
 					temp.setx(-distancia_x - len(str(Th0[i]))*3 - 20)
 					temp.write(str(Th0[i]), align="left", font=("Arial", 10, "normal"))
 				elif onde == "below":
 					temp.sety(y_abaixo - 8)
-					correntes[i].sety(y_abaixo)
+					correntes_desenho[i].sety(y_abaixo)
+					if dividida_quente_abaixo[i]:
+						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
+						for j in range(quantidade_quente_abaixo[i]-1):
+							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
+							correntes_desenho_sub_abaixo[i][j].color("red")
+							correntes_desenho_sub_abaixo[i][j].pensize(3)
+							correntes_desenho_sub_abaixo[i][j].penup()
+							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
+							if Th0_abaixo[i] == pinchq:
+								correntes_desenho_sub_abaixo[i][j].setx(44)
+								correntes_desenho_sub_abaixo[i][j].pendown()
+								correntes_desenho_sub_abaixo[i][j].right(90)
+								correntes_desenho_sub_abaixo[i][j].forward(30)
+								correntes_desenho_sub_abaixo[i][j].left(90)
+								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 84)
+							else:
+								correntes_desenho_sub_abaixo[i][j].setx(140)
+								correntes_desenho_sub_abaixo[i][j].pendown()
+								correntes_desenho_sub_abaixo[i][j].right(90)
+								correntes_desenho_sub_abaixo[i][j].forward(30)
+								correntes_desenho_sub_abaixo[i][j].left(90)
+								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 180)
+							correntes_desenho_sub_abaixo[i][j].left(90)
+							correntes_desenho_sub_abaixo[i][j].forward(30*(j+1))
+							correntes_desenho_sub_abaixo[i][j].right(90)
+							correntes_desenho_sub_abaixo[i][j].forward(40)
+							y_abaixo -= 30
 					if Th0_abaixo[i] == pinchq:
-						correntes[i].setx(4)
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 4)
+						correntes_desenho[i].setx(4)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes[i].setx(200)
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 200)
-						temp.setx(200 - len(str(Th0[i]))*3 - 20)
+						correntes_desenho[i].setx(100)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 100)
+						temp.setx(100 - len(str(Th0[i]))*3 - 20)
 						temp.write(str(Th0_abaixo[i]), align="left", font=("Arial", 10, "normal"))
+					if dividida_quente[i] and dividida_quente_abaixo[i]:
+						if quantidade_quente[i] > quantidade_quente_abaixo[i]:
+							y_abaixo -= 30 * (quantidade_quente[i] - quantidade_quente_abaixo[i])
+					elif dividida_quente[i]:
+						y_abaixo -= 30 * (quantidade_quente[i] - 1)
 					temp.setx(distancia_x + 6)
 					temp.write(str(Thf[i]), align="left", font=("Arial", 10, "normal"))
 
 			y_acima -= 30
 			y_abaixo -= 30
 
-	def frias(onde, correntes, presente):
+	def frias(onde, correntes_desenho, presente):
 		global y_acima, y_abaixo
-		distancia_x = 600
-		for i in range(len(correntes)):
+		distancia_x = 500
+		for i in range(len(correntes_desenho)):
+			temp.sety(y_acima - 8)
+			temp.setx(-distancia_x - len("Cp = " + str(correntes[i][2]))*3 - 110)
+			temp.write("Cp = " + str(correntes[i][2]), align="left", font=("Arial", 10, "normal"))
 			if presente[i]:
-				correntes[i] = turtle.Turtle()
-				correntes[i].color("blue")
-				correntes[i].pensize(3)
-				correntes[i].penup()
+				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].color("blue")
+				correntes_desenho[i].pensize(3)
+				correntes_desenho[i].penup()
 				if onde == "above":
 					temp.sety(y_acima - 8)
-					correntes[i].sety(y_acima)
-					correntes[i].left(180)
+					correntes_desenho[i].sety(y_acima)
+					correntes_desenho[i].left(180)
 					if Tc0_acima[i] == pinchf:
-						correntes[i].setx(-4)
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 4)
+						correntes_desenho[i].setx(-4)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes[i].setx(-200)
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 200)
-						temp.setx(-194)
+						correntes_desenho[i].setx(-200)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 100)
+						temp.setx(-94)
 						temp.write(str(Tc0_acima[i]), align="left", font=("Arial", 10, "normal"))
 					temp.setx(-distancia_x - len(str(Tcf[i]))*3 - 20)
 					temp.write(str(Tcf[i]), align="left", font=("Arial", 10, "normal"))
 				elif onde == "below":
 					temp.sety(y_abaixo - 8)
-					correntes[i].sety(y_abaixo)
-					correntes[i].left(180)
-					correntes[i].setx(distancia_x)
+					correntes_desenho[i].sety(y_abaixo)
+					correntes_desenho[i].left(180)
+					correntes_desenho[i].setx(distancia_x)
 					if Tcf_abaixo[i] == pinchf:
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 4)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes[i].pendown()
-						correntes[i].forward(distancia_x - 200)
-						temp.setx(200 - len(str(Tcf_abaixo[i]))*3 - 20)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 100)
+						temp.setx(100 - len(str(Tcf_abaixo[i]))*3 - 20)
 						temp.write(str(Tcf_abaixo[i]), align="left", font=("Arial", 10, "normal"))
 					temp.setx(distancia_x + 6)
 					temp.write(str(Tc0[i]), align="left", font=("Arial", 10, "normal"))
@@ -591,7 +658,24 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		temp.setx(-len(str(pinchq))*3)
 		temp.write(str(pinchq), align="left", font=("Arial", 10, "normal"))
 		temp.right(90)
-		tamanho = len(correntes)
+		dividida_acima = dividida_quente + dividida_fria
+		dividida_abaixo = dividida_quente_abaixo + dividida_fria_abaixo
+		quantidade_acima = quantidade_quente + quantidade_fria
+		quantidade_abaixo = quantidade_quente_abaixo + quantidade_fria_abaixo
+		tamanho_acima = tamanho_abaixo = 0
+		for i in range(len(correntes)):
+			if dividida_acima[i]:
+				tamanho_acima += quantidade_acima[i]
+			else:
+				tamanho_acima += 1
+			if dividida_abaixo[i]:
+				tamanho_abaixo += quantidade_abaixo[i]
+			else:
+				tamanho_abaixo += 1
+		if tamanho_acima > tamanho_abaixo:
+			tamanho = tamanho_acima
+		else:
+			tamanho = tamanho_abaixo
 		for i in range(tamanho * 3 + 4):
 			pinch.pendown()
 			pinch.forward(5)
@@ -791,7 +875,7 @@ def dividir_corrente(divisao, onde):
 		for i in range(nstages):
 			dlg.DivisaoQuente.comboBox.addItem(str(i+1))
 		for i in range(ncold):
-			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
+			dlg.DivisaoQuente.comboBox_3.addItem(str(i+2))
 		dlg.DivisaoQuente.show()
 	elif divtype == "F":
 		dlg.DivisaoFria.label_5.setText("Split Cold Stream")

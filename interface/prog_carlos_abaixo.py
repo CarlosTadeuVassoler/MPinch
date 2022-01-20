@@ -607,9 +607,9 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 				Fharr[estagio-1][corrente-1][si] = 0
 				Qtotalh0[corrente-1][si][estagio-1] = 0
 			#faz a nova divisao
-			if qsi > nsi[corrente-1]:
-				print('Erro! O número de divisões é muito grande.')
-				return
+			# if qsi > nsi[corrente-1]:
+			# 	print('Erro! O número de divisões é muito grande.')
+			# 	return
 			if qsi <= nsi[corrente-1]:
 				for si in range(qsi):
 					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
@@ -893,14 +893,16 @@ def testar_correntes_abaixo(dlg):
 	# print("soma cpfrio abaixo: ", somaCPc)
 
 	if somaCPc > somaCPh:
-		dlg.label_25.setText("∑ColdCps > ∑HotCps")
+		# dlg.label_25.setText("∑ColdCps > ∑HotCps")
+		dlg.label_25.setText("∑HotCps ≥ ∑ColdCps")
 		dlg.label_25.setStyleSheet("QLabel {color: red}")
 	else:
 		dlg.label_25.setText("∑HotCps ≥ ∑ColdCps")
 		dlg.label_25.setStyleSheet("QLabel {color: green}")
 
 	if ncoldc > nhotc:
-		dlg.label_22.setText("ncold > nhot")
+		# dlg.label_22.setText("ncold > nhot")
+		dlg.label_22.setText("nhot ≥ ncold")
 		dlg.label_22.setStyleSheet("QLabel {color: red}")
 	else:
 		dlg.label_22.setText("nhot ≥ ncold")
