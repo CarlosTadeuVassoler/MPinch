@@ -91,6 +91,8 @@ dividida_quente = []
 dividida_fria = []
 quantidade_quente = []
 quantidade_fria = []
+fracoes_quentes = []
+fracoes_frias = []
 
 def limpar_lista(lista):
 	for i in range(len(lista)):
@@ -221,6 +223,7 @@ def preparar_dados_e_rede():
 		calor_atual_quente_sub.append([])
 		dividida_quente.append(False)
 		quantidade_quente.append(1)
+		fracoes_quentes.append([])
 		for sub in range(ncold):
 			calor_atual_quente_sub[quente].append(0)
 			temperatura_atual_quente[quente].append(Thf[quente])
@@ -230,6 +233,7 @@ def preparar_dados_e_rede():
 		calor_atual_frio_sub.append([])
 		dividida_fria.append(False)
 		quantidade_fria.append(1)
+		fracoes_frias.append([])
 		for sub in range(nhot):
 			calor_atual_frio_sub[fria].append(0)
 			temperatura_atual_fria[fria].append(Tc0[fria])
@@ -278,7 +282,7 @@ def preparar_dados_e_rede():
 			Tckf[j][k] = Tc0[j]
 
 def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
-	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, nsi, nsj
+	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
 	Th0, Thf, Tc0, Tcf = [], [], [], []
 	limpar_lista(CPh)
 	limpar_lista(CPc)
@@ -294,8 +298,6 @@ def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio
 	pinchf = pinch_frio
 	nhot = nquentes
 	ncold = nfrias
-	nsi = [ncold, ncold]
-	nsj = [nhot, nhot]
 	dTmin = deltaTmin
 	preparar_dados_e_rede()
 
@@ -609,12 +611,10 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 				Fharr[estagio-1][corrente-1][si] = 0
 				Qtotalh0[corrente-1][si][estagio-1] = 0
 			#faz a nova divisao
-			# if qsi > nsi[corrente-1]:
-			# 	print('Erro! O número de divisões é muito grande.')
-			# 	return
-			if qsi <= nsi[corrente-1]:
+			if qsi <= ncold:
 				for si in range(qsi):
 					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
+					fracoes_quentes[corrente-1].append(fracao[si])
 				for si in range(ncold-1, -1, -1):
 					if Fharr[estagio-1][corrente-1][si] != 0:
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
@@ -630,12 +630,10 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 				Fcarr[estagio-1][corrente-1][sj] = 0
 				Qtotalc0[corrente-1][sj][estagio-1] = 0
 			#faz a nova divisao
-			if qsj > nsj[corrente-1]:
-				print('Erro! O número de divisões é muito grande.')
-				return
-			if qsj <= nsj[corrente-1]:
+			if qsj <= nhot:
 				for sj in range(qsj):
 					Fcarr[estagio-1][corrente-1][sj] = 100 * fracao[sj]
+					fracoes_frias[corrente-1].append(fracao[sj])
 				for sj in range(nhot-1, -1, -1):
 					if Fcarr[estagio-1][corrente-1][sj] != 0:
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
