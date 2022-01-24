@@ -891,19 +891,13 @@ def testar_correntes_abaixo(dlg):
 	# print("soma cpfrio abaixo: ", somaCPc)
 
 	if somaCPc > somaCPh:
-		# dlg.label_25.setText("∑ColdCps > ∑HotCps")
-		dlg.label_25.setText("∑HotCps ≥ ∑ColdCps")
 		dlg.label_25.setStyleSheet("QLabel {color: red}")
 	else:
-		dlg.label_25.setText("∑HotCps ≥ ∑ColdCps")
 		dlg.label_25.setStyleSheet("QLabel {color: green}")
 
 	if ncoldc > nhotc:
-		# dlg.label_22.setText("ncold > nhot")
-		dlg.label_22.setText("nhot ≥ ncold")
 		dlg.label_22.setStyleSheet("QLabel {color: red}")
 	else:
-		dlg.label_22.setText("nhot ≥ ncold")
 		dlg.label_22.setStyleSheet("QLabel {color: green}")
 
 	if somaCPh >= somaCPc and ncoldc <= nhotc:

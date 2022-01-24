@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -1318,14 +1318,8 @@
               </item>
               <item>
                <widget class="Line" name="line_3">
-                <property name="frameShadow">
-                 <enum>QFrame::Sunken</enum>
-                </property>
-                <property name="lineWidth">
-                 <number>1</number>
-                </property>
                 <property name="midLineWidth">
-                 <number>0</number>
+                 <number>5</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -1356,9 +1350,6 @@
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
                     </property>
                     <property name="text">
                      <string>Pinch Rules:</string>
@@ -1413,7 +1404,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>ncold ≥ nhot</string>
+                     <string>-</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1440,7 +1431,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>∑ColdCps ≥ ∑HotCps</string>
+                     <string>-</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1453,7 +1444,7 @@
                  <widget class="QLabel" name="xau">
                   <property name="minimumSize">
                    <size>
-                    <width>0</width>
+                    <width>500</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -1473,25 +1464,6 @@
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="Line" name="line_5">
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Sunken</enum>
-                  </property>
-                  <property name="midLineWidth">
-                   <number>0</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -1522,19 +1494,6 @@
                  </widget>
                 </item>
                </layout>
-              </item>
-              <item>
-               <widget class="Line" name="line_7">
-                <property name="frameShadow">
-                 <enum>QFrame::Sunken</enum>
-                </property>
-                <property name="midLineWidth">
-                 <number>0</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
               </item>
              </layout>
             </item>
@@ -2322,7 +2281,7 @@
               <item>
                <widget class="Line" name="line_4">
                 <property name="midLineWidth">
-                 <number>0</number>
+                 <number>5</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -2401,7 +2360,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>nhot ≥ ncold</string>
+                     <string>-</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -2422,7 +2381,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>∑HotCps ≥ ∑ColdCps</string>
+                     <string>-</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -2435,7 +2394,7 @@
                  <widget class="QLabel" name="xau_2">
                   <property name="minimumSize">
                    <size>
-                    <width>0</width>
+                    <width>600</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -2459,19 +2418,6 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="Line" name="line_6">
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QPushButton" name="pushButton_19">
                   <property name="minimumSize">
                    <size>
@@ -2484,27 +2430,7 @@
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_23">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>35</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Ideia quebra de laços</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
-              </item>
-              <item>
-               <widget class="Line" name="line_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
               </item>
              </layout>
             </item>
