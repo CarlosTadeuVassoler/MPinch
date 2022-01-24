@@ -25,6 +25,7 @@ from converter_unidades import *
 from matplotlib.figure import Figure
 from PIL import Image
 import turtle
+from svg_turtle import SvgTurtle
 
 
 
@@ -491,6 +492,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 	turtle.delay(0)
 	turtle.setup(width=1.0, height=1.0)
 	temp = turtle.Turtle()
+	temp.speed(1000)
 	temp.shapesize(0.001, 0.001, 0.001)
 	temp.penup()
 
@@ -502,6 +504,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		for i in range(len(correntes_desenho)):
 			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].speed(1000)
 				correntes_desenho[i].color("red")
 				correntes_desenho[i].pensize(3)
 				correntes_desenho[i].penup()
@@ -623,6 +626,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		for i in range(len(correntes_desenho)):
 			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].speed(1000)
 				correntes_desenho[i].color("blue")
 				correntes_desenho[i].pensize(3)
 				correntes_desenho[i].penup()
@@ -741,6 +745,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 
 	def pinch(tamanho):
 		pinch = turtle.Turtle()
+		pinch.speed(1000)
 		pinch.shapesize(0.001, 0.001, 0.001)
 		pinch.pensize(2)
 		pinch.right(90)
@@ -765,6 +770,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 
 	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, subestagio, trocadorr):
 		trocador = turtle.Turtle()
+		trocador.speed(1000)
 		trocador.pensize(1.5)
 		trocador.color("black", "white")
 		trocador.shapesize(0.001, 0.001, 0.001)
@@ -814,6 +820,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 
 	def utilidade_desenho(onde, corrente, subestagio, calor):
 		utilidade = turtle.Turtle()
+		utilidade.speed(1000)
 		utilidade.pensize(1.5)
 		utilidade.shapesize(0.001, 0.001, 0.001)
 		utilidade.penup()
@@ -833,8 +840,8 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		utilidade.end_fill()
 		temp.sety(corrente.pos()[1]+10)
 		temp.write(str(calor), align="left", font=("Arial", 10, "normal"))
-		temp.sety(corrente.pos()[1] - 6)
-		temp.setx(utilidade.pos()[0] - 4)
+		temp.sety(corrente.pos()[1] - 7)
+		temp.setx(utilidade.pos()[0] - 3)
 		temp.write(text, align="left", font=("Arial", 10, "normal"))
 
 
@@ -895,16 +902,34 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 				subestagio += 1
 				utilidade_desenho("below", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1])
 
-
-
+	salvar_rede()
 	turtle.done()
+
+	# dlg.rede_teste = uic.loadUi("tela_rede.ui")
+	# dlg.rede = QPixmap("image.png")
+	# dlg.label_ooi = QtWidgets.QLabel(dlg)
+	# dlg.label_ooi.setPixmap(dlg.rede)
+	# dlg.label_ooi.setAlignment(QtCore.Qt.AlignCenter)
+	# dlg.label_ooi.setScaledContents(True)
+	# dlg.rede_teste.verticalLayout_2.addWidget(dlg.label_ooi)
+	# dlg.rede_teste.show()
+	# dlg.rede_teste.showMaximized()
+
 
 def salvar_rede():
 	turtle.getscreen()
 	turtle.getcanvas().postscript(file="duck.eps")
-	img = Image.open("duck.eps")
-	rgb_img = img.convert("RGB")
-	rgb_img.save('image.png')
+	TARGET_BOUNDS = (2000, 2000)
+	pic = Image.open('duck.eps')
+	pic.load(scale=10)
+	if pic.mode in ('P', '1'):
+	    pic = pic.convert("RGB")
+	ratio = min(TARGET_BOUNDS[0] / pic.size[0],
+	            TARGET_BOUNDS[1] / pic.size[1])
+	new_size = (int(pic.size[0] * ratio), int(pic.size[1] * ratio))
+	pic = pic.resize(new_size, Image.ANTIALIAS)
+	pic.save("image.png")
+
 
 
 

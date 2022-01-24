@@ -111,5 +111,6 @@ trocador("below", seta_baixo[0], fria_baixo[1], 0)
 turtle.getscreen()
 turtle.getcanvas().postscript(file="duck.eps")
 
+# convert -density 300 duck.eps -resize 1024x1024 image.jpg
 
 turtle.done()
