@@ -90,6 +90,7 @@ def pontopinch (correntes, n, dTmin) :
 		sub3=cascat2[i]-sub2
 		cascat2.append(sub3)
 	cascat2certo = [ '%.2f' % elem for elem in cascat2]
+	print("2certo", cascat2certo)
 	for i in range (len(cascat2)): #arredondar para encontrar o 0
 		x=round(cascat2[i], 2)
 		cascat2[i]=x

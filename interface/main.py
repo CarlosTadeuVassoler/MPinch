@@ -904,6 +904,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 
 	salvar_rede()
 	turtle.done()
+	# turtle.bye()
 
 	# dlg.rede_teste = uic.loadUi("tela_rede.ui")
 	# dlg.rede = QPixmap("image.png")
@@ -1638,7 +1639,7 @@ dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias))
-dlg.pushButton_22.clicked.connect(salvar_rede)
+# dlg.pushButton_22.clicked.connect() aaaaaaaa botao quebra de laços acima
 
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
