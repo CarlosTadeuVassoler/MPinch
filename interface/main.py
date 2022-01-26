@@ -26,6 +26,7 @@ from matplotlib.figure import Figure
 from PIL import Image
 import turtle
 from svg_turtle import SvgTurtle
+import os
 
 
 
@@ -56,56 +57,12 @@ corrente_quente_presente_abaixo = []
 corrente_fria_presente_abaixo = []
 correntes_quentes = []
 correntes_frias = []
+n = nhot = ncold = 0
+correntes = []
 
 
 
-
-def openfile():
-	global n
-	n = 0
-
-	dlg.tableWidget.blockSignals(True)
-	Tk().withdraw()
-	filename = askopenfilename()
-	workbook = xlrd.open_workbook(filename)
-	worksheet = workbook.sheet_by_index(0)
-	k=0
-	while k != -1:
-		try:
-			if (worksheet.cell(k+1, 0).value) != '':
-				k=k+1
-				n=n+1
-		except IndexError:
-			break
-	correntes = []
-	dlg.tableWidget.setRowCount(n)
-	for i in range (n):#[0]=Tent  [1]=Tsai  [2]=CP  [3]=tipo
-		dados_da_corrente = []
-		for j in range (3):
-			dados_da_corrente.append(worksheet.cell(i+1, j+1).value)
-			#x1=(worksheet.cell(i+1, j+1).value)
-			#dlg.tableWidget.setItem(i, j, QTableWidgetItem(str(x1)))
-		correntes.append(dados_da_corrente)
-		print(correntes)
-	for i in range (n):
-		HotnCold(float(dlg.tableWidget.item(i,0).text()), float(dlg.tableWidget.item(i,1).text()), i)
-		#for j in range (2):
-		#	temptable=str(dlg.tableWidget.item(i, j).text())
-		#	if (dlg.comboBox.currentText()) == 'Kelvin':
-		#		temptable=temptable[0:] + ' K'
-		#		if j==1:
-		#			cptable=str(dlg.tableWidget.item(i, 2).text())
-		#			cptable=cptable[0:] + ' kW/K'
-		#			dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
-		#	else:
-		#		temptable=temptable[0:] + ' ºF'
-		#		if j==1:
-		#			cptable=str(dlg.tableWidget.item(i, 2).text())
-		#			cptable=cptable[0:] + ' Btu/ºF'
-		#			dlg.tableWidget.setItem(i, 2, QTableWidgetItem(cptable))
-		#	dlg.tableWidget.setItem(i, j, QTableWidgetItem(temptable))
-	dlg.tableWidget.blockSignals(False)
-
+#funções do povo caso precise
 def colocarunidadestemp(temptable):
 	temptable=str(temptable)
 	if (dlg.comboBox.currentText()) == 'Kelvin':
@@ -167,22 +124,30 @@ def itemedited(item):
     return correntes
     dlg.tableWidget.blockSignals(False)
 
-def apertaradd () :
-	global n, ncold, nhot
-	n=n+1
+def apertaradd() :
+	global n, ncold, nhot, correntes
+	n += 1
+	dados_da_corrente = []
 	dlg.tableWidget.blockSignals(True)
 	dlg.tableWidget.setRowCount(n)
 	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(str(colocarunidadestemp(dlg.lineEdit.text()))))
 	dlg.tableWidget.setItem(n-1, 1, QTableWidgetItem(str(colocarunidadestemp(dlg.lineEdit2.text()))))
 	dlg.tableWidget.setItem(n-1, 2, QTableWidgetItem(str(colocarunidadescp(dlg.lineEdit3.text()))))
-	g1=float(dlg.lineEdit.text())
-	g2=float(dlg.lineEdit2.text())
-	if g1 < g2:
+	dados_da_corrente.append(float(dlg.lineEdit.text()))
+	dados_da_corrente.append(float(dlg.lineEdit2.text()))
+	dados_da_corrente.append(float(dlg.lineEdit3.text()))
+
+	if float(dlg.lineEdit.text()) < float(dlg.lineEdit2.text()):
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Cold'))
+		dados_da_corrente.append("Cold")
 		ncold += 1
-	if g1 > g2:
+	else:
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Hot'))
+		dados_da_corrente.append("Hot")
 		nhot += 1
+	correntes.append(dados_da_corrente)
+
+
 	if (dlg.comboBox.currentText()) == 'Celsius':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºC'))
 	if (dlg.comboBox.currentText()) == 'Fahrenheit':
@@ -192,36 +157,6 @@ def apertaradd () :
 	if (dlg.comboBox.currentText()) == 'Rankine':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('R'))
 	dlg.tableWidget.blockSignals(False)
-
-def apertardone () :
-	global correntes, dTmin, correntesncorrigidas
-	global donee
-	correntes = []
-	donee=1
-	for i in range (n):#[0]=Tent  [1]=Tsai  [2]=CP  [3]=tipo
-		x1=[]
-		for j in range (4):
-			if j<3:
-				x2=float(dlg.tableWidget.item(i, j).text())
-			else:
-				x2=dlg.tableWidget.item(i, j).text()
-			#if j<3:
-			#	x2=re.findall("\d+", x2)
-			#	x2=float(x2[0])
-			x1.append(x2)
-		correntes.append(x1)
-	#print(type(correntes[0][2]))
-	dlg.pinchbutton.setEnabled(True)
-	#'print(n)
-	if (dlg.tempcombo1.currentText()) == 'Imperial units':
-		unidadeusada[0]="Temperature (ºF)"
-		unidadeusada[1]="Enthalpy (Btu)"
-		unidadeusada[2]="Enthalpy (Btu)"
-	dTmin=float(dlg.lineEdit_2.text())
-	correntesncorrigidas=correntes
-	#print(correntesncorrigidas,correntes)
-	#correntes[1][2]=1.5
-	correntestrocadorr()
 
 def apertarpinchbutton():
 	global donee,alreadypinched,plotou, Th0, Thf, CPh, Tc0, Tcf, CPc
@@ -297,80 +232,10 @@ def apertarpinchbutton():
 
 		return alreadypinched,plotou
 
-def addsetashot ():
-	dlg.label_12 = QtWidgets.QLabel(dlg)
-	dlg.im = QPixmap("flechared.png")
-	dlg.label_12.setPixmap(dlg.im)
-	dlg.label_12.setAlignment(QtCore.Qt.AlignCenter)
-	dlg.label_12.setScaledContents(True)
-	dlg.label_12.setMaximumSize(750,150)
-	dlg.gridLayout_7.addWidget(dlg.label_12)
-	dlg.label_12.show()
-	dlg.radio = QtWidgets.QRadioButton(dlg.label_12)
-	dlg.gridLayout_7.addWidget(dlg.radio)
-	dlg.radio.show()
-	p = dlg.geometry().bottomRight() - dlg.radio.geometry().bottomRight() - QPoint(100, 100)
-	dlg.radio.move(p)
-	#print(dlg.label_12.y())
 
-def addsetascold ():
-	dlg.label_12 = QtWidgets.QLabel(dlg)
-	dlg.im = QPixmap("flechablue.png")
-	dlg.label_12.setPixmap(dlg.im)
-	dlg.label_12.setAlignment(QtCore.Qt.AlignCenter)
-	dlg.label_12.setScaledContents(True)
-	dlg.label_12.setMaximumSize(750,150)
-	dlg.gridLayout_7.addWidget(dlg.label_12)
-	dlg.label_12.show()
-
-def criarrede():       #funçao que cria as setas
-	dlg.rede=pg.PlotWidget()
-	hour = [0,50]
-	temperature = [20,20]
-	c=pg.PlotCurveItem(hour, temperature,clickable=True,pen='r', width=15)
-	dlg.rede.addItem(c)
-	dlg.rede.setBackground('w')
-	dlg.gridLayout_8.addWidget(dlg.rede)
-	dlg.rede.hideAxis('left')
-	dlg.rede.setMouseEnabled(x=False, y=False)
-	#a1 = pg.ArrowItem(angle=180, tipAngle=90, headLen=40, tailLen=50, tailWidth=15, pen={'color': 'r', 'width': 3}, clickable=True)
-	a1 = pg.ArrowItem(angle=180, tipAngle=90, headLen=40, tailLen=0, tailWidth=15, brush=(0,0,255))
-	a1.setPos(55,20)
-	dlg.rede.addItem(a1)
-	c.setPen("b", width=15)
-	def cormud():
-		c.setPen("g", width=15)
-	c.sigClicked.connect(cormud)
-	#d = {}
-	#for x in range(1, nhot):
-	    #d["string{0}".format(x)] = pg.PlotCurveItem(hour, temperature[x],clickable=True,pen='r', width=15)
-	    #dlg.rede.additem()
-	#for x in range(0, 2):
-	    #globals()['linha%s' % x] = pg.PlotCurveItem(hour, temperature[x],clickable=True,pen='r', width=15)
-	    #print(globals()('linha%s' % x))
-	    #dlg.rede.additem('linha%s' % x)
-	#------------------
-	#d = {}
-	#temperature2 = [[30,30],[40,40]]
-	#for x in range(0, 1):
-	    #d["linha{0}".format(x)] = pg.PlotCurveItem(hour, temperature2[x],clickable=True,pen='r', width=15)
-	    #print("llllllllllllllllllll",d["linha0"])
-	    #dlg.rede.additem(d["linha0"])
-
-def correntestrocadorr():
-	global correntestrocador, correntes
-	for i in range (n):
-		x=[]
-		for j in range (4):
-			x.append(correntes[i][j])
-		correntestrocador.append(x)
-
-
-
-
+#inputs e coisas com eles
 def openfile_teste():
 	global n, nhot, ncold, correntes
-	n, nhot, ncold = 0, 0, 0
 
 	#le o excel
 	dlg.tableWidget.blockSignals(True)
@@ -484,9 +349,33 @@ def pinch_teste():
 		dlg.comboBox_53.setEnabled(True)
 		dlg.comboBox_54.setEnabled(True)
 
+def correntesnoscombos(nhot,ncold):
+	nstages=2
+	nsubstages=2
+	for i in range (nhot):
+		dlg.comboBox_2.addItem(str(i+1))     #acima   add heat ex
+		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
+		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
+		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
+		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
+		dlg.comboBox_54.addItem(str(i+1))
+	for i in range (ncold):
+		dlg.comboBox_5.addItem(str(i+1))      #acima add heat ex
+		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
+		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
+		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
+		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
+		dlg.comboBox_53.addItem(str(i+1))
+	for i in range (nstages):
+		dlg.comboBox_8.addItem(str(i+1))    #acima
+		dlg.comboBox_39.addItem(str(i+1))   #abaixo
+	for i in range (nsubstages):
+		dlg.comboBox_7.addItem(str(i+1))    #acima
+		dlg.comboBox_40.addItem(str(i+1))
 
 
 
+#parte de desenhos
 def desenhar_rede(correntes_quentes, correntes_frias):
 	global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo
 	turtle.delay(0)
@@ -916,7 +805,6 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 	# dlg.rede_teste.show()
 	# dlg.rede_teste.showMaximized()
 
-
 def salvar_rede():
 	turtle.getscreen()
 	turtle.getcanvas().postscript(file="duck.eps")
@@ -933,32 +821,6 @@ def salvar_rede():
 
 
 
-
-def correntesnoscombos(nhot,ncold):
-
-	nstages=2
-	nsubstages=2
-
-	for i in range (nhot):
-		dlg.comboBox_2.addItem(str(i+1))     #acima   add heat ex
-		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
-		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
-		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
-		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
-		dlg.comboBox_54.addItem(str(i+1))
-	for i in range (ncold):
-		dlg.comboBox_5.addItem(str(i+1))      #acima add heat ex
-		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
-		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
-		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
-		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
-		dlg.comboBox_53.addItem(str(i+1))
-	for i in range (nstages):
-		dlg.comboBox_8.addItem(str(i+1))    #acima
-		dlg.comboBox_39.addItem(str(i+1))   #abaixo
-	for i in range (nsubstages):
-		dlg.comboBox_7.addItem(str(i+1))    #acima
-		dlg.comboBox_40.addItem(str(i+1))
 
 def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 	dlg.dtmin = uic.loadUi("dtmin.ui")
@@ -1609,6 +1471,7 @@ dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
 dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.pushButton.clicked.connect(apertaradd) #add stream
+dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
 dlg.actionOpen_2.triggered.connect(openfile_teste) #file > open
 dlg.donebutton.clicked.connect(done_teste) #done
 dlg.pinchbutton.clicked.connect(pinch_teste) #pinch
@@ -1639,7 +1502,7 @@ dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias))
-# dlg.pushButton_22.clicked.connect() aaaaaaaa botao quebra de laços acima
+#dlg.pushButton_22.clicked.connect() aaaaaaaa botao quebra de laços acima
 
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar

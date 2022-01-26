@@ -94,9 +94,7 @@ quantidade_fria = []
 fracoes_quentes = []
 fracoes_frias = []
 
-def limpar_lista(lista):
-	for i in range(len(lista)):
-		lista.pop(-1)
+
 
 def preparar_dados_e_rede():
 	global Qtotalh01, Qtotalc01, Qtotalh0, Qtotalc0, Qestagioq, Qestagiof
@@ -105,15 +103,48 @@ def preparar_dados_e_rede():
 	global Thin, Thout, Tcin, Tcout, Think, Thoutk, Tcink, Tcoutk
 	global Fharr, Fcarr, Qarr, Q, Qaux
 
-	limpar_lista(temperatura_atual_quente)
-	limpar_lista(temperatura_atual_fria)
-	limpar_lista(calor_atual_quente)
-	limpar_lista(calor_atual_frio)
-	limpar_lista(calor_atual_quente_sub)
-	limpar_lista(calor_atual_frio_sub)
-	limpar_lista(Qtotalh01)
-	limpar_lista(Qtotalc01)
-
+	temperatura_atual_quente.clear()
+	temperatura_atual_fria.clear()
+	calor_atual_quente.clear()
+	calor_atual_frio.clear()
+	calor_atual_quente_sub.clear()
+	calor_atual_frio_sub.clear()
+	Qtotalh01.clear()
+	Qtotalc01.clear()
+	try:
+		Qtotalh01.clear()
+		Qtotalc01.clear()
+		Qtotalh0.clear()
+		Qtotalc0.clear()
+		Qestagioq.clear()
+		Qestagiof.clear()
+		Thski.clear()
+		Thki.clear()
+		Thskf.clear()
+		Thkf.clear()
+		Thfinal01.clear()
+		Thfinal01k.clear()
+		Tcski.clear()
+		Tcki.clear()
+		Tcskf.clear()
+		Tckf.clear()
+		Tcfinal01.clear()
+		Tcfinal01k.clear()
+		Thin.clear()
+		Thout.clear()
+		Tcin.clear()
+		Tcout.clear()
+		Think.clear()
+		Thoutk.clear()
+		Tcink.clear()
+		Tcoutk.clear()
+		Fharr.clear()
+		Fcarr.clear()
+		Qarr.clear()
+		Q.clear()
+		Qaux.clear()
+	except:
+		pass
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)
@@ -284,8 +315,8 @@ def preparar_dados_e_rede():
 def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
 	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
 	Th0, Thf, Tc0, Tcf = [], [], [], []
-	limpar_lista(CPh)
-	limpar_lista(CPc)
+	CPh.clear()
+	CPc.clear()
 	for corrente in range(nquentes):
 		Th0.append(matriz_quente[corrente])
 		Thf.append(matriz_quente_in[corrente])
