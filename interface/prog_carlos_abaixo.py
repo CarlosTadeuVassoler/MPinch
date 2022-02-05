@@ -97,23 +97,12 @@ fracoes_frias_abaixo = []
 
 
 
-def limpar_lista(lista):
-	for i in range(len(lista)):
-		lista.pop(-1)
-
 def preparar_dados_e_rede2():
 	global Qtotalh01, Qtotalc01, Qtotalh0, Qtotalc0, Qestagioq, Qestagiof
 	global Thski, Thki, Thskf, Thkf, Thfinal01, Thfinal01k
 	global Tcski, Tcki, Tcskf, Tckf, Tcfinal01, Tcfinal01k
 	global Thin, Thout, Tcin, Tcout, Think, Thoutk, Tcink, Tcoutk
 	global Fharr, Fcarr, Qarr, Q, Qaux
-
-	limpar_lista(temperatura_atual_quente_abaixo)
-	limpar_lista(temperatura_atual_fria_abaixo)
-	limpar_lista(calor_atual_quente_abaixo)
-	limpar_lista(calor_atual_frio_abaixo)
-	limpar_lista(Qtotalh01)
-	limpar_lista(Qtotalc01)
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)
@@ -283,8 +272,6 @@ def preparar_dados_e_rede2():
 def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
 	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
 	Th0, Thf, Tc0, Tcf = [], [], [], []
-	limpar_lista(CPh)
-	limpar_lista(CPc)
 	for corrente in range(nquentes):
 		Thf.append(matriz_quente[corrente])
 		Th0.append(matriz_quente_in[corrente])

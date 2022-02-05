@@ -32,10 +32,10 @@ import os
 
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
-dlg.lineEdit.setPlaceholderText("K")
-dlg.lineEdit2.setPlaceholderText("K")
-dlg.lineEdit3.setPlaceholderText("kW/K")
-dlg.lineEdit3_2.setPlaceholderText("kW/(m²K)")
+# dlg.lineEdit.setPlaceholderText("K")
+# dlg.stream_target.setPlaceholderText("K")
+# dlg.stream_cp.setPlaceholderText("kW/K")
+# dlg.stream_cp_2.setPlaceholderText("kW/(m²K)")
 
 matriz = []
 matriz_armazenada = []
@@ -63,22 +63,6 @@ correntes = []
 
 
 #funções do povo caso precise
-def colocarunidadestemp(temptable):
-	temptable=str(temptable)
-	if (dlg.comboBox.currentText()) == 'Kelvin':
-		temptable=temptable[0:] + ' K'
-	else:
-		temptable=temptable[0:] + ' ºF'
-	return temptable
-
-def colocarunidadescp(temptable):
-	temptable=str(temptable)
-	if (dlg.comboBox.currentText()) == 'Kelvin':
-		temptable=temptable[0:] + ' kW/K'
-	else:
-		temptable=temptable[0:] + ' Btu/ºF'
-	return temptable
-
 def HotnCold (tin,ten,i) :      #ve se é corrente quente ou fria
 	global ncold,nhot
 	if tin < ten:
@@ -103,7 +87,7 @@ def itemedited(item):
     HotnCold(tin, ten, row)
     tin=str(tin)
     ten=str(ten)
-    if (dlg.comboBox.currentText()) == 'Kelvin':
+    if (dlg.temp_unidade.currentText()) == 'Kelvin':
     	tin=tin[0:] + ' K'
     	ten=ten[0:] + ' K'
     else:
@@ -128,16 +112,27 @@ def apertaradd() :
 	global n, ncold, nhot, correntes
 	n += 1
 	dados_da_corrente = []
+	if n == 1:
+		headerrr = ["Supply Temperature ({})".format(dlg.temp_unidade.currentText()),
+					"Target Temperature ({})".format(dlg.temp_unidade.currentText()),
+					"Cp ({})".format(dlg.cp_unidade.currentText()),
+					"Stream Type"]
+		dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
+		dlg.temp_unidade.setEnabled(False)
+		dlg.cp_unidade.setEnabled(False)
 	dlg.tableWidget.blockSignals(True)
 	dlg.tableWidget.setRowCount(n)
-	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(str(colocarunidadestemp(dlg.lineEdit.text()))))
-	dlg.tableWidget.setItem(n-1, 1, QTableWidgetItem(str(colocarunidadestemp(dlg.lineEdit2.text()))))
-	dlg.tableWidget.setItem(n-1, 2, QTableWidgetItem(str(colocarunidadescp(dlg.lineEdit3.text()))))
-	dados_da_corrente.append(float(dlg.lineEdit.text()))
-	dados_da_corrente.append(float(dlg.lineEdit2.text()))
-	dados_da_corrente.append(float(dlg.lineEdit3.text()))
+	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(dlg.stream_supply.text()))
+	dlg.tableWidget.setItem(n-1, 1, QTableWidgetItem(dlg.stream_target.text()))
+	dlg.tableWidget.setItem(n-1, 2, QTableWidgetItem(dlg.stream_cp.text()))
+	for i in range(3):
+		item = dlg.tableWidget.item(n-1, i)
+		item.setTextAlignment(Qt.AlignHCenter)
+	dados_da_corrente.append(float(dlg.stream_supply.text()))
+	dados_da_corrente.append(float(dlg.stream_target.text()))
+	dados_da_corrente.append(float(dlg.stream_cp.text()))
 
-	if float(dlg.lineEdit.text()) < float(dlg.lineEdit2.text()):
+	if float(dlg.stream_supply.text()) < float(dlg.stream_target.text()):
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Cold'))
 		dados_da_corrente.append("Cold")
 		ncold += 1
@@ -145,16 +140,18 @@ def apertaradd() :
 		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Hot'))
 		dados_da_corrente.append("Hot")
 		nhot += 1
+	item = dlg.tableWidget.item(n-1, 3)
+	item.setTextAlignment(Qt.AlignHCenter)
 	correntes.append(dados_da_corrente)
 
 
-	if (dlg.comboBox.currentText()) == 'Celsius':
+	if (dlg.temp_unidade.currentText()) == 'Celsius':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºC'))
-	if (dlg.comboBox.currentText()) == 'Fahrenheit':
+	if (dlg.temp_unidade.currentText()) == 'Fahrenheit':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºF'))
-	if (dlg.comboBox.currentText()) == 'Kelvin':
+	if (dlg.temp_unidade.currentText()) == 'Kelvin':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('K'))
-	if (dlg.comboBox.currentText()) == 'Rankine':
+	if (dlg.temp_unidade.currentText()) == 'Rankine':
 		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('R'))
 	dlg.tableWidget.blockSignals(False)
 
@@ -272,6 +269,11 @@ def openfile_teste():
 		for coluna in range(4):
 			dlg.tableWidget.setItem(corrente, coluna, QTableWidgetItem(str(correntes[corrente][coluna])))
 	dlg.tableWidget.blockSignals(False)
+	for i in range(n):
+		for j in range(4):
+			item = dlg.tableWidget.item(i, j)
+			item.setTextAlignment(Qt.AlignHCenter)
+			# item.setTextAlignment(Qt.AlignVCenter)
 
 def done_teste():
 	global dTmin, done
@@ -1470,20 +1472,20 @@ dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
 dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
 dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
-dlg.pushButton.clicked.connect(apertaradd) #add stream
+dlg.botao_addstream.clicked.connect(apertaradd) #add stream
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
 dlg.actionOpen_2.triggered.connect(openfile_teste) #file > open
 dlg.donebutton.clicked.connect(done_teste) #done
 dlg.pinchbutton.clicked.connect(pinch_teste) #pinch
 #dlg.tableWidget.itemChanged.connect(itemedited)
-dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 0 and SI(dlg))
-dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 1 and sistemaingles(dlg))
-dlg.comboBox.currentIndexChanged.connect(lambda i: i == 1 and celsius(dlg))
-dlg.comboBox.currentIndexChanged.connect(lambda i: i == 0 and kelvin(dlg))
-dlg.comboBox.currentIndexChanged.connect(lambda i: i == 2 and farenheit(dlg))
-dlg.comboBox.currentIndexChanged.connect(lambda i: i == 3 and rankine(dlg))
-dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 0 and btu(dlg))
-dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 1 and kW(dlg))
+# dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 0 and SI(dlg))
+# dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 1 and sistemaingles(dlg))
+# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 1 and celsius(dlg))
+# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 0 and kelvin(dlg))
+# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 2 and farenheit(dlg))
+# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 3 and rankine(dlg))
+# dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 0 and btu(dlg))
+# dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 1 and kW(dlg))
 
 #above
 dlg.radioButton.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(True)) #quando marca o heat load libera a linha pra digitar

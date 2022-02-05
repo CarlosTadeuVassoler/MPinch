@@ -9,6 +9,7 @@ import sys
 import os
 import threading
 
+
 Th0 = []
 Thf = []
 CPh = []
@@ -102,49 +103,6 @@ def preparar_dados_e_rede():
 	global Tcski, Tcki, Tcskf, Tckf, Tcfinal01, Tcfinal01k
 	global Thin, Thout, Tcin, Tcout, Think, Thoutk, Tcink, Tcoutk
 	global Fharr, Fcarr, Qarr, Q, Qaux
-
-	temperatura_atual_quente.clear()
-	temperatura_atual_fria.clear()
-	calor_atual_quente.clear()
-	calor_atual_frio.clear()
-	calor_atual_quente_sub.clear()
-	calor_atual_frio_sub.clear()
-	Qtotalh01.clear()
-	Qtotalc01.clear()
-	try:
-		Qtotalh01.clear()
-		Qtotalc01.clear()
-		Qtotalh0.clear()
-		Qtotalc0.clear()
-		Qestagioq.clear()
-		Qestagiof.clear()
-		Thski.clear()
-		Thki.clear()
-		Thskf.clear()
-		Thkf.clear()
-		Thfinal01.clear()
-		Thfinal01k.clear()
-		Tcski.clear()
-		Tcki.clear()
-		Tcskf.clear()
-		Tckf.clear()
-		Tcfinal01.clear()
-		Tcfinal01k.clear()
-		Thin.clear()
-		Thout.clear()
-		Tcin.clear()
-		Tcout.clear()
-		Think.clear()
-		Thoutk.clear()
-		Tcink.clear()
-		Tcoutk.clear()
-		Fharr.clear()
-		Fcarr.clear()
-		Qarr.clear()
-		Q.clear()
-		Qaux.clear()
-	except:
-		pass
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)

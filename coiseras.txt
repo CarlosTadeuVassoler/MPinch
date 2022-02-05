@@ -1,0 +1,167 @@
+TERMO		geração de potência (10 paginas),    7 exercícios 31/01
+FENOTRAN	welty 24 e 25 (62 slides) e welty 26 (33 slides), cinematica (31 slides), hidrostática (34 slides)
+ANALITICA	titulação ácido-base (48 slides)
+MAT U		sei la tudo sepa
+EMPRESAS	OK
+FIS EXP		OK
+QUI EXP		pré relatório   26/01
+RESMAT		OK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MPINCH COISAS FEITAS
+
+REUNIÃO 1
+-reestruturação completa prog bruno
+-adaptei funções inserir e remover trocador pra interface
+-matriz armazena tudo que vai printar
+-função printar() organizada
+
+
+
+REUNIÃO 2
+-arrumei problemas Qmax
+-arrumei problemas atualizar trocadores, agora printa certo independente de tudo
+-caixinhas de erro q<0, q=0, q!=0
+-tirei todos os prints
+-adicionar utilidades
+-acrescentei remover utilidade no remover trocador
+-mudei o coiso de printar as correntes pro meu jeito
+-caixa de temperaturas (posso escolher subestágios e estágios baseado noq ja ta?)
+-arrumei erro das utilidades trocarem o calor quando coloca primeiro a 2 doq a 1
+
+
+
+REUNIÃO 3
+-fiz abrir na aba de add streams, e bloqueei todas as outras abas pra que so possam ser acessadas depois do pinch
+-fiz caixa de temperatura nova pro below pinch e usei ela pra above tb
+-caixa de temperatura funcionando
+-inserir below pinch	(faço uma variável tout trocador?) (bloqueio o subestágio ja consumido da corrente?)
+-remover below pinch
+-utilidades inserir e remover below pinch
+-corrigi possivel erro de não ter todas as correntes com utilidades sabe? na hora de remover um troc remove tudo de util
+-arrumei problema de nao atualizar temperaturas frias
+-QTDESIGNER
+-organizei codigo:	botoes de utilidades
+			correntes de utilidades
+			heat load e max heat
+			split streams
+			conversão de unidades pra outro programa
+-ou seja, quase sem calculo na interface
+-receber pinch finalizado
+-preparar dados e rede finalizado
+
+
+
+REUNIÃO 4
+-arrumei o problema de remover utilidade abaixo (calculava temperatura errado)
+-criei uma caixinha para as divisoes de correntes
+-preenche o numero de divisoes com o numero de correntes do outro tipo, bruno falou que é o maximo
+-botao confirm libera frações e botao split
+-scroll bar de acordo com o numero de divisoes
+-bloqueei o botao confirm depois de clicado
+-dtmin violado tanto quente quanto frio
+-fica em vermelho qual dtmin que violou
+DTMIN VIOLADOS EXEMPLOS
+above:
+	(hot terminal) divide i=1 73% 27%, troca i=1.1 com j=2 max heat
+	(cold terminal)troca ij = 1 tc=70 sk=2, troca i=2 j=1 max heat sk=1 
+below:
+	(cold terminal) troca ij=2 max heat
+	(ambos)divide j=2 50% k=1, troca i=2 com j=2.1 th=60 sk=1, troca i=2 com j=2.2 max heat sk=2
+-deixei adicionar trocador independente se viola ou nao dtmin: quando viola, abre uma janela perguntando se quer
+ignorar a violação, se sim, ignora, se nao, remove o trocador inserido.
+-violação termo feita
+VIOLAÇÃO TERMODINAMICA EXEMPLOS
+above:
+	i=1 j=2 max heat
+	divide j=1 10% 90%, troca i=1 j=1.1 max heat, Q=32, Tquente = 80,67, Tfria = 140 (max heat)
+below:
+	divide i=2 65% 35%, troca i=2.1 com j=2 max heat, Q=39, Tquente=30(max heat), Tfria= 40.5
+-divisao de correntes funcionando previamente: observação pq mudei prog bruno em relação aos estagios
+-inserir trocador apos divisao: temperatura_atual_mesclada, viola dtmin/termo muito facil pq as correntes atingem temp goal com pouco calor
+-apliquei tudo above e below
+-ideia show splited streams
+-fiz printar as frações certas, pois prog bruno trabalha com fharr = fcarr = 0
+
+
+
+REUNIÃO 5
+-number of branches na janela de divisão
+-refiz a interface que eu mexo, do jeito que tava eu não podia mudar as coisas
+-janela de correntes divididas, show splited streams
+-comecei a testar varios trocadores após divisão e achei problema quanto as violações (dT dos terminais pode ser alterado com o decorrer do programa)
+	como o programa calcula a superestrutura do pinch pra longe, se um trocador viola proximo ao pinch, mas em seguida outro trocador longe nao viola
+	o programa interpretava como se nenhum tivesse violado
+-já que os dT podem ser alterados dependendo de onde se adiciona o trocador, remover trocador também calcula tempdif
+	função calcular_superestrutura()
+-mostrar qual trocador violou dtmin, pois pode ser que inicialmente algum viole, e depois não (antes so mostrava o trocador longe do pinch)
+-janela mostra todos os trocadores que estão violando o dTmin, pois pode ser que mais de um passe a violar
+	EXEMPLO: ij = 1, k = 2, Q = 40,     i=2, j=1, k=1, Q = 10
+-classe dos botoes ignore e remove pra eu poder saber qual deles foi clicado
+	ignore: remove o trocador violado da lista de violados e chama a função que mostra eles dnv
+	remove: remove o trocador violado da superestrutura e calcula ela dnv
+-checar escotados atualizado, pois antes checava com base na interface e valores printados, agora com base em valores armazenados e ainda funciona com divisões
+-organizada no código
+-ideia ponto de mistura
+-violou termo também pode ser com um trocador adicionado inicialmente, e não só com o último adicionado
+-trocas após divisão, refiz a parte que designa temperaturas de estágios e subestágios acima quente (funcionando previamente)
+-corrigi problema que só designava temperaturas pra subcorrente atual da superestrutura
+-Qmax é correnspondente a corrente completa agora, pra corrente dividida poder trocar mais que o dT original
+
+
+
+REUNIÃO 6
+-não removi estágios ainda pq uso muito pra testar o programa, já que eu testo os erros e é ruim achar eles se fizer a análise pinch certinho
+-apliquei tudo que tava above pra below tb
+-dtmin violado refeito levando em conta só o ultimo trocador
+-pinch temp intermediate temp (perguntar ordem que é pra estar)
+-violar termo só bloqueia de terminar de add e faz Q = 0 (aparentemente não da problema)
+-divisão funcionando abaixo (mostrar exemplo acima e abaixo)
+-testes pinch = programa nao funciona, python virgula e ponto      (ARRUMEI)
+-problema com as correntes que não chegavam no pinch, printava temperatura errada     (ARRUMEI)
+-testar correntes e soma cp
+
+
+
+REUNIÃO 7
+-ordem temperaturas tabelas
+-mudei as temperaturas que não chegam, nao printa mais o pinch, printa a final dela ou então -------
+-pinch temperature na parte de baixo da tabela
+-arrumei a parte de testar correntes baseado em quais tocam o pinch e quais nao tocam
+-ideia de como mostrar na interface as condições do testar correntes o pinch
+-comecei a aprender desenhos de rede
+	correntes que chegam e nao no pinch  (uma quente pode estar presente só abaixo do pinch? ou uma fria só acima?)
+	dados das correntes e do pinch
+	trocadores (correntes divididas e nao divididas)   FALTA COLOCAR A TEMPERATURA APOS TROCA
+	utilidades (perguntar sobre utilidades em correntes divididas, 1 só ou quantidade dividida?)
+	divisoes (perguntar sobre correntes que nao chegam no pinch se podem dividir)
+-salvar imagem da rede
+-botar de reestartar programa
+-add stream não tava funcionando, arrumei
+-open file > add stream funcionando, arrumar o contrario
+
+	
+
+
+
+
+
+
+ideias:		arrumar divisão de correntes (max branches de acordo com quantas correntes tem em cada suberede)
+		colocar unidades nas correntes
