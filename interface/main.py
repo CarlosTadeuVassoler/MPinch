@@ -57,8 +57,12 @@ corrente_quente_presente_abaixo = []
 corrente_fria_presente_abaixo = []
 correntes_quentes = []
 correntes_frias = []
-n = nhot = ncold = 0
+n = nhot = ncold = n_util = 0
 correntes = []
+e_utilidade = []
+e_utilidade_quente = []
+e_utilidade_fria = []
+correntes_util = []
 
 
 
@@ -120,6 +124,7 @@ def apertaradd() :
 		dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
 		dlg.temp_unidade.setEnabled(False)
 		dlg.cp_unidade.setEnabled(False)
+		dlg.temp_unidade_util.setEnabled(False)
 	dlg.tableWidget.blockSignals(True)
 	dlg.tableWidget.setRowCount(n)
 	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(dlg.stream_supply.text()))
@@ -143,91 +148,71 @@ def apertaradd() :
 	item = dlg.tableWidget.item(n-1, 3)
 	item.setTextAlignment(Qt.AlignHCenter)
 	correntes.append(dados_da_corrente)
+	e_utilidade.append(False)
 
-
-	if (dlg.temp_unidade.currentText()) == 'Celsius':
-		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºC'))
-	if (dlg.temp_unidade.currentText()) == 'Fahrenheit':
-		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('ºF'))
-	if (dlg.temp_unidade.currentText()) == 'Kelvin':
-		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('K'))
-	if (dlg.temp_unidade.currentText()) == 'Rankine':
-		dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem('R'))
 	dlg.tableWidget.blockSignals(False)
 
-def apertarpinchbutton():
-	global donee,alreadypinched,plotou, Th0, Thf, CPh, Tc0, Tcf, CPc
-	Th0, Thf, CPh, Tc0, Tcf, CPc = [], [], [], [], [], []
-	if donee == 1 :
-		global correntes, dTmin, Tdecre, Tmin, Tmax, cascat2certo ,dT,cascat2,utilidadesquente,menor,pinchf,pinchq
-		global n
-		global dT
-		Tdecre = []
-		Tmin=0
-		Tmax=0
-		cascat2certo=[]
-		dT=[2,2,2]
-		cascat2=[]
-		utilidadesquente=0
-		pinchf=0
-		pinchq=0
-		menor=0
-		pinch=0
-		dH = 0
-		dTmin, Tdecre, Tmin, Tmax, cascat2certo,dT,pinchf,pinchq,cascat2,utilidadesquente,menor = pontopinch(correntes, n, dTmin, Tdecre, Tmin, Tmax, cascat2certo, dT,pinch,dH,cascat,utilidadesquente,menor,cascat2)
-		caixinha=dlg.caixinha
-		tabwid=dlg.tableWidget
-		flagplot=0
-		caixinha3=dlg.caixinha3
-		caixinha4=dlg.caixinha4
-		plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch,unidadeusada,plotou)
-		plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
-		plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
-		for i in range (n): #correção das temperaturas
-			if correntesncorrigidas[i][3] == "Hot":
-				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) + (dTmin)/2
-				correntesncorrigidas [i][1]=(correntesncorrigidas[i][1]) + (dTmin)/2
-			if correntesncorrigidas[i][3] == "Cold":
-				correntesncorrigidas [i][0]=(correntesncorrigidas[i][0]) - (dTmin)/2
-				correntesncorrigidas [i][1]=(correntesncorrigidas[i][1]) - (dTmin)/2
+def add_utilidade():
+	global n, n_util, ncold, nhot, correntes_util
+	# n += 1
+	n_util += 1
+	dados_da_corrente = []
+	if n_util == 1:
+		headerrr = ["Utility",
+					"Inlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+					"Outlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+					"Utility Type"]
+		dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
+		dlg.temp_unidade_util.setEnabled(False)
+		dlg.temp_unidade.setEnabled(False)
+		dlg.cp_unidade.setEnabled(False)
+	dlg.tableWidget_5.blockSignals(True)
+	dlg.tableWidget_5.setRowCount(n_util)
+	dlg.tableWidget_5.setItem(n_util-1, 0, QTableWidgetItem(dlg.utilidade.currentText()))
+	dlg.tableWidget_5.setItem(n_util-1, 1, QTableWidgetItem(dlg.util_inlet.text()))
+	dlg.tableWidget_5.setItem(n_util-1, 2, QTableWidgetItem(dlg.util_outlet.text()))
+	for i in range(3):
+		item = dlg.tableWidget_5.item(n_util-1, i)
+		item.setTextAlignment(Qt.AlignHCenter)
+	dados_da_corrente.append(float(dlg.util_inlet.text()))
+	dados_da_corrente.append(float(dlg.util_outlet.text()))
+	dados_da_corrente.append(1)
 
-		print(n)
-		print(nhot)
-		print(ncold)
-		for i in range(n):
-			if correntesncorrigidas[i][3] == "Hot":
-				Th0.append(correntesncorrigidas[i][0])
-				Thf.append(correntesncorrigidas[i][1])
-				CPh.append(correntesncorrigidas[i][2])
-			if correntesncorrigidas[i][3] == "Cold":
-				Tc0.append(correntesncorrigidas[i][0])
-				Tcf.append(correntesncorrigidas[i][1])
-				CPc.append(correntesncorrigidas[i][2])
+	if float(dlg.util_inlet.text()) < float(dlg.util_outlet.text()):
+		dlg.tableWidget_5.setItem(n_util-1, 3, QTableWidgetItem('Cold'))
+		dados_da_corrente.append("Cold")
+		# ncold += 1
+	else:
+		dlg.tableWidget_5.setItem(n_util-1, 3, QTableWidgetItem('Hot'))
+		dados_da_corrente.append("Hot")
+		# nhot += 1
+	item = dlg.tableWidget_5.item(n_util-1, 3)
+	item.setTextAlignment(Qt.AlignHCenter)
+	correntes_util.append(dados_da_corrente)
+	e_utilidade.append(True)
 
-		dlg.tabWidget.setTabEnabled(1,True)
-		dlg.tabWidget.setTabEnabled(2,True)
-		dlg.tabWidget.setTabEnabled(3,True)
-		dlg.tabWidget.setTabEnabled(4,True)
-		alreadypinched=1
-		plotou=1
-		for i in range(nhot):
-			addsetashot()
-		for i in range(ncold):
-			addsetascold()
-		criarrede()
-		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf)
-		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf)
-		printar()
-		printar_abaixo()
-		correntesnoscombos(nhot,ncold)
-		testar_correntes()
-		testar_correntes_abaixo()
-		dlg.comboBox_50.setEnabled(True) #fechar combobox de subhot stream
-		dlg.comboBox_51.setEnabled(True) #fechar combobox de subcold stream
-		dlg.comboBox_53.setEnabled(True) #fechar combobox de subhot stream
-		dlg.comboBox_54.setEnabled(True) #fechar combobox de subcold stream
+	dlg.tableWidget_5.blockSignals(False)
 
-		return alreadypinched,plotou
+def graficos(correntes, n, dTmin):
+	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, n, dTmin)
+	Tdecre = coisas_graficos[0]
+	Tmin = coisas_graficos[1]
+	Tmax = coisas_graficos[2]
+	cascat2certo = coisas_graficos[3]
+	dT = coisas_graficos[4]
+	cascat2 = coisas_graficos[5]
+	utilidadesquente = coisas_graficos[6]
+	menor = coisas_graficos[7]
+	pinch = coisas_graficos[8]
+	caixinha=dlg.caixinha
+	tabwid=dlg.tableWidget
+	flagplot=0
+	caixinha3=dlg.caixinha3
+	caixinha4=dlg.caixinha4
+	plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
+	plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
+	plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
+
 
 
 #inputs e coisas com eles
@@ -263,6 +248,7 @@ def openfile_teste():
 			dados_da_corrente.append("Cold")
 			ncold += 1
 		correntes.append(dados_da_corrente)
+		e_utilidade.append(False)
 
 	#printa as correntes pro usuário na tabela de streams
 	for corrente in range(len(correntes)):
@@ -287,17 +273,45 @@ def pinch_teste():
 	global done, Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
 	if done:
-		global correntes, dTmin, pinchf, pinchq, n
-		pinchf, pinchq = pontopinch(correntes, n, dTmin)
+		global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold
+		# print(correntes, "antes pinch")
+		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
+		print("ANTES DAS UTILIDADES PARTICIPAREM DO PINCH")
+		print("Requerido Utilidades Quentes", util_quente)
+		print("Requerido Utilidades Frias", util_fria)
+		# print(correntes, "depois primeiro pinch")
+		for util in correntes_util:
+			if util[3] == "Hot":
+				util[2] = util_quente/(util[0] - util[1])
+				nhot += 1
+			else:
+				util[2] = util_fria/(util[1] - util[0])
+				ncold += 1
+
+		correntes += correntes_util
+		n += len(correntes_util)
+		# print(correntes, "quando add utilidades")
+		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
+		# print(correntes, "depois segundo pinch")
+		print()
+		print("DEPOIS DAS UTILIDADES PARTICIPAREM DE PINCH")
+		print("Requerido Utilidades Quentes", util_quente)
+		print("Requerido Utilidades Frias", util_fria)
 		#arruma as temperaturas baseado no pinch
 		for i in range (n): #correção das temperaturas
 			if correntes[i][3] == "Hot":
 				correntes_quentes.append(1)
+				if e_utilidade[i]:
+					e_utilidade_quente.append(True)
+				else:
+					e_utilidade_quente.append(False)
 				correntes[i][0] += dTmin/2
 				correntes[i][1] += dTmin/2
 				Th0.append(correntes[i][0])
 				Thf.append(correntes[i][1])
 				CPh.append(correntes[i][2])
+				if e_utilidade[i]:
+					print("Utilidade Quente (Tin, Tout, Cp, Type)", correntes[i])
 				if correntes[i][1] >= pinchq: #corrente quente nao bate no pinch acima
 					Thf_acima.append(correntes[i][1])
 					corrente_quente_presente_abaixo.append(False)
@@ -313,11 +327,17 @@ def pinch_teste():
 
 			if correntes[i][3] == "Cold":
 				correntes_frias.append(1)
+				if e_utilidade[i]:
+					e_utilidade_fria.append(True)
+				else:
+					e_utilidade_fria.append(False)
 				correntes[i][0] -= dTmin/2
 				correntes[i][1] -= dTmin/2
 				Tc0.append(correntes[i][0])
 				Tcf.append(correntes[i][1])
 				CPc.append(correntes[i][2])
+				if e_utilidade[i]:
+					print("Utilidade Fria (Tin, Tout, Cp, Type)", correntes[i])
 				if correntes[i][0] >= pinchf: #corrente fria não bate no pinch acima
 					Tc0_acima.append(correntes[i][0])
 					corrente_fria_presente_abaixo.append(False)
@@ -339,6 +359,7 @@ def pinch_teste():
 		correntesnoscombos(nhot,ncold)
 		testar_correntes(dlg)
 		testar_correntes_abaixo(dlg)
+		graficos(correntes, n, dTmin)
 
 
 		#libera botões e coisas
@@ -396,7 +417,10 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
 				correntes_desenho[i].speed(1000)
-				correntes_desenho[i].color("red")
+				if e_utilidade_quente[i]:
+					correntes_desenho[i].color("orange")
+				else:
+					correntes_desenho[i].color("red")
 				correntes_desenho[i].pensize(3)
 				correntes_desenho[i].penup()
 				correntes_desenho_sub_acima = [0] * nhot
@@ -424,7 +448,10 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 							correntes_desenho_sub_acima[i][j].color("red")
 							correntes_desenho_sub_acima[i][j].pensize(3)
 							correntes_desenho_sub_acima[i][j].penup()
-							correntes_desenho_sub_acima[i][j].setx(-distancia_x + 20)
+							if calor_atual_quente[i] != 0:
+								correntes_desenho_sub_acima[i][j].setx(-distancia_x + 20)
+							else:
+								correntes_desenho_sub_acima[i][j].setx(-distancia_x + 120)
 							correntes_desenho_sub_acima[i][j].sety(y_acima)
 							correntes_desenho_sub_acima[i][j].pendown()
 							correntes_desenho_sub_acima[i][j].right(90)
@@ -518,7 +545,10 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
 				correntes_desenho[i].speed(1000)
-				correntes_desenho[i].color("blue")
+				if e_utilidade_fria[i]:
+					correntes_desenho[i].color("#7FFFD4")
+				else:
+					correntes_desenho[i].color("blue")
 				correntes_desenho[i].pensize(3)
 				correntes_desenho[i].penup()
 				correntes_desenho_sub_acima = [0] * ncold
@@ -1473,6 +1503,7 @@ dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
 dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.botao_addstream.clicked.connect(apertaradd) #add stream
+dlg.botao_addutility.clicked.connect(add_utilidade)
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
 dlg.actionOpen_2.triggered.connect(openfile_teste) #file > open
 dlg.donebutton.clicked.connect(done_teste) #done
@@ -1526,6 +1557,12 @@ dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, corre
 
 
 header = dlg.tableWidget.horizontalHeader()
+header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
+header = dlg.tableWidget_5.horizontalHeader()
 header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)

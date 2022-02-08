@@ -10,7 +10,7 @@ import pylab as P
 import random
 
 
-def plotargrafico1(correntes,n,caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch,unidadeusada,plotou):
+def plotargrafico1(correntes,n,caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou):
 
 	# a figure instance to plot on
 	dlg.figure = plt.figure(1)
@@ -68,7 +68,7 @@ def plotargrafico1(correntes,n,caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,p
 
 
 
-def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada):
+def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada):
 	# a figure instance to plot on
 	#("pokkpkopkopkopkopkopkpkopkopkop",dTmin)
 	dlg.figure2 = plt.figure(2)
@@ -173,14 +173,14 @@ def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,
 		P.xlabel(unidadeusada[2])
 		P.ylabel(unidadeusada[0])
 		P.title('TH Diagram')
-		if (dlg.tempcombo1.currentText()) == 'SI':
-			utilidadesquenteleg=(str(utilidadesquente)[0:] + ' kW')
-			utilidadesquenteleg2=(str(cascat2certo[2*n-2])[0:] + ' kW')
-			utilidadesquenteleg3=(str(dTmin)[0:] + ' K')
-		if (dlg.tempcombo1.currentText()) == 'Imperial units':
-			utilidadesquenteleg=(str(utilidadesquente)[0:] + ' btu/h')
-			utilidadesquenteleg2=(str(cascat2certo[2*n-2])[0:] + ' btu/h')
-			utilidadesquenteleg3=(str(dTmin)[0:] + ' ºF')
+		# if (dlg.tempcombo1.currentText()) == 'SI':
+		utilidadesquenteleg=(str(utilidadesquente)[0:] + ' kW')
+		utilidadesquenteleg2=(str(cascat2certo[2*n-2])[0:] + ' kW')
+		utilidadesquenteleg3=(str(dTmin)[0:] + ' K')
+		# if (dlg.tempcombo1.currentText()) == 'Imperial units':
+		# 	utilidadesquenteleg=(str(utilidadesquente)[0:] + ' btu/h')
+		# 	utilidadesquenteleg2=(str(cascat2certo[2*n-2])[0:] + ' btu/h')
+		# 	utilidadesquenteleg3=(str(dTmin)[0:] + ' ºF')
 
 
 		P.gca().legend((("hot utilities: {}".format(utilidadesquenteleg)), ("cold utilities: {}".format(utilidadesquenteleg2)),("$\Delta Tmin$: {}".format(utilidadesquenteleg3))))
@@ -213,7 +213,7 @@ def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,
 	caixinha3.addWidget(dlg.toolbar)
 
 
-def plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,flagplot,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada):
+def plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada):
 	# a figure instance to plot on
 	dlg.figure3 = plt.figure(3)
 

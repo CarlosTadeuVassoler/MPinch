@@ -4,28 +4,36 @@ from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-def pontopinch (correntes, n, dTmin) :
+def pontopinch (correntes, n, dTmin, mudar=False) :
 	#(n)
+	correntes_calculo = []
+	if not mudar:
+		for corrente in range(len(correntes)):
+			correntes_calculo.append([])
+			for i in range(4):
+				correntes_calculo[corrente].append(correntes[corrente][i])
+	else:
+		correntes_calculo = correntes
 	for i in range (n): #correção das temperaturas
-		if correntes[i][3] == "Hot":
-			correntes [i][0]=(correntes[i][0]) - (dTmin)/2
-			correntes [i][1]=(correntes[i][1]) - (dTmin)/2
-		if correntes[i][3] == "Cold":
-			correntes [i][0]=(correntes[i][0]) + (dTmin)/2
-			correntes [i][1]=(correntes[i][1]) + (dTmin)/2
+		if correntes_calculo[i][3] == "Hot":
+			correntes_calculo[i][0] -= (dTmin)/2
+			correntes_calculo[i][1] -= (dTmin)/2
+		if correntes_calculo[i][3] == "Cold":
+			correntes_calculo[i][0] += (dTmin)/2
+			correntes_calculo[i][1] += (dTmin)/2
 	Tdecre=[] #recebeu as temperaturas corrigidas
 	for i in range (n):
 		for j in range (2):
-			Tdecre.append(correntes[i][j])
+			Tdecre.append(correntes_calculo[i][j])
 	Tdecre.sort(reverse = True) #temperaturas decrescentes
-	#("correntes:")
-	#(correntes)
+	#("correntes_calculo:")
+	#(correntes_calculo)
 	#("temperaturas corrigidas:")
 	#(Tdecre)
 	dTdecre=[]
 	dT=[]
 	for i in range(n): #encontrando a variação das temperaturas
-		x2=correntes[i][0]-correntes[i][0+1]
+		x2=correntes_calculo[i][0]-correntes_calculo[i][0+1]
 		dT.append(x2)
 	for i in range(2*n-1): #encontrando a variação das temperaturas
 		x2=Tdecre[i]-Tdecre[i+1]
@@ -39,21 +47,21 @@ def pontopinch (correntes, n, dTmin) :
 		v=[]
 		for i in range (n):
 			for j in range (1):
-				if correntes[i][3]=="Hot":
-					if (correntes[i][j] > Tdecre[k+1]) and (correntes[i][j+1] < Tdecre [k]):
-						cptq=correntes[i][2]
+				if correntes_calculo[i][3]=="Hot":
+					if (correntes_calculo[i][j] > Tdecre[k+1]) and (correntes_calculo[i][j+1] < Tdecre [k]):
+						cptq=correntes_calculo[i][2]
 						cptq=float(cptq)
 						cptq=-cptq
 						v.append(cptq)
 						break
-				if correntes[i][3]=="Cold":
-					if (correntes[i][j+1] > Tdecre[k+1]) and (correntes[i][j] < Tdecre [k]):
-						cptf=correntes[i][2]
+				if correntes_calculo[i][3]=="Cold":
+					if (correntes_calculo[i][j+1] > Tdecre[k+1]) and (correntes_calculo[i][j] < Tdecre [k]):
+						cptf=correntes_calculo[i][2]
 						v.append(cptf)
 						break
 			if i==3:
 				quaiscp.append(v)
-	#("cps das correntes quentes e frias:")
+	#("cps das correntes_calculo quentes e frias:")
 	#(quaiscp) #escolha dos cps com base nos dT 'flechinhas'
 	somacps=[]
 	soma=0
@@ -95,13 +103,18 @@ def pontopinch (correntes, n, dTmin) :
 		cascat2[i]=x
 	#("segunda cascata de energia:")
 	#(cascat2)
+	# print(cascat2)
+	# print(dH)
+	# print(dH[0]+cascat2[0])
+	util_quente = dH[0] + cascat2[0]
+	util_fria = cascat2[-1]
 	ponto0=min(float(s) for s in cascat2)
 	for i in range (len(cascat2)):  #encontrar temperatura no ponto pinch
 		if ponto0 == cascat2[i]:
 			pinch=Tdecre[i+1]
 	#("ponto de estrangulamento energético")
 	#(pinch)
-	pinchq=pinch+(dTmin/2) #arrumando as temperatura das correntes quentes e frias
+	pinchq=pinch+(dTmin/2) #arrumando as temperatura das correntes_calculo quentes e frias
 	pinchf=pinch-(dTmin/2)
 	#("pinch da temperatura da corrente quente:")
 	#(pinchq)
@@ -111,13 +124,14 @@ def pontopinch (correntes, n, dTmin) :
 	Tmin = 99999
 	for i in range(n):
 	    for j in range(2):
-	        if Tmax < correntes[i][j]:
-	            Tmax = correntes[i][j]
-	        if Tmin > correntes[i][j]:
-	            Tmin = correntes[i][j]
+	        if Tmax < correntes_calculo[i][j]:
+	            Tmax = correntes_calculo[i][j]
+	        if Tmin > correntes_calculo[i][j]:
+	            Tmin = correntes_calculo[i][j]
 	#('sdsd',Tdecre,'sssss')
 	menor = min(float(s) for s in cascat)  # encontrando a maior demanda de energia
 	menor = menor*(-1)
 	menorc = ['%.2f' % menor]
 	utilidadesquente = menorc[0]
-	return pinchf, pinchq
+	coisas_graficos = [Tdecre, Tmin, Tmax, cascat2certo, dT, cascat2, utilidadesquente, menor, pinch]
+	return pinchf, pinchq, util_quente, util_fria, coisas_graficos
