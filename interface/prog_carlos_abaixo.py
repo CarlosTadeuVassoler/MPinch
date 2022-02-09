@@ -693,7 +693,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 		return
 
 	violou, trocador_violado = calcular_superestrutura_abaixo(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio)
-	if violou and trocador_violado = "termo":
+	if violou and trocador_violado == "termo":
 		return
 
 
@@ -849,7 +849,7 @@ def caixa_de_temperatura_abaixo(dlg):
 	dlg.comboBox_54.setCurrentText(str(dlg.TempLoadBelow.comboBox_4.currentText())) #sj
 	dlg.TempLoadBelow.close()
 
-def testar_correntes_abaixo(dlg):
+def testar_correntes_abaixo(dlg, primeira=False):
 	nhotc = 0
 	ncoldc = 0
 	somaCPh = 0
@@ -887,6 +887,8 @@ def testar_correntes_abaixo(dlg):
 
 	if ncoldc > nhotc:
 		dlg.label_22.setStyleSheet("QLabel {color: red}")
+		if not primeira:
+			QMessageBox.about(dlg,"Be Carreful","With this Split, you went against the Pinch Recomendations")
 	else:
 		dlg.label_22.setStyleSheet("QLabel {color: green}")
 

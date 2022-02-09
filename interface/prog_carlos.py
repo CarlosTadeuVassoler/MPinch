@@ -848,7 +848,7 @@ def caixa_de_temperatura(dlg):
 	dlg.comboBox_51.setCurrentText(str(dlg.TempLoadAbove.comboBox_4.currentText())) #sj
 	dlg.TempLoadAbove.close()
 
-def testar_correntes(dlg):
+def testar_correntes(dlg, primeira=False):
 	nhotc = 0
 	ncoldc = 0
 	somaCPh = 0
@@ -886,6 +886,8 @@ def testar_correntes(dlg):
 
 	if nhotc > ncoldc:
 		dlg.label_23.setStyleSheet("QLabel {color: red}")
+		if not primeira:
+			QMessageBox.about(dlg,"Be Carreful","With this Split, you went against the Pinch Recomendations")
 	else:
 		dlg.label_23.setStyleSheet("QLabel {color: green}")
 
@@ -895,3 +897,6 @@ def testar_correntes(dlg):
 	else:
 		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")
+
+
+	# return respeitando

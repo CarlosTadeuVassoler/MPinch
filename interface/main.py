@@ -32,10 +32,12 @@ import os
 
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
-# dlg.lineEdit.setPlaceholderText("K")
-# dlg.stream_target.setPlaceholderText("K")
-# dlg.stream_cp.setPlaceholderText("kW/K")
-# dlg.stream_cp_2.setPlaceholderText("kW/(m²K)")
+dlg.stream_supply.setPlaceholderText(" Ex: 273.15")
+dlg.stream_target.setPlaceholderText(" Ex: 273.15")
+dlg.util_inlet.setPlaceholderText(" Ex: 273.15")
+dlg.util_outlet.setPlaceholderText(" Ex: 273.15")
+dlg.stream_cp.setPlaceholderText(" Ex: 200.20")
+
 
 matriz = []
 matriz_armazenada = []
@@ -49,8 +51,6 @@ nstages=2
 unidadeusada=["Temperature (K)","Enthalpy (kJ)","Enthalpy (kJ)"]
 alreadypinched=0
 plotou=0
-correntesncorrigidas=[]
-correntestrocador=[]
 corrente_quente_presente_acima = []
 corrente_fria_presente_acima = []
 corrente_quente_presente_abaixo = []
@@ -63,155 +63,6 @@ e_utilidade = []
 e_utilidade_quente = []
 e_utilidade_fria = []
 correntes_util = []
-
-
-
-#funções do povo caso precise
-def HotnCold (tin,ten,i) :      #ve se é corrente quente ou fria
-	global ncold,nhot
-	if tin < ten:
-		dlg.tableWidget.setItem(i, 3, QTableWidgetItem('Cold'))
-		ncold=ncold+1
-	if tin > ten:
-		dlg.tableWidget.setItem(i, 3, QTableWidgetItem('Hot'))
-		nhot=nhot+1
-
-	return(ncold,nhot)
-
-def itemedited(item):
-    dlg.tableWidget.blockSignals(True)
-    row = item.row()
-    col = item.column() ## 	x2=re.findall("\d+", x2)       x2=float(x2[0])
-    tin=dlg.tableWidget.item(row, 0).text()
-    tin=re.findall("\d+", tin)
-    tin=float(tin[0])
-    ten=dlg.tableWidget.item(row, 1).text()
-    ten=re.findall("\d+", ten)
-    ten=float(ten[0])
-    HotnCold(tin, ten, row)
-    tin=str(tin)
-    ten=str(ten)
-    if (dlg.temp_unidade.currentText()) == 'Kelvin':
-    	tin=tin[0:] + ' K'
-    	ten=ten[0:] + ' K'
-    else:
-    	tin=tin[0:] + ' ºF'
-    	ten=ten[0:] + ' ºF'
-    dlg.tableWidget.setItem(row, 0, QTableWidgetItem((tin)))
-    dlg.tableWidget.setItem(row, 1, QTableWidgetItem((ten)))
-    global alreadypinched
-    #print (alreadypinched)
-    if alreadypinched > 0:
-    	dlg.canvas2.destroy()
-    	dlg.canvas3.destroy()
-    	dlg.pinchbutton.setEnabled(False)
-    	dlg.tabWidget.setTabEnabled(1,False)
-    	dlg.tabWidget.setTabEnabled(2,False)
-    global correntes
-    correntes=[]
-    return correntes
-    dlg.tableWidget.blockSignals(False)
-
-def apertaradd() :
-	global n, ncold, nhot, correntes
-	n += 1
-	dados_da_corrente = []
-	if n == 1:
-		headerrr = ["Supply Temperature ({})".format(dlg.temp_unidade.currentText()),
-					"Target Temperature ({})".format(dlg.temp_unidade.currentText()),
-					"Cp ({})".format(dlg.cp_unidade.currentText()),
-					"Stream Type"]
-		dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
-		dlg.temp_unidade.setEnabled(False)
-		dlg.cp_unidade.setEnabled(False)
-		dlg.temp_unidade_util.setEnabled(False)
-	dlg.tableWidget.blockSignals(True)
-	dlg.tableWidget.setRowCount(n)
-	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(dlg.stream_supply.text()))
-	dlg.tableWidget.setItem(n-1, 1, QTableWidgetItem(dlg.stream_target.text()))
-	dlg.tableWidget.setItem(n-1, 2, QTableWidgetItem(dlg.stream_cp.text()))
-	for i in range(3):
-		item = dlg.tableWidget.item(n-1, i)
-		item.setTextAlignment(Qt.AlignHCenter)
-	dados_da_corrente.append(float(dlg.stream_supply.text()))
-	dados_da_corrente.append(float(dlg.stream_target.text()))
-	dados_da_corrente.append(float(dlg.stream_cp.text()))
-
-	if float(dlg.stream_supply.text()) < float(dlg.stream_target.text()):
-		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Cold'))
-		dados_da_corrente.append("Cold")
-		ncold += 1
-	else:
-		dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem('Hot'))
-		dados_da_corrente.append("Hot")
-		nhot += 1
-	item = dlg.tableWidget.item(n-1, 3)
-	item.setTextAlignment(Qt.AlignHCenter)
-	correntes.append(dados_da_corrente)
-	e_utilidade.append(False)
-
-	dlg.tableWidget.blockSignals(False)
-
-def add_utilidade():
-	global n, n_util, ncold, nhot, correntes_util
-	# n += 1
-	n_util += 1
-	dados_da_corrente = []
-	if n_util == 1:
-		headerrr = ["Utility",
-					"Inlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
-					"Outlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
-					"Utility Type"]
-		dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
-		dlg.temp_unidade_util.setEnabled(False)
-		dlg.temp_unidade.setEnabled(False)
-		dlg.cp_unidade.setEnabled(False)
-	dlg.tableWidget_5.blockSignals(True)
-	dlg.tableWidget_5.setRowCount(n_util)
-	dlg.tableWidget_5.setItem(n_util-1, 0, QTableWidgetItem(dlg.utilidade.currentText()))
-	dlg.tableWidget_5.setItem(n_util-1, 1, QTableWidgetItem(dlg.util_inlet.text()))
-	dlg.tableWidget_5.setItem(n_util-1, 2, QTableWidgetItem(dlg.util_outlet.text()))
-	for i in range(3):
-		item = dlg.tableWidget_5.item(n_util-1, i)
-		item.setTextAlignment(Qt.AlignHCenter)
-	dados_da_corrente.append(float(dlg.util_inlet.text()))
-	dados_da_corrente.append(float(dlg.util_outlet.text()))
-	dados_da_corrente.append(1)
-
-	if float(dlg.util_inlet.text()) < float(dlg.util_outlet.text()):
-		dlg.tableWidget_5.setItem(n_util-1, 3, QTableWidgetItem('Cold'))
-		dados_da_corrente.append("Cold")
-		# ncold += 1
-	else:
-		dlg.tableWidget_5.setItem(n_util-1, 3, QTableWidgetItem('Hot'))
-		dados_da_corrente.append("Hot")
-		# nhot += 1
-	item = dlg.tableWidget_5.item(n_util-1, 3)
-	item.setTextAlignment(Qt.AlignHCenter)
-	correntes_util.append(dados_da_corrente)
-	e_utilidade.append(True)
-
-	dlg.tableWidget_5.blockSignals(False)
-
-def graficos(correntes, n, dTmin):
-	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, n, dTmin)
-	Tdecre = coisas_graficos[0]
-	Tmin = coisas_graficos[1]
-	Tmax = coisas_graficos[2]
-	cascat2certo = coisas_graficos[3]
-	dT = coisas_graficos[4]
-	cascat2 = coisas_graficos[5]
-	utilidadesquente = coisas_graficos[6]
-	menor = coisas_graficos[7]
-	pinch = coisas_graficos[8]
-	caixinha=dlg.caixinha
-	tabwid=dlg.tableWidget
-	flagplot=0
-	caixinha3=dlg.caixinha3
-	caixinha4=dlg.caixinha4
-	plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
-	plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
-	plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
 
 
 
@@ -247,19 +98,115 @@ def openfile_teste():
 		else:
 			dados_da_corrente.append("Cold")
 			ncold += 1
+		dados_da_corrente.append(0.5)
 		correntes.append(dados_da_corrente)
 		e_utilidade.append(False)
 
 	#printa as correntes pro usuário na tabela de streams
 	for corrente in range(len(correntes)):
-		for coluna in range(4):
+		for coluna in range(5):
 			dlg.tableWidget.setItem(corrente, coluna, QTableWidgetItem(str(correntes[corrente][coluna])))
+
+
 	dlg.tableWidget.blockSignals(False)
 	for i in range(n):
-		for j in range(4):
+		for j in range(5):
 			item = dlg.tableWidget.item(i, j)
 			item.setTextAlignment(Qt.AlignHCenter)
-			# item.setTextAlignment(Qt.AlignVCenter)
+
+def apertaradd() :
+	global n, ncold, nhot, correntes
+	n += 1
+	dados_da_corrente = []
+	if n == 1:
+		headerrr = ["Supply Temperature ({})".format(dlg.temp_unidade.currentText()),
+					"Target Temperature ({})".format(dlg.temp_unidade.currentText()),
+					"Cp ({})".format(dlg.cp_unidade.currentText()),
+					"Stream Type",
+					"h ({})".format(dlg.pelicula_unidade.currentText())]
+		dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
+		dlg.temp_unidade.setEnabled(False)
+		dlg.cp_unidade.setEnabled(False)
+		dlg.pelicula_unidade.setEnabled(False)
+		dlg.temp_unidade_util.setEnabled(False)
+		dlg.pelicula_unidade_util.setEnabled(False)
+
+	if float(dlg.stream_supply.text()) < float(dlg.stream_target.text()):
+		tipo = "Cold"
+		ncold += 1
+	else:
+		tipo = "Hot"
+		nhot += 1
+
+	dados_da_corrente.append(float(dlg.stream_supply.text()))
+	dados_da_corrente.append(float(dlg.stream_target.text()))
+	dados_da_corrente.append(float(dlg.stream_cp.text()))
+	dados_da_corrente.append(tipo)
+	dados_da_corrente.append(float(dlg.stream_pelicula.text()))
+
+	dlg.tableWidget.blockSignals(True)
+	dlg.tableWidget.setRowCount(n)
+	dlg.tableWidget.setItem(n-1, 0, QTableWidgetItem(str(dados_da_corrente[0])))
+	dlg.tableWidget.setItem(n-1, 1, QTableWidgetItem(str(dados_da_corrente[1])))
+	dlg.tableWidget.setItem(n-1, 2, QTableWidgetItem(str(dados_da_corrente[2])))
+	dlg.tableWidget.setItem(n-1, 3, QTableWidgetItem(dados_da_corrente[3]))
+	dlg.tableWidget.setItem(n-1, 4, QTableWidgetItem(str(dados_da_corrente[4])))
+
+	for i in range(5):
+		item = dlg.tableWidget.item(n-1, i)
+		item.setTextAlignment(Qt.AlignHCenter)
+
+	correntes.append(dados_da_corrente)
+	e_utilidade.append(False)
+
+	dlg.tableWidget.blockSignals(False)
+
+def add_utilidade():
+	global n, n_util, ncold, nhot, correntes_util
+	# n += 1
+	n_util += 1
+	dados_da_corrente = []
+	if n_util == 1:
+		headerrr = ["Utility",
+					"Inlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+					"Outlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+					"Utility Type",
+					"h ({})".format(dlg.pelicula_unidade_util.currentText())]
+		dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
+		dlg.temp_unidade_util.setEnabled(False)
+		dlg.temp_unidade.setEnabled(False)
+		dlg.cp_unidade.setEnabled(False)
+		dlg.pelicula_unidade_util.setEnabled(False)
+		dlg.pelicula_unidade.setEnabled(False)
+
+	if float(dlg.util_inlet.text()) < float(dlg.util_outlet.text()):
+		tipo = "Cold"
+	else:
+		tipo = "Hot"
+
+	dados_da_corrente.append(float(dlg.util_inlet.text()))
+	dados_da_corrente.append(float(dlg.util_outlet.text()))
+	dados_da_corrente.append(1)
+	dados_da_corrente.append(tipo)
+	dados_da_corrente.append(float(dlg.util_pelicula.text()))
+
+
+	dlg.tableWidget_5.blockSignals(True)
+	dlg.tableWidget_5.setRowCount(n_util)
+	dlg.tableWidget_5.setItem(n_util-1, 0, QTableWidgetItem(dlg.utilidade.currentText()))
+	dlg.tableWidget_5.setItem(n_util-1, 1, QTableWidgetItem(str(dados_da_corrente[0])))
+	dlg.tableWidget_5.setItem(n_util-1, 2, QTableWidgetItem(str(dados_da_corrente[1])))
+	dlg.tableWidget_5.setItem(n_util-1, 3, QTableWidgetItem(dados_da_corrente[3]))
+	dlg.tableWidget_5.setItem(n_util-1, 4, QTableWidgetItem(str(dados_da_corrente[4])))
+
+	for i in range(5):
+		item = dlg.tableWidget_5.item(n_util-1, i)
+		item.setTextAlignment(Qt.AlignHCenter)
+
+	correntes_util.append(dados_da_corrente)
+	e_utilidade.append(True)
+
+	dlg.tableWidget_5.blockSignals(False)
 
 def done_teste():
 	global dTmin, done
@@ -274,12 +221,10 @@ def pinch_teste():
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
 	if done:
 		global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold
-		# print(correntes, "antes pinch")
-		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
-		print("ANTES DAS UTILIDADES PARTICIPAREM DO PINCH")
-		print("Requerido Utilidades Quentes", util_quente)
-		print("Requerido Utilidades Frias", util_fria)
-		# print(correntes, "depois primeiro pinch")
+		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
+		# print("ANTES DAS UTILIDADES PARTICIPAREM DO PINCH")
+		# print("Requerido Utilidades Quentes", util_quente)
+		# print("Requerido Utilidades Frias", util_fria)
 		for util in correntes_util:
 			if util[3] == "Hot":
 				util[2] = util_quente/(util[0] - util[1])
@@ -290,13 +235,11 @@ def pinch_teste():
 
 		correntes += correntes_util
 		n += len(correntes_util)
-		# print(correntes, "quando add utilidades")
-		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
-		# print(correntes, "depois segundo pinch")
-		print()
-		print("DEPOIS DAS UTILIDADES PARTICIPAREM DE PINCH")
-		print("Requerido Utilidades Quentes", util_quente)
-		print("Requerido Utilidades Frias", util_fria)
+		# pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
+		# print()
+		# print("DEPOIS DAS UTILIDADES PARTICIPAREM DE PINCH")
+		# print("Requerido Utilidades Quentes", util_quente)
+		# print("Requerido Utilidades Frias", util_fria)
 		#arruma as temperaturas baseado no pinch
 		for i in range (n): #correção das temperaturas
 			if correntes[i][3] == "Hot":
@@ -305,13 +248,11 @@ def pinch_teste():
 					e_utilidade_quente.append(True)
 				else:
 					e_utilidade_quente.append(False)
-				correntes[i][0] += dTmin/2
-				correntes[i][1] += dTmin/2
+					correntes[i][0] += dTmin/2
+					correntes[i][1] += dTmin/2
 				Th0.append(correntes[i][0])
 				Thf.append(correntes[i][1])
 				CPh.append(correntes[i][2])
-				if e_utilidade[i]:
-					print("Utilidade Quente (Tin, Tout, Cp, Type)", correntes[i])
 				if correntes[i][1] >= pinchq: #corrente quente nao bate no pinch acima
 					Thf_acima.append(correntes[i][1])
 					corrente_quente_presente_abaixo.append(False)
@@ -331,13 +272,11 @@ def pinch_teste():
 					e_utilidade_fria.append(True)
 				else:
 					e_utilidade_fria.append(False)
-				correntes[i][0] -= dTmin/2
-				correntes[i][1] -= dTmin/2
+					correntes[i][0] -= dTmin/2
+					correntes[i][1] -= dTmin/2
 				Tc0.append(correntes[i][0])
 				Tcf.append(correntes[i][1])
 				CPc.append(correntes[i][2])
-				if e_utilidade[i]:
-					print("Utilidade Fria (Tin, Tout, Cp, Type)", correntes[i])
 				if correntes[i][0] >= pinchf: #corrente fria não bate no pinch acima
 					Tc0_acima.append(correntes[i][0])
 					corrente_fria_presente_abaixo.append(False)
@@ -350,16 +289,15 @@ def pinch_teste():
 				else:
 					Tcf_abaixo.append(pinchf)
 					corrente_fria_presente_acima.append(True)
-
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
 		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
 		printar()
 		printar_abaixo()
 		correntesnoscombos(nhot,ncold)
-		testar_correntes(dlg)
+		testar_correntes(dlg, True)
 		testar_correntes_abaixo(dlg)
-		graficos(correntes, n, dTmin)
+		# graficos(correntes, n, dTmin)
 
 
 		#libera botões e coisas
@@ -376,24 +314,24 @@ def correntesnoscombos(nhot,ncold):
 	nstages=2
 	nsubstages=2
 	for i in range (nhot):
-		dlg.comboBox_2.addItem(str(i+1))     #acima   add heat ex
-		dlg.comboBox_9.addItem(str(i+1))     #acima   quadro de correntes quentes
+		dlg.comboBox_2.addItem(str(i+1)) #acima   add heat ex
+		dlg.comboBox_9.addItem(str(i+1)) #acima   quadro de correntes quentes
 		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
-		dlg.comboBox_43.addItem(str(i+1))    #abaixo   quadro de correntes quentes
+		dlg.comboBox_43.addItem(str(i+1))#abaixo   quadro de correntes quentes
 		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
 		dlg.comboBox_54.addItem(str(i+1))
 	for i in range (ncold):
-		dlg.comboBox_5.addItem(str(i+1))      #acima add heat ex
-		dlg.comboBox_10.addItem(str(i+1))     #acima quadro correntes frias
-		dlg.comboBox_36.addItem(str(i+1))     #abaixo add heat ex
-		dlg.comboBox_44.addItem(str(i+1))     #abaixo quadro de correntes frias
+		dlg.comboBox_5.addItem(str(i+1))  #acima add heat ex
+		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
+		dlg.comboBox_36.addItem(str(i+1)) #abaixo add heat ex
+		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
 	for i in range (nstages):
-		dlg.comboBox_8.addItem(str(i+1))    #acima
+		dlg.comboBox_8.addItem(str(i+1))#acima
 		dlg.comboBox_39.addItem(str(i+1))   #abaixo
 	for i in range (nsubstages):
-		dlg.comboBox_7.addItem(str(i+1))    #acima
+		dlg.comboBox_7.addItem(str(i+1))#acima
 		dlg.comboBox_40.addItem(str(i+1))
 
 
@@ -407,7 +345,6 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 	temp.speed(1000)
 	temp.shapesize(0.001, 0.001, 0.001)
 	temp.penup()
-
 	y_acima, y_abaixo = 200, 200
 
 	def quentes(onde, correntes_desenho, presente):
@@ -823,7 +760,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 				subestagio += 1
 				utilidade_desenho("below", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1])
 
-	salvar_rede()
+	# salvar_rede()
 	turtle.done()
 	# turtle.bye()
 
@@ -844,13 +781,32 @@ def salvar_rede():
 	pic = Image.open('duck.eps')
 	pic.load(scale=10)
 	if pic.mode in ('P', '1'):
-	    pic = pic.convert("RGB")
-	ratio = min(TARGET_BOUNDS[0] / pic.size[0],
-	            TARGET_BOUNDS[1] / pic.size[1])
+		pic = pic.convert("RGB")
+		ratio = min(TARGET_BOUNDS[0] / pic.size[0],
+					TARGET_BOUNDS[1] / pic.size[1])
 	new_size = (int(pic.size[0] * ratio), int(pic.size[1] * ratio))
 	pic = pic.resize(new_size, Image.ANTIALIAS)
 	pic.save("image.png")
 
+def graficos(correntes, n, dTmin):
+	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, n, dTmin)
+	Tdecre = coisas_graficos[0]
+	Tmin = coisas_graficos[1]
+	Tmax = coisas_graficos[2]
+	cascat2certo = coisas_graficos[3]
+	dT = coisas_graficos[4]
+	cascat2 = coisas_graficos[5]
+	utilidadesquente = coisas_graficos[6]
+	menor = coisas_graficos[7]
+	pinch = coisas_graficos[8]
+	caixinha=dlg.caixinha
+	tabwid=dlg.tableWidget
+	flagplot=0
+	caixinha3=dlg.caixinha3
+	caixinha4=dlg.caixinha4
+	plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
+	plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
+	plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
 
 
 
@@ -957,26 +913,41 @@ def dividir_corrente(divisao, onde):
 			caixa_fracao[i].setSingleStep(float(0.1))
 			caixa_fracao[i].setMaximum(1)
 			caixa_fracao[i].setMinimum(0)
+			caixa_fracao[i].setValue(round(1/quantidade, 2))
 			caixa_corrente[i].setText("Substream {}".format(i+1))
 			caixa_corrente[i].setAlignment(Qt.AlignCenter)
 			caixa_fracao[i].setAlignment(Qt.AlignCenter)
+		x = caixa_fracao[-1].value()
+		if x * quantidade > 1:
+			sobrou = x*quantidade - 1
+			caixa_fracao[-1].setValue(x - sobrou)
+		if x * quantidade < 1:
+			faltou = 1 - x*quantidade
+			caixa_fracao[-1].setValue(x + faltou)
+
 
 	def split(onde):
 		soma = 0
 		fracao = [0] * quantidade
 		for i in range(quantidade):
-			soma += float(caixa_fracao[i].value())
-			fracao[i] = float(caixa_fracao[i].value())
-		# if soma != 1:
-		# 	QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
-		# 	return
+			soma += round(float(caixa_fracao[i].value()), 2)
+			fracao[i] = round(float(caixa_fracao[i].value()), 2)
+		if soma != 1:
+			QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
+			return
 
 		if onde == "above":
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
-			testar_correntes(dlg)
+			if divtype == "F":
+				testar_correntes(dlg, True)
+			else:
+				testar_correntes(dlg)
 		elif onde == "below":
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
-			testar_correntes_abaixo(dlg)
+			if divtype == "Q":
+				testar_correntes_abaixo(dlg, True)
+			else:
+				testar_correntes_abaixo(dlg)
 
 		if divtype == "Q":
 			dlg.DivisaoQuente.close()
@@ -991,6 +962,7 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton.clicked.connect(lambda: confirm())
 	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
+
 
 
 #above
@@ -1558,16 +1530,12 @@ dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, corre
 
 header = dlg.tableWidget.horizontalHeader()
 header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
+for i in range(5):
+	header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 header = dlg.tableWidget_5.horizontalHeader()
 header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
-header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
+for i in range(5):
+	header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 
 
 
