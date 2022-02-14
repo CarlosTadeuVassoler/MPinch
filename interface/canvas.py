@@ -68,7 +68,7 @@ def plotargrafico1(correntes,n,caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unid
 
 
 
-def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada):
+def plotargrafico2(correntes,n,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada):
 	# a figure instance to plot on
 	#("pokkpkopkopkopkopkopkpkopkopkop",dTmin)
 	dlg.figure2 = plt.figure(2)
@@ -208,9 +208,10 @@ def plotargrafico2(correntes,n,caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, ca
 	plot2()
 
 	# set the layout
-	caixinha3=dlg.caixinha3
-	caixinha3.addWidget(dlg.canvas2)
-	caixinha3.addWidget(dlg.toolbar)
+	# caixinha3=dlg.caixinha3
+	# caixinha3.addWidget(dlg.canvas2)
+	# caixinha3.addWidget(dlg.toolbar)
+	return dlg.canvas2
 
 
 def plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada):

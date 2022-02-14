@@ -27,6 +27,7 @@ from PIL import Image
 import turtle
 from svg_turtle import SvgTurtle
 import os
+from custo2 import varia
 
 
 
@@ -63,6 +64,122 @@ e_utilidade = []
 e_utilidade_quente = []
 e_utilidade_fria = []
 correntes_util = []
+
+
+
+#######################
+def formatando(valor,index):
+    if valor>=1_000_000:
+        fomatador = '{:1.1f}M'.format(valor*0.000_001)
+    else:
+        fomatador = '{:1.0f}K'.format(valor * 0.001)
+    return fomatador
+
+def otimizafun():
+    start=float(dlg.dtstart.text())
+    step=float(dlg.dtstep.text())
+    stop=float(dlg.dtstop.text())
+
+    global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq
+    uf,uq,variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual=varia(start,step,stop,correntes)
+
+
+    row = 0
+    valorbonito = []
+    valorbonito = np.round(variadt, 3)
+    dlg.TABELA.setRowCount(len(valorbonito))
+
+    for data in range(0, len(valorbonito)):
+        dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(variadt[data], 3))))
+        dlg.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(np.round(yplot[data], 2))))
+        dlg.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(np.round(custoopano[data], 2))))
+        dlg.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(np.round(custocapitalanual[data], 2))))
+        dlg.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(np.round(custototanual[data], 2))))
+        row += 1
+
+    print(variadt)
+    dlg.sc = myCanvas()
+    dlg.l = QVBoxLayout(dlg.dtminxcusto)
+
+    dlg.l.addWidget(dlg.sc)
+    y=[0]
+    x=[0]
+    dlg.sc.plot(x, y)
+
+
+    dlg.sc2 = myCanvas2()
+    dlg.l = QVBoxLayout(dlg.dtminxarea)
+    dlg.l.addWidget(dlg.sc2)
+    dlg.sc2.plot(x, y)
+
+
+    dlg.sc3 = myCanvas3()
+    dlg.l = QVBoxLayout(dlg.dtminxut)
+    dlg.l.addWidget(dlg.sc3)
+    dlg.sc3.plot(x, y)
+
+class myCanvas(FigureCanvas):
+    def __init__(self):
+        self.fig=Figure()
+        FigureCanvas.__init__(self,self.fig)
+
+    def plot(self,x,y):
+        self.fig.clear()
+
+        plt.style.use('ggplot')
+        self.ax= self.fig.add_subplot(111)
+        self.ax.clear()
+        self.ax.yaxis.set_major_formatter(formatando)
+        self.ax.plot(variadt,custoopano, label='C.Operacional x ΔTmin')
+        self.ax.plot(variadt,custocapitalanual, label='C.Capital x ΔTmin', color='k')
+        self.ax.plot(variadt,custototanual, label='C.Total x ΔTmin', color='r')
+        self.ax.set_xlabel('ΔTmin')
+        self.ax.set_ylabel('Cost')
+        self.ax.legend()
+        self.ax.grid(True)
+        self.draw()
+
+class myCanvas2(FigureCanvas):
+    def __init__(self):
+        self.fig=Figure()
+        FigureCanvas.__init__(self,self.fig)
+
+    def plot(self,x,y):
+        self.fig.clear()
+
+        plt.style.use('ggplot')
+        self.ax= self.fig.add_subplot(111)
+        self.ax.yaxis.set_major_formatter(formatando)
+
+        print(variadt)
+        self.ax.plot(variadt,yplot, label='Area x ΔTmin', color='r')
+        self.ax.set_xlabel('ΔTmin')
+        self.ax.set_ylabel('Area')
+        self.ax.legend()
+        self.ax.grid(True)
+        self.draw()
+
+class myCanvas3(FigureCanvas):
+    def __init__(self):
+        self.fig=Figure()
+        FigureCanvas.__init__(self,self.fig)
+
+    def plot(self,x,y):
+        self.fig.clear()
+
+        plt.style.use('ggplot')
+        self.ax= self.fig.add_subplot(111)
+        #self.ax.yaxis.set_major_formatter(formatando)
+        self.ax.plot(variadt,uq, label='Hot utility x ΔTmin', color='r')
+        self.ax.plot(variadt, uf, label='Cold utility x ΔTmin', color='b')
+        self.ax.set_xlabel('ΔTmin')
+        self.ax.set_ylabel('Utility')
+        self.ax.legend()
+        self.ax.grid(True)
+        self.draw()
+########################
+
+
 
 
 
@@ -209,22 +326,39 @@ def add_utilidade():
 	dlg.tableWidget_5.blockSignals(False)
 
 def done_teste():
-	global dTmin, done
+	global dTmin, done, correntes
 
 	#libera o pinch e armazena as correntes numa variável que vai ser mudada de acordo com o pinch
 	done = True
 	dlg.pinchbutton.setEnabled(True)
 	dTmin=float(dlg.lineEdit_2.text())
+	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
+	dlg.done = uic.loadUi("done.ui")
+
+	dlg.done.show()
+	dlg.done.hot_temp.setText("Hot: " + str(pinchq) + " " + dlg.temp_unidade.currentText())
+	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
+	# Tdecre = coisas_graficos[0]
+	# Tmin = coisas_graficos[1]
+	# Tmax = coisas_graficos[2]
+	# cascat2certo = coisas_graficos[3]
+	# dT = coisas_graficos[4]
+	# cascat2 = coisas_graficos[5]
+	# utilidadesquente = coisas_graficos[6]
+	# menor = coisas_graficos[7]
+	# pinch = coisas_graficos[8]
+	# plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
+	# diagrama_th = plotargrafico2(correntes, len(correntes), dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
+	# plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
+	# dlg.done.grande_composta.addWidget(diagrama_th)
+	# dlg.caixinha3.addWidget(diagrama_th)
 
 def pinch_teste():
 	global done, Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
 	if done:
 		global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold
-		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
-		# print("ANTES DAS UTILIDADES PARTICIPAREM DO PINCH")
-		# print("Requerido Utilidades Quentes", util_quente)
-		# print("Requerido Utilidades Frias", util_fria)
+		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
 		for util in correntes_util:
 			if util[3] == "Hot":
 				util[2] = util_quente/(util[0] - util[1])
@@ -235,11 +369,6 @@ def pinch_teste():
 
 		correntes += correntes_util
 		n += len(correntes_util)
-		# pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin, True)
-		# print()
-		# print("DEPOIS DAS UTILIDADES PARTICIPAREM DE PINCH")
-		# print("Requerido Utilidades Quentes", util_quente)
-		# print("Requerido Utilidades Frias", util_fria)
 		#arruma as temperaturas baseado no pinch
 		for i in range (n): #correção das temperaturas
 			if correntes[i][3] == "Hot":
@@ -248,8 +377,6 @@ def pinch_teste():
 					e_utilidade_quente.append(True)
 				else:
 					e_utilidade_quente.append(False)
-					correntes[i][0] += dTmin/2
-					correntes[i][1] += dTmin/2
 				Th0.append(correntes[i][0])
 				Thf.append(correntes[i][1])
 				CPh.append(correntes[i][2])
@@ -272,8 +399,6 @@ def pinch_teste():
 					e_utilidade_fria.append(True)
 				else:
 					e_utilidade_fria.append(False)
-					correntes[i][0] -= dTmin/2
-					correntes[i][1] -= dTmin/2
 				Tc0.append(correntes[i][0])
 				Tcf.append(correntes[i][1])
 				CPc.append(correntes[i][2])
@@ -297,7 +422,6 @@ def pinch_teste():
 		correntesnoscombos(nhot,ncold)
 		testar_correntes(dlg, True)
 		testar_correntes_abaixo(dlg)
-		# graficos(correntes, n, dTmin)
 
 
 		#libera botões e coisas
@@ -787,26 +911,6 @@ def salvar_rede():
 	new_size = (int(pic.size[0] * ratio), int(pic.size[1] * ratio))
 	pic = pic.resize(new_size, Image.ANTIALIAS)
 	pic.save("image.png")
-
-def graficos(correntes, n, dTmin):
-	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, n, dTmin)
-	Tdecre = coisas_graficos[0]
-	Tmin = coisas_graficos[1]
-	Tmax = coisas_graficos[2]
-	cascat2certo = coisas_graficos[3]
-	dT = coisas_graficos[4]
-	cascat2 = coisas_graficos[5]
-	utilidadesquente = coisas_graficos[6]
-	menor = coisas_graficos[7]
-	pinch = coisas_graficos[8]
-	caixinha=dlg.caixinha
-	tabwid=dlg.tableWidget
-	flagplot=0
-	caixinha3=dlg.caixinha3
-	caixinha4=dlg.caixinha4
-	plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
-	plotargrafico2(correntes, n, caixinha3,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
-	plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
 
 
 
@@ -1466,14 +1570,17 @@ def checaresgotadosabaixo():
 		dlg.pushButton_21.setEnabled(False)
 
 
+#custos
+dlg.otimizabotao.clicked.connect(lambda: otimizafun())
+
 
 
 #streams
-dlg.pinchbutton.setEnabled(False) #block o botao pinch até apertar done
-dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
-dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
-dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
-dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
+# dlg.pinchbutton.setEnabled(False) #block o botao pinch até apertar done
+# dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
+# dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
+# dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
+# dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.botao_addstream.clicked.connect(apertaradd) #add stream
 dlg.botao_addutility.clicked.connect(add_utilidade)
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
