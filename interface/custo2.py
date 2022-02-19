@@ -24,15 +24,15 @@ def varia(inicio,passo,fim,corrente):
     custoopano=[]
     uflista=[]
     uqlista=[]
-    print(Fatoranual)
+    # print(Fatoranual)
     for n in range(0,len(variadt)):
 
         uf,uq=fp2.pontopinch(corrente,ncorrentes,variadt[n])
         uflista.append(uf)
         uqlista.append(uq)
-        print(uq,uf)
-        print(corrente)
-        print(corrente[4][1])
+        # print(uq,uf)
+        # print(corrente)
+        # print(corrente[4][1])
         corrente[4][2]=uq/(corrente[4][0]-corrente[4][1])
         corrente[5][2] = uf / (corrente[5][1] - corrente[5][0])
 

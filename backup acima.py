@@ -9,6 +9,7 @@ import sys
 import os
 import threading
 
+
 Th0 = []
 Thf = []
 CPh = []
@@ -32,7 +33,7 @@ sestagio = 0
 complistq = []
 complistf = []
 cont = opcao = 0
-chot = ccold = sbhot = sbcold = qsi = qsj = ccoldutiila = 0
+chot = ccold = sbhot = sbcold = qsi = qsj = ccoldutil = 0
 tempdif = 0
 
 nstages = 1
@@ -49,7 +50,6 @@ calor_atual_quente = []
 calor_atual_frio = []
 calor_atual_quente_sub = []
 calor_atual_frio_sub = []
-calor_sub_sem_utilidade = []
 Qtotalestagio = Qtotalestagiof = Qmax = Qtotalhaux = Qtotalcaux = 0
 
 
@@ -221,7 +221,6 @@ def preparar_dados_e_rede():
 		temperatura_atual_fria.append([])
 		temperatura_atual_fria_mesclada.append(Tc0[fria])
 		calor_atual_frio_sub.append([])
-		calor_sub_sem_utilidade.append([])
 		dividida_fria.append(False)
 		quantidade_fria.append(1)
 		fracoes_frias.append([])
@@ -275,6 +274,8 @@ def preparar_dados_e_rede():
 def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
 	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
 	Th0, Thf, Tc0, Tcf = [], [], [], []
+	CPh.clear()
+	CPc.clear()
 	for corrente in range(nquentes):
 		Th0.append(matriz_quente[corrente])
 		Thf.append(matriz_quente_in[corrente])
@@ -453,12 +454,12 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 	trocador_violado = []
 
 	#CÁLCULO DE TODA A SUPERESTRUTURA
-	for k in range (nstages):
-		for sk in range (nsk):
-			for i in range (nhot):
-				for si in range (ncold):
-					for j in range(ncold):
-						for sj in range(nhot):
+	for k in range (nstages-1, -1, -1):
+		for sk in range (nsk-1, -1, -1):
+			for i in range (nhot-1, -1, -1):
+				for si in range (ncold-1, -1, -1):
+					for j in range(ncold-1, -1, -1):
+						for sj in range(nhot-1, -1, -1):
 
 							Qaux[i][si][j][sj][sk][k] = Q[i][si][j][sj][sk][k]
 
@@ -525,7 +526,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								#Temperatura de estágios e sub-estágios
 								for k1 in range(nstages):
 									for sk1 in range(nsk):
-										if k1 > (k): #para estágios mais a esqueda do atual da superestrutura, todas as temperaturas recebem a temperatura pós troca
+										if k1 < (k): #para estágios mais a esqueda do atual da superestrutura, todas as temperaturas recebem a temperatura pós troca
 											#entrada
 											Tcki[j][k1] = Tcfinal01k[j][k]
 											Thki[i][k1] = Thfinal01k[i][k]
@@ -542,8 +543,8 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 												Thskf[i][sub_quente][sk1][k1] = Thfinal01k[i][k]
 
 										if k1 == (k): #para o estágio atual da superestrutura, depende de qual subestagio
-											if sk1 >= (sk): #para os subestagios a esquerda ou atual da superestrutura, depende se entra ou sai
-												if sk1 > sk: #para os a esquerda, entra recebe após troca
+											if sk1 <= (sk): #para os subestagios a esquerda ou atual da superestrutura, depende se entra ou sai
+												if sk1 < sk: #para os a esquerda, entra recebe após troca
 													Tcski[j][sj][sk1][k1] = Tcfinal01[j][sj]
 													Thski[i][si][sk1][k1] = Thfinal01[i][si]
 												Tcskf[j][sj][sk1][k1] = Tcfinal01[j][sj] #atual e a esquerda, final recebe após troca
@@ -564,6 +565,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 					for j in range(ncold):
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
+
 	# print()
 	# print()
 	# print()
@@ -629,13 +631,13 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 			dividida_fria[corrente-1] = True
 			quantidade_fria[corrente-1] = qsj
 
-def ler_dados(dlg, subestagio_trocador):
+def ler_dados(dlg):
 	i = int(dlg.comboBox_2.currentText())
 	j = int(dlg.comboBox_5.currentText())
 	si = int(dlg.comboBox_50.currentText())
 	sj = int(dlg.comboBox_51.currentText())
-	k = 1
-	sk = subestagio_trocador
+	k = int(dlg.comboBox_8.currentText())
+	sk = int(dlg.comboBox_7.currentText())
 
 	if ((Qtotalh0[i-1][si-1][k-1]) > (Qtotalc0[j-1][sj-1][k-1])):
 		Qmax = Qtotalc0[j-1][sj-1][k-1]
@@ -743,6 +745,7 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 
+	#CÁLCULO DA SUPERESTRUTURA
 	calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	for k in range (nstages):
@@ -785,26 +788,25 @@ def atualizar_matriz(matriz):
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
 def adicionar_utilidade(dlg, corrente):
-	if calor_atual_frio[corrente-1] == 0:
+	ccoldutil = corrente
+	q = Qtotalc0[ccoldutil-1][0][0]
+	for sj in range(nhot):
+		for k in range(nstages):
+			if q < Qtotalc0[ccoldutil-1][sj][k]:
+				q = Qtotalc0[ccoldutil-1][sj][k]
+			Qtotalc0[ccoldutil-1][sj][k] = 0
+	if q == 0:
 		QMessageBox.about(dlg, "Error!", "The heat of this stream has already been supplied")
 		return
-	utilidades.append([corrente, calor_atual_frio[corrente-1]])
-	calor_sub_sem_utilidade[corrente-1] = calor_atual_frio_sub[corrente-1][:]
-	if dividida_fria[corrente-1]:
-		for sj in range(quantidade_fria[corrente-1]):
-			temperatura_atual_fria[corrente-1][sj] = Tcf[corrente-1]
-			calor_atual_frio_sub[corrente-1][sj] = 0.0
-	temperatura_atual_fria_mesclada[corrente-1] = Tcf[corrente-1]
-	calor_atual_frio[corrente-1] = 0.0
+	temperatura_atual_fria[ccoldutil-1] = Tcf[ccoldutil-1]
+	calor_atual_frio[ccoldutil-1] = 0.0
+	utilidades.append([ccoldutil, q])
 	return utilidades
 
 def remover_utilidade(corrente, indice_remover, utilidades):
-	if dividida_fria[corrente-1]:
-		for sj in range(quantidade_fria[corrente-1]):
-			calor_atual_frio_sub[corrente-1][sj] = calor_sub_sem_utilidade[corrente-1][sj]
-			temperatura_atual_fria[corrente-1][sj] = -calor_atual_frio_sub[corrente-1][sj]/(CPc[corrente-1]*Fcarr[0][corrente-1][sj]/100) + Tcf[corrente-1]
-	calor_atual_frio[corrente-1] = utilidades[indice_remover][1]
-	temperatura_atual_fria_mesclada[corrente-1] = -calor_atual_frio[corrente-1] / CPc[corrente-1] + Tcf[corrente-1]
+	Qtotalc0[corrente-1][0][0] = utilidades[indice_remover][1]
+	calor_atual_frio[corrente-1] = Qtotalc0[corrente-1][0][0]
+	temperatura_atual_fria[corrente-1] = -calor_atual_frio[corrente-1] / CPc[corrente-1] + Tcf[corrente-1]
 	utilidades.pop(indice_remover)
 
 def caixa_de_temperatura(dlg):
@@ -841,6 +843,8 @@ def caixa_de_temperatura(dlg):
 	dlg.radioButton.setChecked(True)
 	dlg.comboBox_2.setCurrentText(str(dlg.TempLoadAbove.comboBox.currentText()))  #hot strem
 	dlg.comboBox_5.setCurrentText(str(dlg.TempLoadAbove.comboBox_2.currentText()))  #cold stream
+	dlg.comboBox_7.setCurrentText(str(dlg.TempLoadAbove.comboBox_6.currentText())) #sk
+	dlg.comboBox_8.setCurrentText(str(dlg.TempLoadAbove.comboBox_5.currentText())) #k
 	dlg.comboBox_50.setCurrentText(str(dlg.TempLoadAbove.comboBox_3.currentText())) #si
 	dlg.comboBox_51.setCurrentText(str(dlg.TempLoadAbove.comboBox_4.currentText())) #sj
 	dlg.TempLoadAbove.close()
@@ -894,3 +898,6 @@ def testar_correntes(dlg, primeira=False):
 	else:
 		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")
+
+
+	# return respeitando

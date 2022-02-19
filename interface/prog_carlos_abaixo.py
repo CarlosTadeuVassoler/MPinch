@@ -32,10 +32,11 @@ sestagio = 0
 complistq = []
 complistf = []
 cont = opcao = 0
-chot = ccold = sbhot = sbcold = qsi = qsj = chotutil = 0
+chot = ccold = sbhot = sbcold = qsi = qsj = chotutiil = 0
 tempdif = tempmeta = 0
 
-nsk = nstages = 2
+nstages = 1
+nsk = 20
 
 #VARIÁVEIS DO CALOR
 Qtotalh01 = []
@@ -48,6 +49,7 @@ calor_atual_quente_abaixo = []
 calor_atual_frio_abaixo = []
 calor_atual_quente_sub_abaixo = []
 calor_atual_frio_sub_abaixo = []
+calor_sub_sem_utilidade = []
 Qtotalestagio = Qtotalestagiof = Qmax = Qtotalhaux = Qtotalcaux = 0
 
 
@@ -91,7 +93,6 @@ dividida_quente_abaixo = []
 dividida_fria_abaixo = []
 quantidade_quente_abaixo = []
 quantidade_fria_abaixo = []
-trocador_violou = []
 fracoes_quentes_abaixo = []
 fracoes_frias_abaixo = []
 
@@ -195,8 +196,10 @@ def preparar_dados_e_rede2():
 
 	Fharr = np.array ([0])
 	Fharr.resize(nstages, nhot, ncold)
+	Fharr = Fharr.tolist()
 	Fcarr = np.array ([0])
 	Fcarr.resize(nstages, ncold, nhot)
+	Fcarr = Fcarr.tolist()
 	Qarr = np.array ([0])
 	Qarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Q[i][si][j][sj][sk][k]
 	Q = Qarr.tolist()
@@ -208,6 +211,7 @@ def preparar_dados_e_rede2():
 		temperatura_atual_quente_abaixo.append([])
 		temperatura_atual_quente_mesclada_abaixo.append(Th0[quente])
 		calor_atual_quente_sub_abaixo.append([])
+		calor_sub_sem_utilidade.append([])
 		dividida_quente_abaixo.append(False)
 		quantidade_quente_abaixo.append(1)
 		fracoes_quentes_abaixo.append([])
@@ -238,7 +242,6 @@ def preparar_dados_e_rede2():
 		Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
 		calor_atual_frio_abaixo.append(CPc[j] * (Tcf[j] - Tc0[j]))
 		calor_atual_frio_sub_abaixo[j][0] = CPc[j] * (Tcf[j] - Tc0[j])
-
 
 	for i in range(nhot):
 		for j in range(ncold):
@@ -449,7 +452,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 	violou = False
 	trocador_violado = []
 
-	# CÁLCULO DE TODA A SUPERESTRUTURA
+	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range (nstages):
 		for sk in range (nsk):
 			for i in range (nhot):
@@ -503,7 +506,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 									Q[i][sj][j][sj][sk][k] = 0
 									return True, "termo"
 								else:
-									if not(tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
+									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
 										violou = True
 										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
 
@@ -553,6 +556,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 									Fharr[k][i][si] = 0
 								if Fcarr[k][j][sj] == 100:
 									Fcarr[k][j][sj] = 0
+
 	for k in range (nstages):
 		for sk in range (nsk):
 			for i in range (nhot):
@@ -583,7 +587,6 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 	return violou, trocador_violado
 
 def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
-	global nhot, ncold
 	cont = 0
 	qsi = quantidade
 	qsj = quantidade
@@ -626,13 +629,13 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 			dividida_fria_abaixo[corrente-1] = True
 			quantidade_fria_abaixo[corrente-1] = qsj
 
-def ler_dados_abaixo(dlg):
+def ler_dados_abaixo(dlg, subestagio_trocador_abaixo):
 	i = int(dlg.comboBox_35.currentText())
 	j = int(dlg.comboBox_36.currentText())
 	si = int(dlg.comboBox_53.currentText())
 	sj = int(dlg.comboBox_54.currentText())
-	sk = int(dlg.comboBox_40.currentText())
-	k = int(dlg.comboBox_39.currentText())
+	k = 1
+	sk = subestagio_trocador_abaixo
 
 	if ((Qtotalh0[i-1][si-1][k-1]) > (Qtotalc0[j-1][sj-1][k-1])):
 		Qmax = Qtotalc0[j-1][sj-1][k-1]
@@ -644,12 +647,6 @@ def ler_dados_abaixo(dlg):
 		q = float(dlg.lineEdit_25.text())
 
 	return [i, j, si, sj, sk, k, q]
-
-
-	#radioButton_17 é o heat load
-	#radioButton_20 é o max heat
-	#lineEdit_25 é o heat load
-	pass
 
 def inserir_trocador_abaixo(dlg, vetor):
 	cont = 0
@@ -699,7 +696,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
-	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
+	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
 	else:
 		fracao_quente = Fharr[estagio-1][chot-1][sbhot-1]/100
@@ -756,9 +753,9 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 						for sj in range(nhot):
 							Qaux[i][si][j][sj][sk][k] = 0
 
-	if Fharr[estagio-1][chot-1][sestagio-1] == 0:
+	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
-	if Fharr[estagio-1][ccold-1][sestagio-1] == 0:
+	if Fcarr[estagio-1][ccold-1][sbcold-1] == 0:
 		fracao_fria = 1
 
 	calor_atual_quente_abaixo[chot-1] += vetor[6]
@@ -788,25 +785,26 @@ def atualizar_matriz_abaixo(matriz):
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
 def adicionar_utilidade_abaixo(dlg, corrente):
-	chotutil = corrente
-	q = Qtotalh0[chotutil-1][0][0]
-	for si in range(ncold):
-		for k in range(nstages):
-			if q < Qtotalh0[chotutil-1][si][k]:
-				q = Qtotalh0[chotutil-1][si][k]
-			Qtotalh0[chotutil-1][si][k] = 0
-	if q == 0:
+	if calor_atual_quente_abaixo[corrente-1] == 0:
 		QMessageBox.about(dlg, "Error!", "The heat of this stream has already been supplied")
 		return
-	temperatura_atual_quente_abaixo[chotutil-1] = Thf[chotutil-1]
-	calor_atual_quente_abaixo[chotutil-1] = 0.0
-	utilidades_abaixo.append([chotutil, q])
+	utilidades_abaixo.append([corrente, calor_atual_quente_abaixo[corrente-1]])
+	calor_sub_sem_utilidade[corrente-1] = calor_atual_quente_sub_abaixo[corrente-1][:]
+	if dividida_quente_abaixo[corrente-1]:
+		for si in range(quantidade_quente_abaixo[corrente-1]):
+			temperatura_atual_quente_abaixo[corrente-1][si] = Thf[corrente-1]
+			calor_atual_quente_sub_abaixo[corrente-1][si] = 0.0
+	temperatura_atual_quente_mesclada_abaixo[corrente-1] = Thf[corrente-1]
+	calor_atual_quente_abaixo[corrente-1] = 0.0
 	return utilidades_abaixo
 
 def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
-	Qtotalh0[corrente-1][0][0] = utilidades_abaixo[indice_remover][1]
-	calor_atual_quente_abaixo[corrente-1] = Qtotalh0[corrente-1][0][0]
-	temperatura_atual_quente_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
+	if dividida_quente_abaixo[corrente-1]:
+		for si in range(quantidade_quente_abaixo[corrente-1]):
+			calor_atual_quente_sub_abaixo[corrente-1][si] = calor_sub_sem_utilidade[corrente-1][si]
+			temperatura_atual_quente_abaixo[corrente-1][si] = calor_atual_quente_sub_abaixo[corrente-1][si]/(CPh[corrente-1]*Fharr[0][corrente-1][si]/100) + Thf[corrente-1]
+	calor_atual_quente_abaixo[corrente-1] = utilidades_abaixo[indice_remover][1]
+	temperatura_atual_quente_mesclada_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
 	utilidades_abaixo.pop(indice_remover)
 
 def caixa_de_temperatura_abaixo(dlg):
@@ -843,8 +841,6 @@ def caixa_de_temperatura_abaixo(dlg):
 	dlg.radioButton_17.setChecked(True)
 	dlg.comboBox_35.setCurrentText(str(dlg.TempLoadBelow.comboBox.currentText()))  #hot strem
 	dlg.comboBox_36.setCurrentText(str(dlg.TempLoadBelow.comboBox_2.currentText()))  #cold stream
-	dlg.comboBox_40.setCurrentText(str(dlg.TempLoadBelow.comboBox_6.currentText())) #sk
-	dlg.comboBox_39.setCurrentText(str(dlg.TempLoadBelow.comboBox_5.currentText())) #k
 	dlg.comboBox_53.setCurrentText(str(dlg.TempLoadBelow.comboBox_3.currentText())) #si
 	dlg.comboBox_54.setCurrentText(str(dlg.TempLoadBelow.comboBox_4.currentText())) #sj
 	dlg.TempLoadBelow.close()

@@ -48,7 +48,9 @@ utilidades_abaixo = []
 dTmin = 10
 donee=0
 cascat=[]
-nstages=2
+nstages=1
+subestagio_trocador = 0
+subestagio_trocador_abaixo = 0
 unidadeusada=["Temperature (K)","Enthalpy (kJ)","Enthalpy (kJ)"]
 alreadypinched=0
 plotou=0
@@ -80,6 +82,8 @@ def otimizafun():
     step=float(dlg.dtstep.text())
     stop=float(dlg.dtstop.text())
 
+    dlg.sc = QtWidgets.QLabel(dlg)
+
     global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq
     uf,uq,variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual=varia(start,step,stop,correntes)
 
@@ -97,7 +101,7 @@ def otimizafun():
         dlg.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(np.round(custototanual[data], 2))))
         row += 1
 
-    print(variadt)
+    # print(variadt)
     dlg.sc = myCanvas()
     dlg.l = QVBoxLayout(dlg.dtminxcusto)
 
@@ -151,7 +155,7 @@ class myCanvas2(FigureCanvas):
         self.ax= self.fig.add_subplot(111)
         self.ax.yaxis.set_major_formatter(formatando)
 
-        print(variadt)
+        # print(variadt)
         self.ax.plot(variadt,yplot, label='Area x ΔTmin', color='r')
         self.ax.set_xlabel('ΔTmin')
         self.ax.set_ylabel('Area')
@@ -335,7 +339,7 @@ def done_teste():
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
 
-	dlg.done.show()
+	# dlg.done.show()
 	dlg.done.hot_temp.setText("Hot: " + str(pinchq) + " " + dlg.temp_unidade.currentText())
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
 	# Tdecre = coisas_graficos[0]
@@ -435,8 +439,8 @@ def pinch_teste():
 		dlg.comboBox_54.setEnabled(True)
 
 def correntesnoscombos(nhot,ncold):
-	nstages=2
-	nsubstages=2
+	nstages=1
+	nsubstages=20
 	for i in range (nhot):
 		dlg.comboBox_2.addItem(str(i+1)) #acima   add heat ex
 		dlg.comboBox_9.addItem(str(i+1)) #acima   quadro de correntes quentes
@@ -451,12 +455,6 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
-	for i in range (nstages):
-		dlg.comboBox_8.addItem(str(i+1))#acima
-		dlg.comboBox_39.addItem(str(i+1))   #abaixo
-	for i in range (nsubstages):
-		dlg.comboBox_7.addItem(str(i+1))#acima
-		dlg.comboBox_40.addItem(str(i+1))
 
 
 
@@ -498,21 +496,19 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						temp.write(str(Thf_acima[i]), align="left", font=("Arial", 10, "normal"))
 					if not dividida_quente[i]:
 						temp.setx(-distancia_x - 138)
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]))), align="left", font=("Arial", 10, "normal"))
 					else:
 						correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
 						for j in range(quantidade_quente[i]-1):
 							temp.sety(y_acima - 8)
 							temp.setx(-distancia_x - 138)
-							temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes[i][j]))), align="left", font=("Arial", 10, "normal"))
+							temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 							correntes_desenho_sub_acima[i][j].color("red")
 							correntes_desenho_sub_acima[i][j].pensize(3)
+							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_acima[i][j].penup()
-							if calor_atual_quente[i] != 0:
-								correntes_desenho_sub_acima[i][j].setx(-distancia_x + 20)
-							else:
-								correntes_desenho_sub_acima[i][j].setx(-distancia_x + 120)
+							correntes_desenho_sub_acima[i][j].setx(-distancia_x + 20)
 							correntes_desenho_sub_acima[i][j].sety(y_acima)
 							correntes_desenho_sub_acima[i][j].pendown()
 							correntes_desenho_sub_acima[i][j].right(90)
@@ -529,7 +525,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 							y_acima -= 30
 						temp.sety(y_acima - 8)
 						temp.setx(-distancia_x - 138)
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes[i][quantidade_quente[i]-1]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes[i][quantidade_quente[i]-1]))), align="left", font=("Arial", 10, "normal"))
 					if Thf_acima[i] == pinchq:
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
@@ -544,15 +540,16 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						temp.write(str(Th0_abaixo[i]), align="left", font=("Arial", 10, "normal"))
 					temp.setx(distancia_x + 90)
 					if not dividida_quente_abaixo[i]:
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]))), align="left", font=("Arial", 10, "normal"))
 					else:
 						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
 						for j in range(quantidade_quente_abaixo[i]-1):
 							temp.sety(y_abaixo - 8)
-							temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes_abaixo[i][j]))), align="left", font=("Arial", 10, "normal"))
+							temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes_abaixo[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 							correntes_desenho_sub_abaixo[i][j].color("red")
 							correntes_desenho_sub_abaixo[i][j].pensize(3)
+							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_abaixo[i][j].penup()
 							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
 							if Th0_abaixo[i] == pinchq:
@@ -561,21 +558,27 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 								correntes_desenho_sub_abaixo[i][j].right(90)
 								correntes_desenho_sub_abaixo[i][j].forward(30)
 								correntes_desenho_sub_abaixo[i][j].left(90)
-								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 44)
+								if calor_atual_quente_abaixo[i] == 0 and not any(e_utilidade_quente):
+									correntes_desenho_sub_abaixo[i][j].forward(len(matriz_trocadores_abaixo)*50)
+								else:
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 44)
 							else:
 								correntes_desenho_sub_abaixo[i][j].setx(120)
 								correntes_desenho_sub_abaixo[i][j].pendown()
 								correntes_desenho_sub_abaixo[i][j].right(90)
 								correntes_desenho_sub_abaixo[i][j].forward(30)
 								correntes_desenho_sub_abaixo[i][j].left(90)
-								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 140)
+								if calor_atual_quente_abaixo[i] == 0 and not any(e_utilidade_quente):
+									correntes_desenho_sub_abaixo[i][j].forward(len(matriz_trocadores_abaixo)*50)
+								else:
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 140)
 							correntes_desenho_sub_abaixo[i][j].left(90)
 							correntes_desenho_sub_abaixo[i][j].forward(30*(j+1))
 							correntes_desenho_sub_abaixo[i][j].right(90)
 							correntes_desenho_sub_abaixo[i][j].forward(20)
 							y_abaixo -= 30
 						temp.sety(y_abaixo - 8)
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1]))), align="left", font=("Arial", 10, "normal"))
 					if Th0_abaixo[i] == pinchq:
 						correntes_desenho[i].setx(4)
 						correntes_desenho[i].pendown()
@@ -625,15 +628,16 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						temp.write(str(Tc0_acima[i]), align="left", font=("Arial", 10, "normal"))
 					temp.setx(-distancia_x - 138)
 					if not dividida_fria[i]:
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]))), align="left", font=("Arial", 10, "normal"))
 					else:
 						correntes_desenho_sub_acima[i] = [0] * (quantidade_fria[i] - 1)
 						for j in range(quantidade_fria[i] - 1):
 							temp.sety(y_acima - 8)
-							temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias[i][j]))), align="left", font=("Arial", 10, "normal"))
+							temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 							correntes_desenho_sub_acima[i][j].color("blue")
 							correntes_desenho_sub_acima[i][j].pensize(3)
+							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_acima[i][j].penup()
 							correntes_desenho_sub_acima[i][j].sety(y_acima)
 							if Tc0_acima[i] == pinchf:
@@ -642,21 +646,27 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 								correntes_desenho_sub_acima[i][j].right(90)
 								correntes_desenho_sub_acima[i][j].forward(30)
 								correntes_desenho_sub_acima[i][j].right(90)
-								correntes_desenho_sub_acima[i][j].forward(distancia_x - 44)
+								if calor_atual_frio[i] == 0 and not any(e_utilidade_quente):
+									correntes_desenho_sub_acima[i][j].forward(len(matriz_armazenada)*50)
+								else:
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - 44)
 							else:
 								correntes_desenho_sub_acima[i][j].setx(-120)
 								correntes_desenho_sub_acima[i][j].pendown()
 								correntes_desenho_sub_acima[i][j].right(90)
 								correntes_desenho_sub_acima[i][j].forward(30)
 								correntes_desenho_sub_acima[i][j].right(90)
-								correntes_desenho_sub_acima[i][j].forward(distancia_x - 140)
+								if calor_atual_frio[i] == 0 and not any(e_utilidade_quente):
+									correntes_desenho_sub_acima[i][j].forward(len(matriz_armazenada)*50)
+								else:
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - 140)
 							correntes_desenho_sub_acima[i][j].right(90)
 							correntes_desenho_sub_acima[i][j].forward(30*(j+1))
 							correntes_desenho_sub_acima[i][j].left(90)
 							correntes_desenho_sub_acima[i][j].forward(20)
 							y_acima -= 30
 						temp.sety(y_acima - 8)
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1]))), align="left", font=("Arial", 10, "normal"))
 					if Tc0_acima[i] == pinchf:
 						correntes_desenho[i].setx(-4)
 						correntes_desenho[i].pendown()
@@ -678,15 +688,16 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 						temp.write(str(Tcf_abaixo[i]), align="left", font=("Arial", 10, "normal"))
 					temp.setx(distancia_x + 90)
 					if not dividida_fria_abaixo[i]:
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]))), align="left", font=("Arial", 10, "normal"))
 					else:
 						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_abaixo[i] - 1)
 						for j in range(quantidade_fria_abaixo[i]-1):
 							temp.sety(y_abaixo - 8)
-							temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias_abaixo[i][j]))), align="left", font=("Arial", 10, "normal"))
+							temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias_abaixo[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 							correntes_desenho_sub_abaixo[i][j].color("blue")
 							correntes_desenho_sub_abaixo[i][j].pensize(3)
+							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_abaixo[i][j].penup()
 							correntes_desenho_sub_abaixo[i][j].setx(distancia_x - 20)
 							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
@@ -704,7 +715,7 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 							correntes_desenho_sub_abaixo[i][j].forward(20)
 							y_abaixo -= 30
 						temp.sety(y_abaixo - 8)
-						temp.write("Cp = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias_abaixo[i][quantidade_fria_abaixo[i]-1]))), align="left", font=("Arial", 10, "normal"))
+						temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias_abaixo[i][quantidade_fria_abaixo[i]-1]))), align="left", font=("Arial", 10, "normal"))
 					if Tcf_abaixo[i] == pinchf:
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
@@ -754,7 +765,12 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		trocador = turtle.Turtle()
 		trocador.speed(1000)
 		trocador.pensize(1.5)
-		trocador.color("black", "white")
+		if e_utilidade_quente[trocadorr[0]-1]:
+			trocador.color("black", "orange")
+		elif e_utilidade_fria[trocadorr[1]-1]:
+			trocador.color("black", "#7FFFD4")
+		else:
+			trocador.color("black", "white")
 		trocador.shapesize(0.001, 0.001, 0.001)
 		trocador.penup()
 		if onde == "above":
@@ -806,13 +822,12 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		utilidade.pensize(1.5)
 		utilidade.shapesize(0.001, 0.001, 0.001)
 		utilidade.penup()
-		utilidade.color("black", "white")
 		if onde == "above":
-			text = "A"
+			utilidade.color("black", "orange")
 			utilidade.setx(-subestagio*50)
 			temp.setx(-subestagio*50 - len(str(calor))*3)
 		elif onde == "below":
-			text = "R"
+			utilidade.color("black", "#7FFFD4")
 			utilidade.setx(subestagio*50)
 			temp.setx(subestagio*50 - len(str(calor))*3)
 		utilidade.sety(corrente.pos()[1]-10)
@@ -822,9 +837,6 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 		utilidade.end_fill()
 		temp.sety(corrente.pos()[1]+10)
 		temp.write(str(calor), align="left", font=("Arial", 10, "normal"))
-		temp.sety(corrente.pos()[1] - 7)
-		temp.setx(utilidade.pos()[0] - 3)
-		temp.write(text, align="left", font=("Arial", 10, "normal"))
 
 
 	quentes("above", correntes_quentes, corrente_quente_presente_acima)
@@ -939,18 +951,22 @@ def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 
 
 	def above(dados_do_trocador):
+		global subestagio_trocador
 		indice = len(matriz_armazenada) - 1
 		remover_trocador(dlg, dados_do_trocador, indice, matriz_armazenada)
 		printar()
 		checaresgotadosacima()
 		dlg.dtmin.close()
+		subestagio_trocador = indice
 
 	def below(dados_do_trocacdor):
+		global subestagio_trocador_abaixo
 		indice = len(matriz_trocadores_abaixo) - 1
 		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
 		printar_abaixo()
 		checaresgotadosabaixo()
 		dlg.dtmin.close()
+		subestagio_trocador_abaixo = indice
 
 def dividir_corrente(divisao, onde):
 	global divtype
@@ -1205,7 +1221,9 @@ def printar():
 			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades[utilidade][1])))))
 
 def inserir_teste():
-	dados_do_trocador = ler_dados(dlg)
+	global subestagio_trocador
+	subestagio_trocador += 1
+	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 	try:
 		nova_matriz, violou, trocador_violado = inserir_trocador(dlg, dados_do_trocador)
 		matriz_armazenada.append(nova_matriz[-1])
@@ -1221,10 +1239,13 @@ def inserir_teste():
 		checaresgotadosacima()
 
 def remover_teste():
+	global subestagio_trocador
 	indice_remover = dlg.tableWidget_2.currentRow()
+	if indice_remover == -1:
+		return
 	if indice_remover <= len(matriz_armazenada) - 1:
 		if len(utilidades) > 0:
-			for i in range(len(Tc0),-1, -1):
+			for i in range(ncold, -1, -1):
 				for j in range(len(utilidades)):
 					if utilidades[j][0] == i+1:
 						try:
@@ -1233,9 +1254,11 @@ def remover_teste():
 							print("erro remover teste")
 		dlg.comboBox_10.setEnabled(False)
 		dlg.pushButton_8.setEnabled(False)
-		trocador_remover = matriz_armazenada[indice_remover]
-		remover_trocador(dlg, trocador_remover, indice_remover, matriz_armazenada)
-		atualizar_matriz(matriz_armazenada)
+		for i in range(len(matriz_armazenada)-1, indice_remover-1, -1):
+			trocador_remover = matriz_armazenada[i]
+			remover_trocador(dlg, trocador_remover, i, matriz_armazenada)
+			atualizar_matriz(matriz_armazenada)
+		subestagio_trocador = indice_remover
 	else:
 		indice_remover = dlg.tableWidget_2.currentRow() - len(matriz_armazenada)
 		utilidade_remover = utilidades[indice_remover]
@@ -1270,8 +1293,6 @@ def calcular_calor_teste():
 	dlg.TempLoadAbove.comboBox_2.setCurrentText(str(dlg.comboBox_5.currentText()))
 	dlg.TempLoadAbove.comboBox_3.setCurrentText(str(dlg.comboBox_50.currentText()))
 	dlg.TempLoadAbove.comboBox_4.setCurrentText(str(dlg.comboBox_51.currentText()))
-	dlg.TempLoadAbove.comboBox_5.setCurrentText(str(dlg.comboBox_8.currentText()))
-	dlg.TempLoadAbove.comboBox_6.setCurrentText(str(dlg.comboBox_7.currentText()))
 
 	dlg.TempLoadAbove.pushButton_2.clicked.connect(lambda: dlg.TempLoadAbove.close())
 	dlg.TempLoadAbove.pushButton.clicked.connect(lambda: caixa_de_temperatura(dlg))
@@ -1448,7 +1469,9 @@ def printar_abaixo():
 			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades_abaixo[utilidade][1])))))
 
 def inserir_teste_abaixo():
-	dados_do_trocador = ler_dados_abaixo(dlg)
+	global subestagio_trocador_abaixo
+	subestagio_trocador_abaixo += 1
+	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 	try:
 		nova_matriz, violou, trocador_violado = inserir_trocador_abaixo(dlg, dados_do_trocador)
 		matriz_trocadores_abaixo.append(nova_matriz[-1])
@@ -1464,21 +1487,26 @@ def inserir_teste_abaixo():
 		checaresgotadosabaixo()
 
 def remover_teste_abaixo():
+	global subestagio_trocador_abaixo
 	indice_remover = dlg.tableWidget_14.currentRow()
+	if indice_remover == -1:
+		return
 	if indice_remover <= len(matriz_trocadores_abaixo) - 1:
 		if len(utilidades_abaixo) > 0:
-			for i in range(nhot, -1, -1):
+			for i in range(nhot-1, -1, -1):
 				for j in range(len(utilidades_abaixo)):
-					if utilidades_abaixo[j][0] == i+1:
+					if utilidades_abaixo[j][0] == i:
 						try:
-							remover_utilidade_abaixo(i+1, j, utilidades_abaixo)
+							remover_utilidade_abaixo(i, j, utilidades_abaixo)
 						except:
 							print("erro remover teste abaixo")
 		dlg.comboBox_43.setEnabled(False)
 		dlg.pushButton_20.setEnabled(False)
-		trocador_remover = matriz_trocadores_abaixo[indice_remover]
-		remover_trocador_abaixo(dlg, trocador_remover, indice_remover, matriz_trocadores_abaixo)
-		atualizar_matriz_abaixo(matriz_trocadores_abaixo)
+		for i in range(len(matriz_trocadores_abaixo)-1, indice_remover-1, -1):
+			trocador_remover = matriz_trocadores_abaixo[i]
+			remover_trocador_abaixo(dlg, trocador_remover, i, matriz_trocadores_abaixo)
+			atualizar_matriz_abaixo(matriz_trocadores_abaixo)
+		subestagio_trocador_abaixo = indice_remover
 	else:
 		indice_remover = dlg.tableWidget_14.currentRow() - len(matriz_trocadores_abaixo)
 		utilidade_remover = utilidades_abaixo[indice_remover]
@@ -1513,8 +1541,6 @@ def calcular_calor_abaixo():
 	dlg.TempLoadBelow.comboBox_2.setCurrentText(str(dlg.comboBox_36.currentText()))
 	dlg.TempLoadBelow.comboBox_3.setCurrentText(str(dlg.comboBox_53.currentText()))
 	dlg.TempLoadBelow.comboBox_4.setCurrentText(str(dlg.comboBox_54.currentText()))
-	dlg.TempLoadBelow.comboBox_5.setCurrentText(str(dlg.comboBox_39.currentText()))
-	dlg.TempLoadBelow.comboBox_6.setCurrentText(str(dlg.comboBox_40.currentText()))
 
 
 	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg))
