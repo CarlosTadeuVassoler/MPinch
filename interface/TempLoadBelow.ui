@@ -47,12 +47,6 @@
       </item>
      </widget>
     </item>
-    <item>
-     <widget class="QComboBox" name="comboBox_5"/>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBox_6"/>
-    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_2">
@@ -99,26 +93,6 @@
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>Sub Cold Stream</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Stage</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Sub Stage</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

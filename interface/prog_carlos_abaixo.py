@@ -807,14 +807,14 @@ def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
 	temperatura_atual_quente_mesclada_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
 	utilidades_abaixo.pop(indice_remover)
 
-def caixa_de_temperatura_abaixo(dlg):
+def caixa_de_temperatura_abaixo(dlg, sk):
 	chot = int(dlg.TempLoadBelow.comboBox.currentText())
 	ccold = int(dlg.TempLoadBelow.comboBox_2.currentText())
 	sbhot = int(dlg.TempLoadBelow.comboBox_3.currentText())
 	sbcold = int(dlg.TempLoadBelow.comboBox_4.currentText())
-	estagio = int(dlg.TempLoadBelow.comboBox_5.currentText())
-	sestagio = int(dlg.TempLoadBelow.comboBox_6.currentText())
-
+	estagio = 1
+	sestagio = sk + 1
+	
 	if dlg.TempLoadBelow.radioButton_2.isChecked():                     #Inlet Hot Temperature
 		outlethot = float(dlg.TempLoadBelow.lineEdit_2.text())
 		q = -CPh[chot-1] * (outlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1])

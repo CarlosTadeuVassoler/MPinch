@@ -807,13 +807,13 @@ def remover_utilidade(corrente, indice_remover, utilidades):
 	temperatura_atual_fria_mesclada[corrente-1] = -calor_atual_frio[corrente-1] / CPc[corrente-1] + Tcf[corrente-1]
 	utilidades.pop(indice_remover)
 
-def caixa_de_temperatura(dlg):
+def caixa_de_temperatura(dlg, sk):
 	chot = int(float(dlg.TempLoadAbove.comboBox.currentText()))
 	ccold = int(float(dlg.TempLoadAbove.comboBox_2.currentText()))
 	sbhot = int(dlg.TempLoadAbove.comboBox_3.currentText())
 	sbcold = int(dlg.TempLoadAbove.comboBox_4.currentText())
-	estagio = int(dlg.TempLoadAbove.comboBox_5.currentText())
-	sestagio = int(dlg.TempLoadAbove.comboBox_6.currentText())
+	estagio = 1
+	sestagio = sk + 1
 
 	if dlg.TempLoadAbove.radioButton_2.isChecked():
 		inlethot = float(dlg.TempLoadAbove.lineEdit_2.text())

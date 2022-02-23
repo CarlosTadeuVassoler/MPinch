@@ -47,6 +47,7 @@ utilidades = []
 utilidades_abaixo = []
 dTmin = 10
 donee=0
+done = False
 cascat=[]
 nstages=1
 subestagio_trocador = 0
@@ -284,6 +285,8 @@ def apertaradd() :
 
 def add_utilidade():
 	global n, n_util, ncold, nhot, correntes_util
+	dlg.donebutton.setEnabled(False)
+	dlg.botao_addstream.setEnabled(False)
 	# n += 1
 	n_util += 1
 	dados_da_corrente = []
@@ -332,16 +335,53 @@ def add_utilidade():
 def done_teste():
 	global dTmin, done, correntes
 
-	#libera o pinch e armazena as correntes numa variável que vai ser mudada de acordo com o pinch
-	done = True
-	dlg.pinchbutton.setEnabled(True)
 	dTmin=float(dlg.lineEdit_2.text())
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
-
-	# dlg.done.show()
+	dlg.done.show()
 	dlg.done.hot_temp.setText("Hot: " + str(pinchq) + " " + dlg.temp_unidade.currentText())
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
+	dlg.done.precisa_quente.setText("Hot Utility Demand: " + str(util_quente) + " " + "kW")
+	dlg.done.precisa_fria.setText("Cold Utility Demand: " + str(util_fria) + " " + "kW")
+	grafico = QPixmap("diagrama_th.png")
+	x = QtWidgets.QLabel(dlg)
+	x.setPixmap(grafico)
+	x.setAlignment(QtCore.Qt.AlignCenter)
+	x.setScaledContents(True)
+	dlg.done.diagrama_th.addWidget(x)
+	grafico = QPixmap("grande_composta.png")
+	x = QtWidgets.QLabel(dlg)
+	x.setPixmap(grafico)
+	x.setAlignment(QtCore.Qt.AlignCenter)
+	x.setScaledContents(True)
+	dlg.done.grande_composta.addWidget(x)
+
+	def cancelar():
+		global done
+		done = False
+		dlg.done.close()
+
+	def liberar_utilidades():
+		dlg.pinchbutton.setEnabled(True)
+		dlg.botao_addutility.setEnabled(True)
+		dlg.util_inlet.setEnabled(True)
+		dlg.util_outlet.setEnabled(True)
+		dlg.util_pelicula.setEnabled(True)
+		dlg.donebutton.setEnabled(False)
+		dlg.done.close()
+
+	def pinch_sem_util():
+		pinch_teste()
+		dlg.done.close()
+		# dlg.donebutton.setEnabled(False)
+
+	dlg.done.cancelar.clicked.connect(cancelar)
+	dlg.done.escolher_utilidades.clicked.connect(liberar_utilidades)
+	dlg.done.pinch_sem_utilidades.clicked.connect(pinch_sem_util)
+
+
+
+
 	# Tdecre = coisas_graficos[0]
 	# Tmin = coisas_graficos[1]
 	# Tmax = coisas_graficos[2]
@@ -418,6 +458,7 @@ def pinch_teste():
 				else:
 					Tcf_abaixo.append(pinchf)
 					corrente_fria_presente_acima.append(True)
+
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
 		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
@@ -426,7 +467,6 @@ def pinch_teste():
 		correntesnoscombos(nhot,ncold)
 		testar_correntes(dlg, True)
 		testar_correntes_abaixo(dlg)
-
 
 		#libera botões e coisas
 		dlg.tabWidget.setTabEnabled(1,True)
@@ -437,6 +477,10 @@ def pinch_teste():
 		dlg.comboBox_51.setEnabled(True)
 		dlg.comboBox_53.setEnabled(True)
 		dlg.comboBox_54.setEnabled(True)
+		dlg.pinchbutton.setEnabled(False)
+		dlg.botao_addstream.setEnabled(False)
+		dlg.botao_addutility.setEnabled(False)
+		dlg.donebutton.setEnabled(False)
 
 def correntesnoscombos(nhot,ncold):
 	nstages=1
@@ -455,6 +499,9 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
+
+
+
 
 
 
@@ -976,8 +1023,6 @@ def dividir_corrente(divisao, onde):
 	if divtype == "Q":
 		for i in range(nhot):
 			dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
-		for i in range(nstages):
-			dlg.DivisaoQuente.comboBox.addItem(str(i+1))
 		for i in range(ncold):
 			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoQuente.show()
@@ -985,8 +1030,6 @@ def dividir_corrente(divisao, onde):
 		dlg.DivisaoFria.label_5.setText("Split Cold Stream")
 		for i in range(ncold):
 			dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
-		for i in range(nstages):
-			dlg.DivisaoFria.comboBox.addItem(str(i+1))
 		for i in range(nhot):
 			dlg.DivisaoFria.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoFria.show()
@@ -996,11 +1039,11 @@ def dividir_corrente(divisao, onde):
 		global caixa_fracao, quantidade, corrente, estagio
 		if divtype == "Q":
 			quantidade = int(dlg.DivisaoQuente.comboBox_3.currentText())
-			estagio = int(dlg.DivisaoQuente.comboBox.currentText())
+			estagio = 1
 			corrente = int(dlg.DivisaoQuente.comboBox_2.currentText())
 		if divtype == "F":
 			quantidade = int(dlg.DivisaoFria.comboBox_3.currentText())
-			estagio = int(dlg.DivisaoFria.comboBox.currentText())
+			estagio = 1
 			corrente = int(dlg.DivisaoFria.comboBox_2.currentText())
 
 		if verificar_trocador_estagio(estagio) and onde == "above":
@@ -1284,10 +1327,6 @@ def calcular_calor_teste():
 		dlg.TempLoadAbove.comboBox.addItem(str(i+1))
 	for i in range (ncold):
 		dlg.TempLoadAbove.comboBox_2.addItem(str(i+1))
-	for i in range(nstages):
-		dlg.TempLoadAbove.comboBox_5.addItem(str(i+1))
-	for i in range(nsk):
-		dlg.TempLoadAbove.comboBox_6.addItem(str(i+1))
 
 	dlg.TempLoadAbove.comboBox.setCurrentText(str(dlg.comboBox_2.currentText()))
 	dlg.TempLoadAbove.comboBox_2.setCurrentText(str(dlg.comboBox_5.currentText()))
@@ -1295,7 +1334,7 @@ def calcular_calor_teste():
 	dlg.TempLoadAbove.comboBox_4.setCurrentText(str(dlg.comboBox_51.currentText()))
 
 	dlg.TempLoadAbove.pushButton_2.clicked.connect(lambda: dlg.TempLoadAbove.close())
-	dlg.TempLoadAbove.pushButton.clicked.connect(lambda: caixa_de_temperatura(dlg))
+	dlg.TempLoadAbove.pushButton.clicked.connect(lambda: caixa_de_temperatura(dlg, len(matriz_armazenada)))
 
 def checaresgotadosacima():
 	contadordutycold = 0
@@ -1532,10 +1571,6 @@ def calcular_calor_abaixo():
 		dlg.TempLoadBelow.comboBox.addItem(str(i+1))
 	for i in range(ncold):
 		dlg.TempLoadBelow.comboBox_2.addItem(str(i+1))
-	for i in range(nstages):
-		dlg.TempLoadBelow.comboBox_5.addItem(str(i+1))
-	for i in range(nsk):
-		dlg.TempLoadBelow.comboBox_6.addItem(str(i+1))
 
 	dlg.TempLoadBelow.comboBox.setCurrentText(str(dlg.comboBox_35.currentText()))
 	dlg.TempLoadBelow.comboBox_2.setCurrentText(str(dlg.comboBox_36.currentText()))
@@ -1543,7 +1578,7 @@ def calcular_calor_abaixo():
 	dlg.TempLoadBelow.comboBox_4.setCurrentText(str(dlg.comboBox_54.currentText()))
 
 
-	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg))
+	dlg.TempLoadBelow.pushButton.clicked.connect(lambda: caixa_de_temperatura_abaixo(dlg, len(matriz_trocadores_abaixo)))
 	dlg.TempLoadBelow.pushButton_2.clicked.connect(lambda: dlg.TempLoadBelow.close())
 
 def checaresgotadosabaixo():
@@ -1596,13 +1631,25 @@ def checaresgotadosabaixo():
 		dlg.pushButton_21.setEnabled(False)
 
 
+
+
+
+
+#inutilidades porem depende
+def centralizar_combobox_teste(x):
+	x.setEditable(True)
+	x.lineEdit().setReadOnly(True)
+	x.lineEdit().setAlignment(Qt.AlignCenter)
+	x.setStyleSheet("QComboBox { background-color: #e1e1e1 }")
+	for i in range(x.count()):
+		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+
 #custos
 dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 
 #streams
-# dlg.pinchbutton.setEnabled(False) #block o botao pinch até apertar done
 # dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
 # dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
 # dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
