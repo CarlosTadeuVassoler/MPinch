@@ -644,7 +644,7 @@ def ler_dados_abaixo(dlg, subestagio_trocador_abaixo):
 	if dlg.radioButton_20.isChecked():
 		q = Qmax
 	elif dlg.radioButton_17.isChecked():
-		q = float(dlg.lineEdit_25.text())
+		q = float(dlg.lineEdit_25.text().replace(",", "."))
 
 	return [i, j, si, sj, sk, k, q]
 
@@ -814,7 +814,7 @@ def caixa_de_temperatura_abaixo(dlg, sk):
 	sbcold = int(dlg.TempLoadBelow.comboBox_4.currentText())
 	estagio = 1
 	sestagio = sk + 1
-	
+
 	if dlg.TempLoadBelow.radioButton_2.isChecked():                     #Inlet Hot Temperature
 		outlethot = float(dlg.TempLoadBelow.lineEdit_2.text())
 		q = -CPh[chot-1] * (outlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1])

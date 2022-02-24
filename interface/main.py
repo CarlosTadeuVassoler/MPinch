@@ -33,11 +33,6 @@ from custo2 import varia
 
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
-dlg.stream_supply.setPlaceholderText(" Ex: 273.15")
-dlg.stream_target.setPlaceholderText(" Ex: 273.15")
-dlg.util_inlet.setPlaceholderText(" Ex: 273.15")
-dlg.util_outlet.setPlaceholderText(" Ex: 273.15")
-dlg.stream_cp.setPlaceholderText(" Ex: 200.20")
 
 
 matriz = []
@@ -241,30 +236,25 @@ def apertaradd() :
 	n += 1
 	dados_da_corrente = []
 	if n == 1:
-		headerrr = ["Supply Temperature ({})".format(dlg.temp_unidade.currentText()),
-					"Target Temperature ({})".format(dlg.temp_unidade.currentText()),
-					"Cp ({})".format(dlg.cp_unidade.currentText()),
-					"Stream Type",
-					"h ({})".format(dlg.pelicula_unidade.currentText())]
-		dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
+		dlg.sistema_unidades.setEnabled(False)
 		dlg.temp_unidade.setEnabled(False)
 		dlg.cp_unidade.setEnabled(False)
 		dlg.pelicula_unidade.setEnabled(False)
 		dlg.temp_unidade_util.setEnabled(False)
 		dlg.pelicula_unidade_util.setEnabled(False)
 
-	if float(dlg.stream_supply.text()) < float(dlg.stream_target.text()):
+	if float(dlg.stream_supply.text().replace(",", ".")) < float(dlg.stream_target.text().replace(",", ".")):
 		tipo = "Cold"
 		ncold += 1
 	else:
 		tipo = "Hot"
 		nhot += 1
 
-	dados_da_corrente.append(float(dlg.stream_supply.text()))
-	dados_da_corrente.append(float(dlg.stream_target.text()))
-	dados_da_corrente.append(float(dlg.stream_cp.text()))
+	dados_da_corrente.append(float(dlg.stream_supply.text().replace(",",".")))
+	dados_da_corrente.append(float(dlg.stream_target.text().replace(",", ".")))
+	dados_da_corrente.append(float(dlg.stream_cp.text().replace(",", ".")))
 	dados_da_corrente.append(tipo)
-	dados_da_corrente.append(float(dlg.stream_pelicula.text()))
+	dados_da_corrente.append(float(dlg.stream_pelicula.text().replace(",", ".")))
 
 	dlg.tableWidget.blockSignals(True)
 	dlg.tableWidget.setRowCount(n)
@@ -290,29 +280,17 @@ def add_utilidade():
 	# n += 1
 	n_util += 1
 	dados_da_corrente = []
-	if n_util == 1:
-		headerrr = ["Utility",
-					"Inlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
-					"Outlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
-					"Utility Type",
-					"h ({})".format(dlg.pelicula_unidade_util.currentText())]
-		dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
-		dlg.temp_unidade_util.setEnabled(False)
-		dlg.temp_unidade.setEnabled(False)
-		dlg.cp_unidade.setEnabled(False)
-		dlg.pelicula_unidade_util.setEnabled(False)
-		dlg.pelicula_unidade.setEnabled(False)
 
-	if float(dlg.util_inlet.text()) < float(dlg.util_outlet.text()):
+	if float(dlg.util_inlet.text().replace(",", ".")) < float(dlg.util_outlet.text().replace(",", ".")):
 		tipo = "Cold"
 	else:
 		tipo = "Hot"
 
-	dados_da_corrente.append(float(dlg.util_inlet.text()))
-	dados_da_corrente.append(float(dlg.util_outlet.text()))
+	dados_da_corrente.append(float(dlg.util_inlet.text().replace(",", ".")))
+	dados_da_corrente.append(float(dlg.util_outlet.text().replace(",", ".")))
 	dados_da_corrente.append(1)
 	dados_da_corrente.append(tipo)
-	dados_da_corrente.append(float(dlg.util_pelicula.text()))
+	dados_da_corrente.append(float(dlg.util_pelicula.text().replace(",", ".")))
 
 
 	dlg.tableWidget_5.blockSignals(True)
@@ -334,8 +312,17 @@ def add_utilidade():
 
 def done_teste():
 	global dTmin, done, correntes
+	lista_cps = []
 
-	dTmin=float(dlg.lineEdit_2.text())
+	for corrente in correntes:
+		lista_cps.append(corrente[2])
+
+	novos_cps = unidades_compativeis(dlg.temp_unidade.currentIndex(), dlg.cp_unidade.currentIndex(), dlg.pelicula_unidade.currentIndex(), lista_cps)
+
+	for i in range(len(correntes)):
+		correntes[i][2] = round(novos_cps[i], 3)
+
+	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
 	dlg.done.show()
@@ -343,6 +330,7 @@ def done_teste():
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
 	dlg.done.precisa_quente.setText("Hot Utility Demand: " + str(util_quente) + " " + "kW")
 	dlg.done.precisa_fria.setText("Cold Utility Demand: " + str(util_fria) + " " + "kW")
+	done = True
 	grafico = QPixmap("diagrama_th.png")
 	x = QtWidgets.QLabel(dlg)
 	x.setPixmap(grafico)
@@ -368,12 +356,12 @@ def done_teste():
 		dlg.util_outlet.setEnabled(True)
 		dlg.util_pelicula.setEnabled(True)
 		dlg.donebutton.setEnabled(False)
+		dlg.botao_addstream.setEnabled(False)
 		dlg.done.close()
 
 	def pinch_sem_util():
 		pinch_teste()
 		dlg.done.close()
-		# dlg.donebutton.setEnabled(False)
 
 	dlg.done.cancelar.clicked.connect(cancelar)
 	dlg.done.escolher_utilidades.clicked.connect(liberar_utilidades)
@@ -473,10 +461,7 @@ def pinch_teste():
 		dlg.tabWidget.setTabEnabled(2,True)
 		dlg.tabWidget.setTabEnabled(3,True)
 		dlg.tabWidget.setTabEnabled(4,True)
-		dlg.comboBox_50.setEnabled(True)
-		dlg.comboBox_51.setEnabled(True)
-		dlg.comboBox_53.setEnabled(True)
-		dlg.comboBox_54.setEnabled(True)
+		dlg.tabWidget.setCurrentIndex(4)
 		dlg.pinchbutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
 		dlg.botao_addutility.setEnabled(False)
@@ -500,6 +485,66 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
 
+def unidades(header=True):
+	if not header:
+		if dlg.sistema_unidades.currentIndex() != 2:
+			dlg.temp_unidade.setCurrentIndex(dlg.sistema_unidades.currentIndex())
+			dlg.cp_unidade.setCurrentIndex(dlg.sistema_unidades.currentIndex())
+			dlg.pelicula_unidade.setCurrentIndex(dlg.sistema_unidades.currentIndex())
+			dlg.temp_unidade_util.setCurrentIndex(dlg.sistema_unidades.currentIndex())
+			dlg.pelicula_unidade_util.setCurrentIndex(dlg.sistema_unidades.currentIndex())
+			dlg.temp_unidade.setEnabled(False)
+			dlg.cp_unidade.setEnabled(False)
+			dlg.pelicula_unidade.setEnabled(False)
+			dlg.temp_unidade_util.setEnabled(False)
+			dlg.pelicula_unidade_util.setEnabled(False)
+		else:
+			dlg.temp_unidade.setEnabled(True)
+			dlg.cp_unidade.setEnabled(True)
+			dlg.pelicula_unidade.setEnabled(True)
+			dlg.temp_unidade_util.setEnabled(True)
+			dlg.pelicula_unidade_util.setEnabled(True)
+
+	headerrr = ["Supply Temperature ({})".format(dlg.temp_unidade.currentText()),
+				"Target Temperature ({})".format(dlg.temp_unidade.currentText()),
+				"CP ({})".format(dlg.cp_unidade.currentText()),
+				"Stream Type",
+				"h ({})".format(dlg.pelicula_unidade.currentText())]
+	dlg.tableWidget.setHorizontalHeaderLabels(headerrr)
+	headerrr = ["Utility",
+				"Inlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+				"Outlet Temperature ({})".format(dlg.temp_unidade_util.currentText()),
+				"Utility Type",
+				"h ({})".format(dlg.pelicula_unidade_util.currentText())]
+	dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
+
+def unidades_compativeis(unidade_temp, unidade_cp, unidade_pelicula, cp_printar):
+	#0:si
+	#1:eng
+	#2:si
+	#3:eng
+	cp_contas = []
+
+	if (unidade_temp == 0 or unidade_temp == 2) and (unidade_cp != 0 or unidade_pelicula != 0):
+		if unidade_cp != 0:
+			print("cp incompativel")
+			for cp in cp_printar:
+				cp_contas.append(cp * 0.00052753)
+		if unidade_pelicula != 0:
+			#converter aqui a unidade pelicula para 0
+			print("pelicula incompativel")
+	elif (unidade_temp == 1 or unidade_temp == 3) and (unidade_cp != 1 or unidade_pelicula != 1):
+		if unidade_cp != 1:
+			print("cp incompativel 1")
+			for cp in cp_printar:
+				cp_contas.append(cp / 0.00052753)
+		if unidade_pelicula != 1:
+			#converter aqui pelicula pra 1
+			print("pelicula incompativel 1")
+	else:
+		cp_contas = cp_printar
+
+	return cp_contas
 
 
 
@@ -1103,14 +1148,18 @@ def dividir_corrente(divisao, onde):
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
 			if divtype == "F":
 				testar_correntes(dlg, True)
+				dlg.comboBox_51.setEnabled(True)
 			else:
 				testar_correntes(dlg)
+				dlg.comboBox_50.setEnabled(True)
 		elif onde == "below":
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
 			if divtype == "Q":
 				testar_correntes_abaixo(dlg, True)
+				dlg.comboBox_53.setEnabled(True)
 			else:
 				testar_correntes_abaixo(dlg)
+				dlg.comboBox_54.setEnabled(True)
 
 		if divtype == "Q":
 			dlg.DivisaoQuente.close()
@@ -1285,6 +1334,7 @@ def remover_teste():
 	global subestagio_trocador
 	indice_remover = dlg.tableWidget_2.currentRow()
 	if indice_remover == -1:
+		QMessageBox.about(dlg, "Error!", "Select the line of the Heat Exchanger that you want to remove")
 		return
 	if indice_remover <= len(matriz_armazenada) - 1:
 		if len(utilidades) > 0:
@@ -1529,6 +1579,7 @@ def remover_teste_abaixo():
 	global subestagio_trocador_abaixo
 	indice_remover = dlg.tableWidget_14.currentRow()
 	if indice_remover == -1:
+		QMessageBox.about(dlg, "Error!", "Select the line of the Heat Exchanger that you want to remove")
 		return
 	if indice_remover <= len(matriz_trocadores_abaixo) - 1:
 		if len(utilidades_abaixo) > 0:
@@ -1644,16 +1695,10 @@ def centralizar_combobox_teste(x):
 	for i in range(x.count()):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
 
-#custos
-dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 
 #streams
-# dlg.tabWidget.setTabEnabled(1,False) #block stream diagram até fazer o pinch
-# dlg.tabWidget.setTabEnabled(2,False) #block composite curver até fazer o pinch
-# dlg.tabWidget.setTabEnabled(3,False) #block heat exchangers até fazer o pinch
-# dlg.tabWidget.setTabEnabled(4,True) #block heat exchangers network até fazer o pinch
 dlg.botao_addstream.clicked.connect(apertaradd) #add stream
 dlg.botao_addutility.clicked.connect(add_utilidade)
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
@@ -1661,14 +1706,12 @@ dlg.actionOpen_2.triggered.connect(openfile_teste) #file > open
 dlg.donebutton.clicked.connect(done_teste) #done
 dlg.pinchbutton.clicked.connect(pinch_teste) #pinch
 #dlg.tableWidget.itemChanged.connect(itemedited)
-# dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 0 and SI(dlg))
-# dlg.tempcombo1.currentIndexChanged.connect(lambda i: i == 1 and sistemaingles(dlg))
-# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 1 and celsius(dlg))
-# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 0 and kelvin(dlg))
-# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 2 and farenheit(dlg))
-# dlg.comboBox.currentIndexChanged.connect(lambda i: i == 3 and rankine(dlg))
-# dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 0 and btu(dlg))
-# dlg.comboBox_3.currentIndexChanged.connect(lambda i: i == 1 and kW(dlg))
+dlg.sistema_unidades.currentIndexChanged.connect(lambda: unidades(False))
+dlg.temp_unidade.currentIndexChanged.connect(unidades)
+dlg.cp_unidade.currentIndexChanged.connect(unidades)
+dlg.pelicula_unidade.currentIndexChanged.connect(unidades)
+dlg.temp_unidade_util.currentIndexChanged.connect(unidades)
+dlg.pelicula_unidade_util.currentIndexChanged.connect(unidades)
 
 #above
 dlg.radioButton.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
@@ -1708,6 +1751,17 @@ dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias))
 
 
+#custos
+dlg.otimizabotao.clicked.connect(lambda: otimizafun())
+
+
+
+
+dlg.stream_supply.setPlaceholderText(" Ex: 273.15")
+dlg.stream_target.setPlaceholderText(" Ex: 273.15")
+dlg.util_inlet.setPlaceholderText(" Ex: 273.15")
+dlg.util_outlet.setPlaceholderText(" Ex: 273.15")
+dlg.stream_cp.setPlaceholderText(" Ex: 200.20")
 header = dlg.tableWidget.horizontalHeader()
 header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 for i in range(5):

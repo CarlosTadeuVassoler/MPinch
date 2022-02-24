@@ -644,7 +644,7 @@ def ler_dados(dlg, subestagio_trocador):
 	if dlg.radioButton_4.isChecked():   #MAXIMUM HEAT
 		q = Qmax
 	elif dlg.radioButton.isChecked():     #HEATLOAD
-		q = float(dlg.lineEdit_5.text()) #botão HEATLOAD
+		q = float(dlg.lineEdit_5.text().replace(",", ".")) #botão HEATLOAD
 
 	return [i, j, si, sj, sk, k, q]
 

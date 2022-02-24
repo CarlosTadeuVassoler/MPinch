@@ -214,16 +214,28 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QComboBox" name="sistema_unidades">
               <property name="minimumSize">
                <size>
                 <width>200</width>
                 <height>0</height>
                </size>
               </property>
-              <property name="text">
-               <string/>
-              </property>
+              <item>
+               <property name="text">
+                <string>SI</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ENG</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Custom</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>
@@ -264,9 +276,17 @@
             </item>
             <item>
              <widget class="QComboBox" name="temp_unidade">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>K</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>R</string>
                </property>
               </item>
               <item>
@@ -277,11 +297,6 @@
               <item>
                <property name="text">
                 <string>ºF</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>R</string>
                </property>
               </item>
              </widget>
@@ -304,6 +319,9 @@
             </item>
             <item>
              <widget class="QComboBox" name="cp_unidade">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>kW/K</string>
@@ -311,7 +329,7 @@
               </item>
               <item>
                <property name="text">
-                <string>Btu/(hºF)</string>
+                <string>Btu/(h R)</string>
                </property>
               </item>
              </widget>
@@ -337,9 +355,17 @@
             </item>
             <item>
              <widget class="QComboBox" name="pelicula_unidade">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>kW/(m² K)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Btu/(ft² h R)</string>
                </property>
               </item>
              </widget>
@@ -532,7 +558,7 @@
             </column>
             <column>
              <property name="text">
-              <string>h (kW/m² K)</string>
+              <string>h (kW/(m² K))</string>
              </property>
              <property name="font">
               <font>
@@ -667,7 +693,7 @@
             <item>
              <widget class="QLabel" name="label_13">
               <property name="text">
-               <string> </string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -915,9 +941,17 @@
             </item>
             <item>
              <widget class="QComboBox" name="temp_unidade_util">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>K</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>R</string>
                </property>
               </item>
               <item>
@@ -928,11 +962,6 @@
               <item>
                <property name="text">
                 <string>ºF</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>R</string>
                </property>
               </item>
              </widget>
@@ -961,9 +990,17 @@
             </item>
             <item>
              <widget class="QComboBox" name="pelicula_unidade_util">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>kW/(m² K)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Btu/(ft² h R)</string>
                </property>
               </item>
              </widget>
@@ -1154,7 +1191,7 @@
             </column>
             <column>
              <property name="text">
-              <string>h (kW/m² K)</string>
+              <string>h (kW/(m² K))</string>
              </property>
              <property name="font">
               <font>
@@ -1545,6 +1582,9 @@
                       </item>
                       <item>
                        <widget class="QComboBox" name="comboBox_50">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
@@ -1555,6 +1595,9 @@
                       </item>
                       <item>
                        <widget class="QComboBox" name="comboBox_51">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
@@ -2553,6 +2596,9 @@
                       </item>
                       <item>
                        <widget class="QComboBox" name="comboBox_53">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
@@ -2563,6 +2609,9 @@
                       </item>
                       <item>
                        <widget class="QComboBox" name="comboBox_54">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
