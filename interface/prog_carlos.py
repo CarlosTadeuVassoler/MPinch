@@ -72,6 +72,7 @@ Tcfinal01 = []
 Tcfinal01k = []
 temperatura_atual_fria = []
 temperatura_atual_fria_mesclada = []
+temp_misturador = []
 
 #VARIÁVEIS DE TEMPERATURAS "GERAIS"
 Thin = []
@@ -95,6 +96,7 @@ quantidade_quente = []
 quantidade_fria = []
 fracoes_quentes = []
 fracoes_frias = []
+fechar_corrente = []
 
 
 
@@ -220,9 +222,11 @@ def preparar_dados_e_rede():
 	for fria in range(ncold):
 		temperatura_atual_fria.append([])
 		temperatura_atual_fria_mesclada.append(Tc0[fria])
+		temp_misturador.append(0)
 		calor_atual_frio_sub.append([])
 		calor_sub_sem_utilidade.append([])
 		dividida_fria.append(False)
+		fechar_corrente.append(False)
 		quantidade_fria.append(1)
 		fracoes_frias.append([])
 		for sub in range(nhot):
@@ -794,8 +798,10 @@ def adicionar_utilidade(dlg, corrente):
 		for sj in range(quantidade_fria[corrente-1]):
 			temperatura_atual_fria[corrente-1][sj] = Tcf[corrente-1]
 			calor_atual_frio_sub[corrente-1][sj] = 0.0
+	temp_misturador[corrente-1] = temperatura_atual_fria_mesclada[corrente-1]
 	temperatura_atual_fria_mesclada[corrente-1] = Tcf[corrente-1]
 	calor_atual_frio[corrente-1] = 0.0
+	fechar_corrente[corrente-1] = True
 	return utilidades
 
 def remover_utilidade(corrente, indice_remover, utilidades):
@@ -806,6 +812,7 @@ def remover_utilidade(corrente, indice_remover, utilidades):
 	calor_atual_frio[corrente-1] = utilidades[indice_remover][1]
 	temperatura_atual_fria_mesclada[corrente-1] = -calor_atual_frio[corrente-1] / CPc[corrente-1] + Tcf[corrente-1]
 	utilidades.pop(indice_remover)
+	fechar_corrente[corrente-1] = False
 
 def caixa_de_temperatura(dlg, sk):
 	chot = int(float(dlg.TempLoadAbove.comboBox.currentText()))

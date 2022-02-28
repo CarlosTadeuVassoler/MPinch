@@ -72,6 +72,7 @@ Tcfinal01 = []
 Tcfinal01k = []
 temperatura_atual_fria_abaixo = []
 temperatura_atual_fria_mesclada_abaixo = []
+temp_misturador_abaixo = []
 
 #VARIÁVEIS DE TEMPERATURAS "GERAIS"
 Thin = []
@@ -95,6 +96,7 @@ quantidade_quente_abaixo = []
 quantidade_fria_abaixo = []
 fracoes_quentes_abaixo = []
 fracoes_frias_abaixo = []
+fechar_corrente_abaixo = []
 
 
 
@@ -210,9 +212,11 @@ def preparar_dados_e_rede2():
 	for quente in range(nhot):
 		temperatura_atual_quente_abaixo.append([])
 		temperatura_atual_quente_mesclada_abaixo.append(Th0[quente])
+		temp_misturador_abaixo.append(0)
 		calor_atual_quente_sub_abaixo.append([])
 		calor_sub_sem_utilidade.append([])
 		dividida_quente_abaixo.append(False)
+		fechar_corrente_abaixo.append(False)
 		quantidade_quente_abaixo.append(1)
 		fracoes_quentes_abaixo.append([])
 		for sub in range(ncold):
@@ -794,8 +798,10 @@ def adicionar_utilidade_abaixo(dlg, corrente):
 		for si in range(quantidade_quente_abaixo[corrente-1]):
 			temperatura_atual_quente_abaixo[corrente-1][si] = Thf[corrente-1]
 			calor_atual_quente_sub_abaixo[corrente-1][si] = 0.0
+	temp_misturador_abaixo[corrente-1] = temperatura_atual_quente_mesclada_abaixo[corrente-1]
 	temperatura_atual_quente_mesclada_abaixo[corrente-1] = Thf[corrente-1]
 	calor_atual_quente_abaixo[corrente-1] = 0.0
+	fechar_corrente_abaixo[corrente-1] = True
 	return utilidades_abaixo
 
 def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
@@ -806,6 +812,7 @@ def remover_utilidade_abaixo(corrente, indice_remover, utilidades_abaixo):
 	calor_atual_quente_abaixo[corrente-1] = utilidades_abaixo[indice_remover][1]
 	temperatura_atual_quente_mesclada_abaixo[corrente-1] = calor_atual_quente_abaixo[corrente-1] / CPh[corrente-1] + Thf[corrente-1]
 	utilidades_abaixo.pop(indice_remover)
+	fechar_corrente_abaixo[corrente-1] = False
 
 def caixa_de_temperatura_abaixo(dlg, sk):
 	chot = int(dlg.TempLoadBelow.comboBox.currentText())
