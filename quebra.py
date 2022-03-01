@@ -30,7 +30,7 @@ def identificar_laco(matriz_nova, nivel):
 			else:
 				incidencia[j].append(0)
 
-	print(np.matrix(incidencia))
+	# print(incidencia)
 	trocadores_laco = []
 	for trocador in range(len(matriz_nova)):
 		soma_quente = [0] * (nhot)
@@ -51,21 +51,8 @@ def identificar_laco(matriz_nova, nivel):
 				ja_colocou = False
 				if incidencia[corrente_quente][trocador_comparar] == 1:
 					soma_quente[corrente_quente] += 1
-					if not ja_colocou:
-						trocadores_laco.append(trocador_comparar+1)
-						ja_colocou = True
-						print("colocou quente")
 				if incidencia[corrente_fria][trocador_comparar] == -1:
 					soma_fria[corrente_fria - nhot] -= 1
-					if not ja_colocou:
-						trocadores_laco.append(trocador_comparar+1)
-						ja_colocou = True
-						print("colocou fria")
-
-				print("comparando", trocador+1, trocador_comparar+1)
-				print(soma_quente)
-				print(soma_fria)
-				print()
 
 				soma_teste = 0
 				for i in range(len(soma_quente)):
@@ -79,50 +66,69 @@ def identificar_laco(matriz_nova, nivel):
 						if nivel == 1:
 							soma_fria[j] = -1
 				if soma_teste == nivel*4:
+					trocadores_laco = [trocador+1, trocador_comparar+1]
 					print("laço de nivel", nivel, "entre os trocadores:")
 					print(trocadores_laco)
 					return
 				else:
 					trocadores_laco.pop(-1)
 		else:
-			for trocador_comparar in range(trocador+1, len(matriz_nova)):
+			contador_quente, contador_frio = 1, 1
+			for trocador_comparar in range(trocador+1, 6):
 				ja_colocou = False
-				for corrente in range(len(incidencia)):
-					if incidencia[corrente][trocador_comparar] == 1:
-						soma_quente[corrente] += 1
-					if incidencia[corrente - nhot][trocador_comparar] == -1:
-						soma_fria[corrente - nhot] -= 1
+				proximo = False
+				print(contador_quente)
+				print(contador_frio)
 
+				for corrente in range(len(incidencia)):
+					if incidencia[corrente][trocador_comparar] == 1 and contador_quente != nivel:
+						soma_quente[corrente] += 1
+						if soma_quente[corrente] > 2:
+							soma_quente[corrente] = 2
+							proximo = True
+							for i in range(len(incidencia)):
+								if incidencia[i][trocador_comparar] == -1:
+									soma_fria[i - nhot] += 1
+						elif soma_quente[corrente] == 2 and not ja_colocou:
+							trocadores_laco.append(trocador_comparar+1)
+							ja_colocou = True
+							contador_quente += 1
+					if incidencia[corrente][trocador_comparar] == -1 and contador_frio != nivel:
+						soma_fria[corrente - nhot] -= 1
+						if soma_fria[corrente - nhot] < -2:
+							soma_fria[corrente - nhot] = -2
+							proximo = True
+							for i in range(len(incidencia)):
+								if incidencia[i][trocador_comparar] == 1:
+									soma_quente[i] -= 1
+						elif soma_fria[corrente - nhot] and not ja_colocou:
+							trocadores_laco.append(trocador_comparar+1)
+							ja_colocou = True
+							contador_frio += 1
+
+
+				# print(np.matrix(incidencia))
 				print("comparando", trocador+1, trocador_comparar+1)
 				print(soma_quente)
 				print(soma_fria)
 				print()
 
-
-				proximo = False
-				if soma_quente[corrente_quente] > 2:
-					soma_quente[corrente_quente] = 2
-					proximo = True
-				if soma_fria[corrente_fria - nhot] < -2:
-					soma_fria[corrente_fria - nhot] = -2
-					proximo = True
-
-
 				if not proximo:
 					soma_teste = 0
 					ja_colocou = False
+					# trocadores_laco.append(trocador_comparar+1)
 					for i in range(len(soma_quente)):
 						if soma_quente[i] == 2:
 							soma_teste += 2
-							if not ja_colocou:
-								trocadores_laco.append(trocador_comparar+1)
-								ja_colocou = True
+							# if not ja_colocou:
+							# 	trocadores_laco.append(trocador_comparar+1)
+							# 	ja_colocou = True
 					for j in range(len(soma_fria)):
 						if soma_fria[j] == -2:
 							soma_teste += 2
-							if not ja_colocou:
-								trocadores_laco.append(trocador_comparar+1)
-								ja_colocou = True
+							# if not ja_colocou:
+							# 	trocadores_laco.append(trocador_comparar+1)
+							# 	ja_colocou = True
 					if soma_teste == nivel*4:
 						print("laço de nivel", nivel, "entre os trocadores:")
 						print(trocadores_laco)
