@@ -598,7 +598,10 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 							temp.setx(-distancia_x - 138)
 							temp.write("CP = " + str(float('{:.3f}'.format(CPh[i]*fracoes_quentes[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
-							correntes_desenho_sub_acima[i][j].color("red")
+							if e_utilidade_quente[i]:
+								correntes_desenho_sub_acima[i][j].color("orange")
+							else:
+								correntes_desenho_sub_acima[i][j].color("red")
 							correntes_desenho_sub_acima[i][j].pensize(3)
 							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_acima[i][j].penup()
@@ -801,7 +804,10 @@ def desenhar_rede(correntes_quentes, correntes_frias):
 							temp.sety(y_abaixo - 8)
 							temp.write("CP = " + str(float('{:.3f}'.format(CPc[i]*fracoes_frias_abaixo[i][j]))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
-							correntes_desenho_sub_abaixo[i][j].color("blue")
+							if e_utilidade_fria[i]:
+								correntes_desenho_sub_abaixo[i][j].color("#7FFFD4")
+							else:
+								correntes_desenho_sub_abaixo[i][j].color("blue")
 							correntes_desenho_sub_abaixo[i][j].pensize(3)
 							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_abaixo[i][j].penup()
@@ -1121,11 +1127,11 @@ def dividir_corrente(divisao, onde):
 			estagio = 1
 			corrente = int(dlg.DivisaoFria.comboBox_2.currentText())
 
-		if verificar_trocador_estagio(estagio) and onde == "above":
+		if verificar_trocador_estagio(estagio, corrente, divtype) and onde == "above":
 			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
 			return
 
-		if verificar_trocador_estagio_abaixo(estagio) and onde == "below":
+		if verificar_trocador_estagio_abaixo(estagio, corrente, divtype) and onde == "below":
 			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
 			return
 
@@ -1360,7 +1366,6 @@ def inserir_teste():
 	else:
 		printar()
 		checaresgotadosacima()
-	print(matriz_armazenada)
 
 def remover_teste():
 	global subestagio_trocador
@@ -1604,7 +1609,6 @@ def inserir_teste_abaixo():
 	else:
 		printar_abaixo()
 		checaresgotadosabaixo()
-	print(matriz_trocadores_abaixo)
 
 def remover_teste_abaixo():
 	global subestagio_trocador_abaixo
@@ -1791,6 +1795,7 @@ dlg.stream_target.setPlaceholderText(" Ex: 273.15")
 dlg.util_inlet.setPlaceholderText(" Ex: 273.15")
 dlg.util_outlet.setPlaceholderText(" Ex: 273.15")
 dlg.stream_cp.setPlaceholderText(" Ex: 200.20")
+
 header = dlg.tableWidget.horizontalHeader()
 header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 for i in range(5):

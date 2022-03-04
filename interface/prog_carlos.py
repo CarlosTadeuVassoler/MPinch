@@ -422,13 +422,20 @@ def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 					for sj in range(nhot):
 						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
 
-def verificar_trocador_estagio(estagio):
-	for i in range (nhot):
+def verificar_trocador_estagio(estagio, corrente, tipo):
+	if tipo == "Q":
 		for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
 			for j in range(ncold):
 				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
 					for sk in range (nsk):
-						if Q[i][si][j][sj][sk][estagio-1] != 0:
+						if Q[corrente-1][si][j][sj][sk][estagio-1] != 0:
+							return True
+	elif tipo == "F":
+		for i in range(nhot):
+			for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
+				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
+					for sk in range (nsk):
+						if Q[i][si][corrente-1][sj][sk][estagio-1] != 0:
 							return True
 
 def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
@@ -824,10 +831,10 @@ def caixa_de_temperatura(dlg, sk):
 
 	if dlg.TempLoadAbove.radioButton_2.isChecked():
 		inlethot = float(dlg.TempLoadAbove.lineEdit_2.text())
-		q = CPh[chot-1] * (inlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1])
+		q = round(CPh[chot-1] * (inlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1]), 2)
 	if dlg.TempLoadAbove.radioButton.isChecked():
 		outletcold = float(dlg.TempLoadAbove.lineEdit.text())
-		q = CPc[ccold-1] * (outletcold - Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1])
+		q = round(CPc[ccold-1] * (outletcold - Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1]), 2)
 
 	if ((Qtotalh0[chot-1][sbhot-1][estagio-1]) > (Qtotalc0[ccold-1][sbcold-1][estagio-1])):
 		Qmax = Qtotalc0[ccold-1][sbcold-1][estagio-1]

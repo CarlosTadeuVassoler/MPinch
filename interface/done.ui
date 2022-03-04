@@ -147,7 +147,7 @@
        <item>
         <widget class="QPushButton" name="escolher_utilidades">
          <property name="text">
-          <string>Choose Utilities</string>
+          <string>Input Utilities</string>
          </property>
         </widget>
        </item>
