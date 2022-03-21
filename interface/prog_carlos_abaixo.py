@@ -674,17 +674,11 @@ def inserir_trocador_abaixo(dlg, vetor):
 		return
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = vetor[6]
-	calor_frio = 0
-	calor_quente = 0
-	for si in range(ncold):
-		calor_quente += Qtotalh0[chot-1][si][estagio-1]
-	for sj in range(nhot):
-		calor_frio += Qtotalc0[ccold-1][sj][estagio-1]
 
-	if calor_quente > calor_frio:
-		Qmax = calor_frio
+	if ((Qtotalh0[chot-1][sbhot-1][estagio-1]) > (Qtotalc0[ccold-1][sbcold-1][estagio-1])):
+		Qmax = Qtotalc0[ccold-1][sbcold-1][estagio-1]
 	else:
-		Qmax = calor_quente
+		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")

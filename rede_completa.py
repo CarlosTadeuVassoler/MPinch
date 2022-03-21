@@ -276,7 +276,7 @@ def preparar_dados_e_rede():
 			Tcki[j][k] = Tc0[j]
 			Tckf[j][k] = Tc0[j]
 
-def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
+def receber_pinch_completo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
 	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
 	Th0, Thf, Tc0, Tcf = [], [], [], []
 	for corrente in range(nquentes):
@@ -597,69 +597,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 
 	return violou, trocador_violado
 
-def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
-	qsi = quantidade
-	qsj = quantidade
-	cont = 0
-	if cont == 0:
-		if divtype.upper() == 'Q':
-			#desfaz divisoes anteriores da corrente no estagio
-			for si in range(1, ncold):
-				Qtotalh0[corrente-1][0][estagio-1] += Qtotalh0[corrente-1][si][estagio-1]
-			for si in range(ncold-1, qsi-1, -1):#ex: antes 3 divisoes porem agora 2, zera a 3
-				Fharr[estagio-1][corrente-1][si] = 0
-				Qtotalh0[corrente-1][si][estagio-1] = 0
-			#faz a nova divisao
-			if qsi <= ncold:
-				for si in range(qsi):
-					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
-					fracoes_quentes[corrente-1].append(fracao[si])
-				for si in range(ncold-1, -1, -1):
-					if Fharr[estagio-1][corrente-1][si] != 0:
-						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
-						calor_atual_quente_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
-			dividida_quente[corrente-1] = True
-			quantidade_quente[corrente-1] = qsi
-
-		if divtype.upper() == 'F':
-			#desfaz divisoes anteriores da corrente no estagio
-			for sj in range(1, nhot):
-				Qtotalc0[corrente-1][0][estagio-1] += Qtotalc0[corrente-1][sj][estagio-1]
-			for sj in range(nhot-1, qsj-1, -1):
-				Fcarr[estagio-1][corrente-1][sj] = 0
-				Qtotalc0[corrente-1][sj][estagio-1] = 0
-			#faz a nova divisao
-			if qsj <= nhot:
-				for sj in range(qsj):
-					Fcarr[estagio-1][corrente-1][sj] = 100 * fracao[sj]
-					fracoes_frias[corrente-1].append(fracao[sj])
-				for sj in range(nhot-1, -1, -1):
-					if Fcarr[estagio-1][corrente-1][sj] != 0:
-						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
-						calor_atual_frio_sub[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
-			dividida_fria[corrente-1] = True
-			quantidade_fria[corrente-1] = qsj
-
-def ler_dados(dlg, subestagio_trocador):
-	i = int(dlg.comboBox_2.currentText())
-	j = int(dlg.comboBox_5.currentText())
-	si = int(dlg.comboBox_50.currentText())
-	sj = int(dlg.comboBox_51.currentText())
-	k = 1
-	sk = subestagio_trocador
-
-	if ((Qtotalh0[i-1][si-1][k-1]) > (Qtotalc0[j-1][sj-1][k-1])):
-		Qmax = Qtotalc0[j-1][sj-1][k-1]
-	else:
-		Qmax = Qtotalh0[i-1][si-1][k-1]
-	if dlg.radioButton_4.isChecked():   #MAXIMUM HEAT
-		q = Qmax
-	elif dlg.radioButton.isChecked():     #HEATLOAD
-		q = float(dlg.lineEdit_5.text().replace(",", ".")) #botão HEATLOAD
-
-	return [i, j, si, sj, sk, k, q]
-
-def inserir_trocador(dlg, vetor):
+def inserir_trocador_completo(dlg, vetor):
 	cont = 0
 
 	chot = vetor[0]
@@ -736,7 +674,7 @@ def inserir_trocador(dlg, vetor):
 
 	return linha_interface, violou, trocador_violado
 
-def remover_trocador(dlg, vetor, indice, linha_interface):
+def remover_trocador_completo(dlg, vetor, indice, linha_interface):
 	chot = vetor[0]
 	ccold = vetor[1]
 	sbhot = vetor[2]
@@ -789,7 +727,7 @@ def atualizar_matriz(matriz):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-def adicionar_utilidade(dlg, corrente):
+def adicionar_utilidade_completo(dlg, corrente):
 	if calor_atual_frio[corrente-1] == 0:
 		QMessageBox.about(dlg, "Error!", "The heat of this stream has already been supplied")
 		return
@@ -805,7 +743,7 @@ def adicionar_utilidade(dlg, corrente):
 	fechar_corrente[corrente-1] = True
 	return utilidades
 
-def remover_utilidade(corrente, indice_remover, utilidades):
+def remover_utilidade_completo(corrente, indice_remover, utilidades):
 	if dividida_fria[corrente-1]:
 		for sj in range(quantidade_fria[corrente-1]):
 			calor_atual_frio_sub[corrente-1][sj] = calor_sub_sem_utilidade[corrente-1][sj]
@@ -814,91 +752,3 @@ def remover_utilidade(corrente, indice_remover, utilidades):
 	temperatura_atual_fria_mesclada[corrente-1] = -calor_atual_frio[corrente-1] / CPc[corrente-1] + Tcf[corrente-1]
 	utilidades.pop(indice_remover)
 	fechar_corrente[corrente-1] = False
-
-def caixa_de_temperatura(dlg, sk):
-	chot = int(float(dlg.TempLoadAbove.comboBox.currentText()))
-	ccold = int(float(dlg.TempLoadAbove.comboBox_2.currentText()))
-	sbhot = int(dlg.TempLoadAbove.comboBox_3.currentText())
-	sbcold = int(dlg.TempLoadAbove.comboBox_4.currentText())
-	estagio = 1
-	sestagio = sk + 1
-
-	if dlg.TempLoadAbove.radioButton_2.isChecked():
-		inlethot = float(dlg.TempLoadAbove.lineEdit_2.text())
-		q = round(CPh[chot-1] * (inlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1]), 2)
-	if dlg.TempLoadAbove.radioButton.isChecked():
-		outletcold = float(dlg.TempLoadAbove.lineEdit.text())
-		q = round(CPc[ccold-1] * (outletcold - Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1]), 2)
-
-	if ((Qtotalh0[chot-1][sbhot-1][estagio-1]) > (Qtotalc0[ccold-1][sbcold-1][estagio-1])):
-		Qmax = Qtotalc0[ccold-1][sbcold-1][estagio-1]
-	else:
-		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
-
-	if q > Qmax:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is greater than the available heat.")
-		return
-	if q < 0:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is negative.")
-		return
-	if q == 0:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is equals 0.")
-		return
-
-	dlg.lineEdit_5.setText(str(q))
-	dlg.radioButton.setChecked(True)
-	dlg.comboBox_2.setCurrentText(str(dlg.TempLoadAbove.comboBox.currentText()))  #hot strem
-	dlg.comboBox_5.setCurrentText(str(dlg.TempLoadAbove.comboBox_2.currentText()))  #cold stream
-	dlg.comboBox_50.setCurrentText(str(dlg.TempLoadAbove.comboBox_3.currentText())) #si
-	dlg.comboBox_51.setCurrentText(str(dlg.TempLoadAbove.comboBox_4.currentText())) #sj
-	dlg.TempLoadAbove.close()
-
-def testar_correntes(dlg, primeira=False):
-	nhotc = 0
-	ncoldc = 0
-	somaCPh = 0
-	somaCPc = 0
-
-	for quente in range(nhot):
-		if Thf[quente] == pinchq: #se tocar o pinch
-			somaCPh += CPh[quente]
-			if CPh[quente] != 0:
-				if dividida_quente[quente]:
-					nhotc += quantidade_quente[quente]
-				else:
-					nhotc += 1
-					# if quente == 0:
-					# 	nhotc += 1
-
-	for fria in range(ncold):
-		if Tc0[fria] == pinchf: #se tocar o pinch
-			somaCPc += CPc[fria]
-			if CPc[fria] != 0:
-				if dividida_fria[fria]:
-					ncoldc += quantidade_fria[fria]
-				else:
-					ncoldc += 1
-
-	# print("nhot toca pinch acima: ", nhotc)
-	# print("ncold toca pinch acima: ", ncoldc)
-	# print("soma cpquente acima: ", somaCPh)
-	# print("soma cpfrio acima: ", somaCPc)
-
-	if somaCPh > somaCPc:
-		dlg.label_24.setStyleSheet("QLabel {color: red}")
-	else:
-		dlg.label_24.setStyleSheet("QLabel {color: green}")
-
-	if nhotc > ncoldc:
-		dlg.label_23.setStyleSheet("QLabel {color: red}")
-		if not primeira:
-			QMessageBox.about(dlg,"Be Carreful","With this Split, you went against the Pinch Recomendations")
-	else:
-		dlg.label_23.setStyleSheet("QLabel {color: green}")
-
-	if somaCPh <= somaCPc and ncoldc >= nhotc:
-		dlg.label_26.setText("Respected")
-		dlg.label_26.setStyleSheet("QLabel {color: green}")
-	else:
-		dlg.label_26.setText("Not Respected")
-		dlg.label_26.setStyleSheet("QLabel {color: red}")
