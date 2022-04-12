@@ -2002,27 +2002,17 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
 
 def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
-	def nao_sacrificar_matriz(matriz_acima_naomuda, matriz_abaixo_naomuda):
-		matriz_acima = []
-		matriz_abaixo = []
-		for i in range(len(matriz_acima_naomuda)):
+	def nao_sacrificar_matriz(matriz_naomuda):
+		matriz = []
+		for i in range(len(matriz_naomuda)):
 			trocador = []
-			for j in range(len(matriz_acima_naomuda[0])):
+			for j in range(len(matriz_naomuda[0])):
 				try:
-					trocador.append(matriz_acima_naomuda[i][j])
+					trocador.append(matriz_naomuda[i][j])
 				except:
 					pass
-			matriz_acima.append(trocador)
-		for i in range(len(matriz_abaixo_naomuda)):
-			trocador = []
-			for j in range(len(matriz_abaixo_naomuda[0])):
-				try:
-					trocador.append(matriz_abaixo_naomuda[i][j])
-				except:
-					pass
-			matriz_abaixo.append(trocador)
-
-		return matriz_acima, matriz_abaixo
+			matriz.append(trocador)
+		return matriz
 
 	def criar_matriz(matriz_acima, matriz_abaixo):
 		global trocadores_uteis
@@ -2151,13 +2141,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 		for trocador in matriz_total:
 			if len(trocador) == 2:
 				if matriz_total.index(trocador) > len(matriz_acima) - 1:
-					utilidades_abaixo_ev = adicionar_utilidade_ev("oi", trocador[0], trocador[1], "resf")
+					utilidades_abaixo_ev = adicionar_utilidade_ev("oi", trocador[0], "resf")
 				else:
-					utilidades_acima_ev = adicionar_utilidade_ev("oi", trocador[0], trocador[1], "aquecedor")
+					utilidades_acima_ev = adicionar_utilidade_ev("oi", trocador[0], "aquecedor")
 
-		return matriz_evolucao
+		return matriz_evolucao, utilidades_acima_ev, utilidades_abaixo_ev
 
-	def distribuir_calor(trocadores, trocadores_laco, matriz_total, trocador_removido):
+	def distribuir_calor(trocadores, trocadores_laco, matriz_total, trocador_removido, utilidades_acima_ev, utilidades_abaixo_ev):
 		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
 
 		print("quer remover", trocadores_laco[trocador_removido], "ou", trocadores[trocador_removido])
@@ -2177,9 +2167,9 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 
 
 		dlg.dividir_calor.show()
-		dlg.dividir_calor.botaodone.clicked.connect(lambda: distribuiu(valor_calor, trocadores, matriz_total, trocador_removido))
+		dlg.dividir_calor.botaodone.clicked.connect(lambda: distribuiu(valor_calor, trocadores, matriz_total, trocador_removido, utilidades_acima_ev, utilidades_abaixo_ev))
 
-		def distribuiu(valor_trocador, trocadores, matriz_total_naomuda, trocador_removido):
+		def distribuiu(valor_trocador, trocadores, matriz_total_naomuda, trocador_removido, utilidades_acima_naomuda, utilidades_abaixo_naomuda):
 			valores = []
 			for i in range(len(trocadores)):
 				try:
@@ -2187,17 +2177,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 				except:
 					valores.append(0)
 
-			matriz_total = []
-			matriz_total_antiga = []
-			for i in range(len(matriz_total_naomuda)):
-				trocador = []
-				for j in range(len(matriz_total_naomuda[0])):
-					try:
-						trocador.append(matriz_total_naomuda[i][j])
-					except:
-						pass
-				matriz_total.append(trocador)
-				matriz_total_antiga.append(trocador)
+			matriz_total = nao_sacrificar_matriz(matriz_total_naomuda)
 
 			remover_todos()
 
@@ -2213,18 +2193,20 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 				if trocador[4] > partir_estagio:
 					trocador[4] -= 1
 
-			# for i in range(len(util_quente)):
-			# 	remover_utilidade_ev(util_quente[0], i, util_quente, "aquecedor")
-			# for i in range(len(util_fria)):
-			# 	remover_utilidade_ev(util_fria[0], i, util_fria, "resf")
-
 			for trocador in matriz_total:
 				matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+			# for i in range(len(utilidades_acima_naomuda)):
+			# 	utilidades_teste_acima = adicionar_utilidade_ev("oi", utilidades_acima_naomuda[i][0], "aquecedor")
+			# for i in range(len(utilidades_abaixo_naomuda)):
+			# 	utilidades_teste_abaixo = adicionar_utilidade_ev("oi", utilidades_abaixo_naomuda[i][0], "resf")
 
 			print("MATRIZ OBTIDA")
 			for trocador in matriz_teste:
 				print(trocador)
 			print()
+
+			# print(utilidades_teste_acima)
+			# print(utilidades_teste_abaixo)
 
 
 	def coisas_interface(trocadores_laco, trocadores_uteis):
@@ -2271,10 +2253,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 		dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()])
 		dlg.trocador_remover.currentIndexChanged.connect(lambda: dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()]))
 
-		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_combo, trocadores_laco, matriz_evolucao, dlg.trocador_remover.currentIndex()))
+		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_combo, trocadores_laco, matriz_evolucao, dlg.trocador_remover.currentIndex(), utilidades_acima_ev, utilidades_abaixo_ev))
 
-	matriz_acima, matriz_abaixo = nao_sacrificar_matriz(matriz_acima_naomuda, matriz_abaixo_naomuda)
-	matriz_evolucao = criar_rede_completa(matriz_acima, matriz_abaixo)
+	matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
+	matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
+	matriz_evolucao, utilidades_acima, utilidades_abaixo = criar_rede_completa(matriz_acima, matriz_abaixo)
+	utilidades_acima_ev = nao_sacrificar_matriz(utilidades_acima)
+	utilidades_abaixo_ev = nao_sacrificar_matriz(utilidades_abaixo)
 	trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
 	incidencia = criar_incidencia(trocadores, n_quentes, n_frias)
 	trocadores_laco = sorted(lacos(incidencia, trocadores, nivel))
@@ -2791,7 +2776,7 @@ def suprir_9_correntes():
 		acima = [[1, 1, 1, 1, 1, 1, 300], [2, 2, 1, 1, 2, 1, 120], [1], [2]]
 		abaixo = [[1, 2, 1, 1, 1, 1, 30], [2, 2, 1, 1, 2, 1, 10], [2]]
 	else:
-		acima = [[3, 2, 1, 2, 1, 1, 674.632], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 309.768], [2]]
+		acima = [[3, 2, 1, 2, 1, 1, 674.63], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 309.77], [2]]
 		abaixo = [[1, 2, 1, 1, 1, 1, 411.81], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.83], [1], [2], [3]]
 
 		divisao_de_correntes("F", 1, 2, 2, [0.56, 0.44])

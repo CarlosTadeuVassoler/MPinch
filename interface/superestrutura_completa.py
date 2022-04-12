@@ -774,7 +774,7 @@ def remover_utilidade_ev(corrente, indice_remover, tipo):
 		utilidades.pop(indice_remover)
 		fechar_corrente_ev[corrente-1] = False
 	else:
-		calor_atual_quente_ev[corrente-1] = utilidades[indice_remover][1]
+		calor_atual_quente_ev[corrente-1] = utilidades_abaixo[indice_remover][1]
 		utilidades_abaixo.pop(indice_remover)
 		fechar_corrente_ev_abaixo[corrente-1] = False
 
@@ -783,9 +783,11 @@ def remover_todos():
 	for i in range(len(linha_interface)-1, -1, -1):
 		remover_trocador_ev("oi", linha_interface[i], i, linha_interface)
 	for i in range(len(utilidades)-1, -1, -1):
-		remover_utilidade_ev(utilidades[i][0]-1, i, "aquecedor")
+		remover_utilidade_ev(utilidades[i][0], i, "aquecedor")
 	for i in range(len(utilidades_abaixo)-1, -1, -1):
-		remover_utilidade_ev(utilidades_abaixo[i][0]-1, i, "resf")
+		remover_utilidade_ev(utilidades_abaixo[i][0], i, "resf")
+
+
 
 
 
