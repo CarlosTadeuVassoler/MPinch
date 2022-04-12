@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def criar_incidencia(matriz_nova):
 	incidencia = []
 	for i in range(nhot + ncold):

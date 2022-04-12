@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>5</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -463,7 +463,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1095,7 +1095,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -2317,7 +2317,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Ideia quebra de laços</string>
+                   <string>Network Evolution</string>
                   </property>
                  </widget>
                 </item>
@@ -3266,7 +3266,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Ideia quebra de laços</string>
+                   <string>Network Evolution</string>
                   </property>
                  </widget>
                 </item>
@@ -4058,6 +4058,59 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="toolButton_2">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>MS Reference Sans Serif</family>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>&quot;This tab is used only to compare the ΔTmin, every action here doesn't change the pinch in Streams tab&quot;</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QToolButton{
+	background: 		#1E90FF;
+	border: 2px solid 	#000000;
+	border-radius: 10px;
+	color: 	#FFFFFF;
+	text-align: center;
+}
+
+QToolButton:focus{
+	border: 2px solid #FBAD25;
+}</string>
+              </property>
+              <property name="text">
+               <string>?</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
