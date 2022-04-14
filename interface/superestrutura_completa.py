@@ -546,7 +546,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
 									# QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									Q[i][si][j][sj][sk][k] = 0
+									# Q[i][si][j][sj][sk][k] = 0
 									return True, "termo"
 								else:
 									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
@@ -674,8 +674,8 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 	# CÁLCULO DE TODA A SUPERESTRUTURA
 	violou, trocador_violado = calcular_superestrutura(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio, ultima)
 	if violou and trocador_violado == "termo":
-		print(Qtotalc0)
-		return
+		print("viola termo")
+		# return
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 

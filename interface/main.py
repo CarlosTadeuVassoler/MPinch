@@ -67,6 +67,7 @@ e_utilidade_fria = []
 correntes_util = []
 primeira_vez = True
 divisoes = []
+primeiro_laco = True
 
 
 
@@ -2015,39 +2016,21 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 		return matriz
 
 	def criar_matriz(matriz_acima, matriz_abaixo):
-		global trocadores_uteis
-		util = 1
-		trocadores_uteis = []
-		for i in range(len(matriz_acima)):
+		for i in range(len(matriz_acima)-1, -1, -1):
 			if len(matriz_acima[i]) == 2:
-				calor = matriz_acima[i][1]
-				corrente_fria = matriz_acima[i][0]
-				matriz_acima[i] = [nhot+util, corrente_fria, calor]
-				trocadores_uteis.append([True, util])
-				util += 1
+				matriz_acima.pop(i)
 			else:
-				trocadores_uteis.append([False, False])
+				matriz_acima[i][0] -= 1
+				matriz_acima[i][1] += (nhot - 1)
 
-		for trocador in matriz_acima:
-			trocador[0] -= 1
-			trocador[1] += (nhot + util - 2)
-
-		util_fria = 1
-		for i in range(len(matriz_abaixo)):
+		for i in range(len(matriz_abaixo)-1, -1, -1):
 			if len(matriz_abaixo[i]) == 2:
-				calor = matriz_abaixo[i][1]
-				corrente_quente = matriz_abaixo[i][0]
-				matriz_abaixo[i] = [corrente_quente, ncold+util_fria, calor]
-				trocadores_uteis.append([True, util_fria])
-				util_fria += 1
+				matriz_abaixo.pop(i)
 			else:
-				trocadores_uteis.append([False, False])
+				matriz_abaixo[i][0] -= 1
+				matriz_abaixo[i][1] += (nhot - 1)
 
-		for trocador in matriz_abaixo:
-			trocador[0] -= 1
-			trocador[1] += (nhot + util - 2)
-
-		return matriz_acima + matriz_abaixo, nhot+util-1, ncold+util_fria-1
+		return matriz_acima + matriz_abaixo, nhot, ncold
 
 	def criar_incidencia(matriz_nova, nhot, ncold):
 		incidencia = []
@@ -2112,23 +2095,27 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 
 		return ["None "]
 
-	def criar_rede_completa(matriz_acima, matriz_abaixo):
-		receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0)
+	def criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=False):
 		ultimo_subestagio_acima = 0
 
-		for i in range(len(matriz_acima)-1, -1, -1):
-			if len(matriz_acima[i]) > 2:
-				ultimo_subestagio_acima = matriz_acima[i][4]
-				break
+		if primeiro:
+			receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0)
+			for i in range(len(matriz_acima)-1, -1, -1):
+				if len(matriz_acima[i]) > 2:
+					ultimo_subestagio_acima = matriz_acima[i][4]
+					break
 
-		for i in range(len(matriz_acima)):
-			if len(matriz_acima[i]) > 2:
-				matriz_acima[i][4] = ultimo_subestagio_acima - i
+			for i in range(len(matriz_acima)):
+				if len(matriz_acima[i]) > 2:
+					matriz_acima[i][4] = ultimo_subestagio_acima - i
 
-		for trocador in matriz_abaixo:
-			if len(trocador) > 2:
-				trocador[4] += ultimo_subestagio_acima
-				trocador[5] = 2
+			for trocador in matriz_abaixo:
+				if len(trocador) > 2:
+					trocador[4] += ultimo_subestagio_acima
+					trocador[5] = 2
+		else:
+			ultimo_subestagio_acima = matriz_acima[0][4]
+			remover_todos()
 
 		matriz_total = matriz_acima + matriz_abaixo
 
@@ -2137,79 +2124,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 
 		for trocador in matriz_total:
 			if len(trocador) > 2:
-				matriz_evolucao, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-		for trocador in matriz_total:
-			if len(trocador) == 2:
-				if matriz_total.index(trocador) > len(matriz_acima) - 1:
-					utilidades_abaixo_ev = adicionar_utilidade_ev("oi", trocador[0], "resf")
-				else:
-					utilidades_acima_ev = adicionar_utilidade_ev("oi", trocador[0], "aquecedor")
+				matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+		try:
+			return nao_sacrificar_matriz(matriz_completa)
+		except:
+			return []
 
-		return matriz_evolucao, utilidades_acima_ev, utilidades_abaixo_ev
-
-	def distribuir_calor(trocadores, trocadores_laco, matriz_total, trocador_removido, utilidades_acima_ev, utilidades_abaixo_ev):
-		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
-
-		print("quer remover", trocadores_laco[trocador_removido], "ou", trocadores[trocador_removido])
-
-		label_trocador = [0] * len(trocadores)
-		valor_calor = [0] * len(trocadores)
-
-		for i in range(len(trocadores)):
-			if i != trocador_removido:
-				label_trocador[i] = QtWidgets.QLabel(dlg.dividir_calor)
-				valor_calor[i] = QtWidgets.QLineEdit(dlg.dividir_calor)
-				label_trocador[i].setText(trocadores[i])
-				dlg.dividir_calor.trocadores.addWidget(label_trocador[i])
-				dlg.dividir_calor.trocadores.addWidget(valor_calor[i])
-				label_trocador[i].setAlignment(Qt.AlignCenter)
-				valor_calor[i].setAlignment(Qt.AlignCenter)
-
-
-		dlg.dividir_calor.show()
-		dlg.dividir_calor.botaodone.clicked.connect(lambda: distribuiu(valor_calor, trocadores, matriz_total, trocador_removido, utilidades_acima_ev, utilidades_abaixo_ev))
-
-		def distribuiu(valor_trocador, trocadores, matriz_total_naomuda, trocador_removido, utilidades_acima_naomuda, utilidades_abaixo_naomuda):
-			valores = []
-			for i in range(len(trocadores)):
-				try:
-					valores.append(float(valor_trocador[i].text().replace(",", ".")))
-				except:
-					valores.append(0)
-
-			matriz_total = nao_sacrificar_matriz(matriz_total_naomuda)
-
-			remover_todos()
-
-			for i in range(len(trocadores)):
-				matriz_total[int(trocadores[i][1:])-1][6] = valores[i]
-
-			for trocador in matriz_total:
-				if trocador[6] == 0:
-					partir_estagio = trocador[4]
-					matriz_total.pop(matriz_total.index(trocador))
-
-			for trocador in matriz_total:
-				if trocador[4] > partir_estagio:
-					trocador[4] -= 1
-
-			for trocador in matriz_total:
-				matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-			# for i in range(len(utilidades_acima_naomuda)):
-			# 	utilidades_teste_acima = adicionar_utilidade_ev("oi", utilidades_acima_naomuda[i][0], "aquecedor")
-			# for i in range(len(utilidades_abaixo_naomuda)):
-			# 	utilidades_teste_abaixo = adicionar_utilidade_ev("oi", utilidades_abaixo_naomuda[i][0], "resf")
-
-			print("MATRIZ OBTIDA")
-			for trocador in matriz_teste:
-				print(trocador)
-			print()
-
-			# print(utilidades_teste_acima)
-			# print(utilidades_teste_abaixo)
-
-
-	def coisas_interface(trocadores_laco, trocadores_uteis):
+	def coisas_interface(trocadores_laco, matriz_completa):
 		text = ""
 		dlg.trocador_remover.clear()
 		dlg.preview.setText("Network Preview by Removing -")
@@ -2217,18 +2138,18 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 		trocadores_combo = []
 		for i in range(len(trocadores_laco)):
 			if trocadores_laco[i] != "None ":
-				if not trocadores_uteis[trocadores_laco[i]-1][0]:
+				if True:#not trocadores_uteis[trocadores_laco[i]-1][0]:
 					if trocadores_laco[i] >= len(matriz_acima_naomuda):
-						text += ("E" + str(trocadores_laco[i] - len(utilidades)) + ", ")
+						text += ("E" + str(trocadores_laco[i]) + ", ")
 					else:
 						text += ("E" + str(trocadores_laco[i]) + ", ")
 					menor_calor.append(trocadores[trocadores_laco[i]-1][6])
-				elif trocadores_laco[i] < len(matriz_acima_naomuda):
-					text += ("H" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
-					menor_calor.append(trocadores[trocadores_laco[i]-1][2])
-				else:
-					text += ("C" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
-					menor_calor.append(trocadores[trocadores_laco[i]-1][2])
+				# if trocadores_laco[i] < len(matriz_acima_naomuda):
+				# 	text += ("H" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
+				# 	menor_calor.append(trocadores[trocadores_laco[i]-1][2])
+				# else:
+				# 	text += ("C" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
+				# 	menor_calor.append(trocadores[trocadores_laco[i]-1][2])
 				trocadores_combo.append(text[len(text)-4:len(text)-2])
 				dlg.trocador_remover.addItem(text[len(text)-4:len(text)-2])
 				dlg.trocador_remover.setEnabled(True)
@@ -2243,27 +2164,163 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 		text = text[:len(text)-2]
 		text += "."
 		dlg.trocadores_loop.setText(text)
-		menor_calorr = min(menor_calor)
-		dlg.trocador_remover.setCurrentIndex(menor_calor.index(menor_calorr))
+		try:
+			menor_calorr = min(menor_calor)
+			dlg.trocador_remover.setCurrentIndex(menor_calor.index(menor_calorr))
+		except:
+			pass
 		dlg.trocador_remover.setItemText(dlg.trocador_remover.currentIndex(), dlg.trocador_remover.currentText() + " (suggested)")
 		if nivel == 1:
 			dlg.label_7.setText("Loop Found Between Heat Exchangers:")
 		else:
 			dlg.label_7.setText("Loop Found Among Heat Exchangers:")
 		dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()])
-		dlg.trocador_remover.currentIndexChanged.connect(lambda: dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()]))
 
-		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_combo, trocadores_laco, matriz_evolucao, dlg.trocador_remover.currentIndex(), utilidades_acima_ev, utilidades_abaixo_ev))
+		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_combo, trocadores_laco, matriz_completa, dlg.trocador_remover.currentIndex()))
 
-	matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
-	matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
-	matriz_evolucao, utilidades_acima, utilidades_abaixo = criar_rede_completa(matriz_acima, matriz_abaixo)
-	utilidades_acima_ev = nao_sacrificar_matriz(utilidades_acima)
-	utilidades_abaixo_ev = nao_sacrificar_matriz(utilidades_abaixo)
-	trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
+	def distribuir_calor(trocadores, trocadores_laco, matriz_completa, trocador_removido):
+		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
+
+		print("executou")
+		print("MATRIZ ANTES DE REMOVER")
+		for trocador in matriz_completa:
+			print(trocador)
+		print()
+
+		corrente_quente_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][0]
+		corrente_fria_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][1]
+		calor_trocador_removido = matriz_completa[trocadores_laco[trocador_removido]-1][6]
+		valores = []
+
+		label_trocador = [0] * len(trocadores)
+		set_calor = [0] * len(trocadores)
+		add_calor = [0] * len(trocadores)
+		lay = [0] * len(trocadores)
+
+		dlg.dividir_calor.trocador_remover.setText(trocadores[trocador_removido] + " Heat Load: " + str(round(calor_trocador_removido, 2)))
+		dlg.dividir_calor.horizontalLayout_3.setAlignment(Qt.AlignCenter)
+		dlg.dividir_calor.horizontalLayout_4.setAlignment(Qt.AlignCenter)
+
+		for i in range(len(trocadores)):
+			if i != trocador_removido:
+				label_trocador[i] = QtWidgets.QLabel(dlg.dividir_calor)
+				label_trocador[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+				label_trocador[i].setAlignment(Qt.AlignCenter)
+				set_calor[i] = QtWidgets.QLineEdit(dlg.dividir_calor)
+				set_calor[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+				set_calor[i].setAlignment(Qt.AlignCenter)
+				add_calor[i] = QtWidgets.QLineEdit(dlg.dividir_calor)
+				add_calor[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+				add_calor[i].setAlignment(Qt.AlignCenter)
+				label_trocador[i].setText(trocadores[i])
+				label_trocador[i].setMinimumWidth(95)
+				label_trocador[i].setMaximumWidth(95)
+				lay[i] = QtWidgets.QHBoxLayout()
+				lay[i].addWidget(label_trocador[i])
+				lay[i].addWidget(set_calor[i])
+				lay[i].addWidget(add_calor[i])
+				dlg.dividir_calor.trocadores.addLayout(lay[i])
+				if matriz_completa[trocadores_laco[i]-1][0] == corrente_quente_vai_remover or matriz_completa[trocadores_laco[i]-1][1] == corrente_fria_vai_remover:
+					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] + calor_trocador_removido
+				else:
+					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] - calor_trocador_removido
+				# set_calor[i].setPlaceholderText(str(round(calor_recomendado, 2)) + " (suggested)")
+				valores.append(calor_recomendado)
+			else:
+				valores.append(0)
+
+		dlg.dividir_calor.show()
+		dlg.dividir_calor.prever.clicked.connect(lambda: distribuiu(valor_calor, valores, trocadores, matriz_completa, trocador_removido))
+
+		def distribuiu(valor_trocador, valores, trocadores, matriz_completa_naomuda, trocador_removido):
+			for i in range(len(trocadores)):
+				try:
+					valores[i] = float(valor_trocador[i].text().replace(",", "."))
+				except:
+					pass
+
+			matriz_completa = nao_sacrificar_matriz(matriz_completa_naomuda)
+
+			remover_todos()
+
+			for i in range(len(trocadores)):
+				matriz_completa[int(trocadores[i][1:])-1][6] = valores[i]
+
+			for trocador in matriz_completa:
+				if trocador[6] == 0:
+					partir_estagio = trocador[4]
+					matriz_completa.pop(matriz_completa.index(trocador))
+
+			for trocador in matriz_completa:
+				if trocador[4] > partir_estagio:
+					trocador[4] -= 1
+
+			for trocador in matriz_completa:
+				matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+
+			matriz_completa = nao_sacrificar_matriz(matriz_teste)
+
+			print("MATRIZ APÓS REMOVER")
+			for trocador in matriz_completa:
+				print(trocador)
+			print()
+
+			dlg.dividir_calor.botaodone.clicked.connect(lambda: done(matriz_completa))
+			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda))
+
+			def done(matriz_completa_done):
+				global matriz_evolucao
+				matriz_evolucao = nao_sacrificar_matriz(matriz_completa_done)
+				dlg.dividir_calor.close()
+				print("MATRIZ CONFIRM")
+				for trocador in matriz_evolucao:
+					print(trocador)
+				print()
+
+			def undone(matriz_completa_undone):
+				global matriz_evolucao
+				remover_todos()
+				for trocador in matriz_completa_undone:
+					matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+
+				print("MATRIZ UNDONE")
+				for trocador in matriz_completa:
+					print(trocador)
+				print()
+
+				matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+				dlg.dividir_calor.close()
+
+
+	global primeiro_laco, matriz_evolucao
+
+	if primeiro_laco:
+		primeiro_laco = False
+		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
+		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
+		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
+		matriz_evolucao = nao_sacrificar_matriz(matriz)
+		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
+	else:
+		matriz_acima_nm = []
+		matriz_abaixo_nm = []
+		for trocador in matriz_evolucao:
+			if trocador[5] == 1:
+				matriz_acima_nm.append(trocador)
+			elif trocador[5] == 2:
+				matriz_abaixo_nm.append(trocador)
+		matriz_acima = nao_sacrificar_matriz(matriz_acima_nm)
+		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_nm)
+		matriz = criar_rede_completa(matriz_acima, matriz_abaixo)
+		matriz_evolucao = nao_sacrificar_matriz(matriz)
+		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
+		print("MATRIZ EVOLUCAO SEGUNDO LACO")
+		for trocador in matriz_evolucao:
+			print(trocador)
+		print()
 	incidencia = criar_incidencia(trocadores, n_quentes, n_frias)
 	trocadores_laco = sorted(lacos(incidencia, trocadores, nivel))
-	coisas_interface(trocadores_laco, trocadores_uteis)
+	coisas_interface(trocadores_laco, matriz_evolucao)
 
 
 
@@ -2776,11 +2833,14 @@ def suprir_9_correntes():
 		acima = [[1, 1, 1, 1, 1, 1, 300], [2, 2, 1, 1, 2, 1, 120], [1], [2]]
 		abaixo = [[1, 2, 1, 1, 1, 1, 30], [2, 2, 1, 1, 2, 1, 10], [2]]
 	else:
-		acima = [[3, 2, 1, 2, 1, 1, 674.63], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 309.77], [2]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 411.81], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.83], [1], [2], [3]]
+		# acima = [[3, 2, 1, 2, 1, 1, 674.63], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 309.77], [2]]
+		# abaixo = [[1, 2, 1, 1, 1, 1, 411.81], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.83], [1], [2], [3]]
 
-		divisao_de_correntes("F", 1, 2, 2, [0.56, 0.44])
-		divisoes.append(["F", 1, 2, 2, [0.56, 0.44]])
+		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5], [2]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.8], [1], [2], [3]]
+
+		divisao_de_correntes("F", 1, 2, 2, [0.72, 0.28])
+		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
 
 	for trocador in acima:
 		if len(trocador) > 1:
@@ -2870,7 +2930,6 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 #evolução
 dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText())))
-# dlg.remover.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, False))
 dlg.toolButton_2.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
 
 
@@ -2892,7 +2951,6 @@ for i in range(5):
 	header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 
 
-# evolucao(0, 0, 0)
 dlg.show()
 dlg.showMaximized()
 app.exec()
