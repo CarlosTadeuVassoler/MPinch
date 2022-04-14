@@ -2222,9 +2222,11 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel):
 				dlg.dividir_calor.trocadores.addLayout(lay[i])
 				if matriz_completa[trocadores_laco[i]-1][0] == corrente_quente_vai_remover or matriz_completa[trocadores_laco[i]-1][1] == corrente_fria_vai_remover:
 					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] + calor_trocador_removido
+					add_calor[i].setPlaceholderText("Ex: " + str(round(calor_trocador_removido, 2)))
 				else:
 					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] - calor_trocador_removido
-				# set_calor[i].setPlaceholderText(str(round(calor_recomendado, 2)) + " (suggested)")
+					add_calor[i].setPlaceholderText("Ex: -" + str(round(calor_trocador_removido, 2)))
+				set_calor[i].setPlaceholderText(str(round(calor_recomendado, 2)) + " (suggested)")
 				valores.append(calor_recomendado)
 			else:
 				valores.append(0)
