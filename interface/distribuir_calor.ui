@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
+    <width>731</width>
     <height>269</height>
    </rect>
   </property>
@@ -129,12 +129,65 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add Heat Load</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Hot Terminal ΔT</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Cold Terminal ΔT   </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -148,7 +201,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>393</width>
+            <width>707</width>
             <height>91</height>
            </rect>
           </property>
@@ -170,7 +223,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Network Preview</string>
+          <string>ΔT Preview</string>
          </property>
         </widget>
        </item>
@@ -186,7 +239,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Undone</string>
+            <string>Dismiss</string>
            </property>
           </widget>
          </item>
@@ -200,7 +253,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Confirm</string>
+            <string>Apply</string>
            </property>
           </widget>
          </item>

@@ -703,14 +703,18 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 							sestagio,
 							estagio,
 							Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1],
-							Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
+							Thski[chot-1][sbhot-1][sestagio-1][estagio-1],
 							Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1],
+							Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
+							Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1],
 							fracao_quente,
 							fracao_fria])
 
 	for trocador in linha_interface:
-		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
+		trocador[7] = Thski[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
+		trocador[9] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
+		trocador[10] = Tcski[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
 	return linha_interface, violou, trocador_violado
 

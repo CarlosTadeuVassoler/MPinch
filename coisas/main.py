@@ -68,8 +68,6 @@ correntes_util = []
 primeira_vez = True
 divisoes = []
 primeiro_laco = True
-desenho_em_dia = False
-desenho_em_dia_abaixo = False
 
 
 
@@ -560,15 +558,30 @@ def unidades_compativeis(unidade_temp, unidade_cp, unidade_pelicula, cp_printar)
 
 	return cp_contas
 
+def desenhar_rede_backup(correntes_quentes, correntes_frias, teste=False):
+	global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo
+	turtle.delay(0)
+	turtle.setup(width=1.0, height=1.0)
+	turtle.shapesize(0.001, 0.001, 0.001)
+	temp = turtle.Turtle()
+	temp.speed(1000)
+	temp.shapesize(0.001, 0.001, 0.001)
+	temp.penup()
+	temperatura = turtle.Turtle()
+	temperatura.speed(1000)
+	temperatura.shapesize(0.001, 0.001, 0.001)
+	temperatura.penup()
+	ident = turtle.Turtle()
+	ident.speed(1000)
+	ident.shapesize(0.001, 0.001, 0.001)
+	ident.penup()
+	y_acima, y_abaixo = 200, 200
 
-
-#parte de desenhos
-def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
-
-	def quentes(onde, correntes_desenho, presente):
-		global y_acima, y_abaixo
+	def quentes_backup(onde, correntes_desenho, presente):
+		global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo, distancia_x
+		distancia_x = 500
 		for i in range(len(correntes_desenho)):
-			if presente[i] and onde != "ambas":
+			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
 				correntes_desenho[i].speed(1000)
 				if e_utilidade_quente[i]:
@@ -579,25 +592,24 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				correntes_desenho[i].penup()
 				correntes_desenho_sub_acima = [0] * nhot
 				correntes_desenho_sub_abaixo = [0] * nhot
-
 				if onde == "above":
-					correntes_desenho[i].setx(-distancia_x/2)
+					correntes_desenho[i].setx(-distancia_x)
 					correntes_desenho[i].sety(y_acima)
 					correntes_desenho[i].pendown()
 					temp.sety(y_acima - 6)
-					temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Th0[i], 2))))*6 - 4)
+					temp.setx(-distancia_x - len(str(Th0[i]))*6 - 4)
 					temp.write(str('{:.2f}'.format(round(Th0[i], 2))), align="left", font=("Arial", 10, "normal"))
 					if Thf_acima[i] != pinchq:
-						temp.setx(distancia_x/2 - nao_toca_pinch + 5)
+						temp.setx(-94)
 						temp.write(str('{:.2f}'.format(round(Thf_acima[i], 2))), align="left", font=("Arial", 10, "normal"))
 					if not dividida_quente[i]:
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp_acima)
+						temp.setx(-distancia_x - 138)
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i], 2)))), align="left", font=("Arial", 10, "normal"))
 					else:
 						correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
 						for j in range(quantidade_quente[i]-1):
 							temp.sety(y_acima - 6)
-							temp.setx(-distancia_x/2 - distancia_cp - maior_cp_acima)
+							temp.setx(-distancia_x - 138)
 							temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][j], 2)))), align="left", font=("Arial", 10, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 							if e_utilidade_quente[i]:
@@ -607,38 +619,37 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							correntes_desenho_sub_acima[i][j].pensize(3)
 							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_acima[i][j].penup()
-							correntes_desenho_sub_acima[i][j].setx(-distancia_x/2 + ramo_x)
+							correntes_desenho_sub_acima[i][j].setx(-distancia_x + 20)
 							correntes_desenho_sub_acima[i][j].sety(y_acima)
 							correntes_desenho_sub_acima[i][j].pendown()
 							correntes_desenho_sub_acima[i][j].right(90)
-							correntes_desenho_sub_acima[i][j].forward(ramo_y)
+							correntes_desenho_sub_acima[i][j].forward(40)
 							correntes_desenho_sub_acima[i][j].left(90)
 							if Thf_acima[i] == pinchq:
-								correntes_desenho_sub_acima[i][j].forward(distancia_x - 2*ramo_x - 4)
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - 44)
 							else:
-								correntes_desenho_sub_acima[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - 140)
 							correntes_desenho_sub_acima[i][j].left(90)
-							correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_acima[i][j].forward(40*(j+1))
 							correntes_desenho_sub_acima[i][j].right(90)
 							correntes_desenho_sub_acima[i][j].forward(20)
-							y_acima -= ramo_y
+							y_acima -= 40
 						temp.sety(y_acima - 6)
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp_acima)
+						temp.setx(-distancia_x - 138)
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][quantidade_quente[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
 					if Thf_acima[i] == pinchq:
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
-
+						correntes_desenho[i].forward(distancia_x - 100)
 				elif onde == "below":
 					correntes_desenho[i].sety(y_abaixo)
 					temp.sety(y_abaixo - 6)
-					temp.setx(distancia_x/2 + 6)
+					temp.setx(distancia_x + 6)
 					temp.write(str('{:.2f}'.format(round(Thf[i], 2))), align="left", font=("Arial", 10, "normal"))
 					if Th0_abaixo[i] != pinchq:
-						temp.setx(-distancia_x/2 + nao_toca_pinch - len(str('{:.2f}'.format(round(Th0[i], 2))))*6)
+						temp.setx(100 - len(str(Th0[i]))*6 - 4)
 						temp.write(str('{:.2f}'.format(round(Th0_abaixo[i], 2))), align="left", font=("Arial", 10, "normal"))
-					temp.setx(distancia_x/2 + distancia_cp)
+					temp.setx(distancia_x + 90)
 					if not dividida_quente_abaixo[i]:
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i], 2)))), align="left", font=("Arial", 10, "normal"))
 					else:
@@ -653,135 +664,66 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							correntes_desenho_sub_abaixo[i][j].penup()
 							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
 							if Th0_abaixo[i] == pinchq:
-								correntes_desenho_sub_abaixo[i][j].setx(-distancia_x/2 + ramo_x + 4)
+								correntes_desenho_sub_abaixo[i][j].setx(24)
 								correntes_desenho_sub_abaixo[i][j].pendown()
 								correntes_desenho_sub_abaixo[i][j].right(90)
-								correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
+								correntes_desenho_sub_abaixo[i][j].forward(40)
 								correntes_desenho_sub_abaixo[i][j].left(90)
 								if fechar_corrente_abaixo[i]:
-									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+0.5)*espaco_trocadores)
+									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+1)*55)
 									temperatura.sety(y_abaixo + 1)
-									temperatura.setx(-distancia_x/2 + (len(matriz_trocadores_abaixo)+1)*espaco_trocadores)
-									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="center", font=("Arial", 8, "normal"))
+									temperatura.setx((len(matriz_trocadores_abaixo)+1)*55 + len(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))))*3)
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="left", font=("Arial", 8, "normal"))
 								else:
-									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 2*ramo_x - 4)
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 44)
 							else:
-								correntes_desenho_sub_abaixo[i][j].setx(-distancia_x/2 + nao_toca_pinch + ramo_x)
+								correntes_desenho_sub_abaixo[i][j].setx(120)
 								correntes_desenho_sub_abaixo[i][j].pendown()
 								correntes_desenho_sub_abaixo[i][j].right(90)
-								correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
+								correntes_desenho_sub_abaixo[i][j].forward(40)
 								correntes_desenho_sub_abaixo[i][j].left(90)
 								if fechar_corrente_abaixo[i]:
-									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+0.5)*espaco_trocadores)
+									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+1)*55)
 									temperatura.sety(y_abaixo + 1)
-									temperatura.setx(-distancia_x/2 + (len(matriz_trocadores_abaixo)+1)*espaco_trocadores)
-									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="center", font=("Arial", 8, "normal"))
+									temperatura.setx((len(matriz_trocadores_abaixo)+1)*55 + len(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))))*3)
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="left", font=("Arial", 8, "normal"))
 								else:
-									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 140)
 							correntes_desenho_sub_abaixo[i][j].left(90)
-							correntes_desenho_sub_abaixo[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_abaixo[i][j].forward(40*(j+1))
 							correntes_desenho_sub_abaixo[i][j].right(90)
-							correntes_desenho_sub_abaixo[i][j].forward(ramo_x)
-							y_abaixo -= ramo_y
+							correntes_desenho_sub_abaixo[i][j].forward(20)
+							y_abaixo -= 40
 						temp.sety(y_abaixo - 6)
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
 					if Th0_abaixo[i] == pinchq:
-						correntes_desenho[i].setx(-distancia_x/2 + 4)
+						correntes_desenho[i].setx(4)
 						correntes_desenho[i].pendown()
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes_desenho[i].setx(-distancia_x/2+ nao_toca_pinch)
+						correntes_desenho[i].setx(100)
 						correntes_desenho[i].pendown()
-						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+						correntes_desenho[i].forward(distancia_x - 100)
+			if onde == "above":
+				if dividida_quente[i] and dividida_quente_abaixo[i]:
+					if quantidade_quente[i] < quantidade_quente_abaixo[i]:
+						y_acima -= 40 * (quantidade_quente_abaixo[i] - quantidade_quente[i])
+				elif dividida_quente_abaixo[i]:
+					y_acima -= 40 * (quantidade_quente_abaixo[i] - 1)
+			elif onde == "below":
+				if dividida_quente[i] and dividida_quente_abaixo[i]:
+					if quantidade_quente[i] > quantidade_quente_abaixo[i]:
+						y_abaixo -= 40 * (quantidade_quente[i] - quantidade_quente_abaixo[i])
+				elif dividida_quente[i]:
+					y_abaixo -= 40 * (quantidade_quente[i] - 1)
+			y_acima -= 40
+			y_abaixo -= 40
 
-			if onde != "ambas":
-				y_acima -= ramo_y
-				y_abaixo -= ramo_y
-
-			if onde == "ambas":
-				correntes_desenho[i] = turtle.Turtle()
-				correntes_desenho[i].speed(1000)
-				if e_utilidade_quente[i]:
-					correntes_desenho[i].color("orange")
-				else:
-					correntes_desenho[i].color("red")
-				correntes_desenho[i].pensize(3)
-				correntes_desenho[i].penup()
-				correntes_desenho_sub_acima = [0] * nhot
-				correntes_desenho_sub_abaixo = [0] * nhot
-				correntes_desenho[i].setx(-distancia_x/2)
-				correntes_desenho[i].sety(y_acima)
-				correntes_desenho[i].pendown()
-				temp.sety(y_acima - 6)
-				temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Th0[i], 2))))*6)
-				temp.write(str('{:.2f}'.format(round(Th0[i], 2))), align="left", font=("Arial", 10, "normal"))
-				temp.setx(distancia_x/2 + 6)
-				temp.write(str('{:.2f}'.format(round(Thf[i], 2))), align="left", font=("Arial", 10, "normal"))
-				if dividida_quente[i]:
-					correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
-					for j in range(quantidade_quente[i]-1):
-						correntes_desenho_sub_acima[i][j] = turtle.Turtle()
-						if e_utilidade_quente[i]:
-							correntes_desenho_sub_acima[i][j].color("orange")
-						else:
-							correntes_desenho_sub_acima[i][j].color("red")
-						correntes_desenho_sub_acima[i][j].pensize(3)
-						correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
-						correntes_desenho_sub_acima[i][j].penup()
-						correntes_desenho_sub_acima[i][j].setx(-distancia_x/2 + ramo_x)
-						correntes_desenho_sub_acima[i][j].sety(y_acima)
-						correntes_desenho_sub_acima[i][j].pendown()
-						correntes_desenho_sub_acima[i][j].right(90)
-						correntes_desenho_sub_acima[i][j].forward(ramo_y)
-						correntes_desenho_sub_acima[i][j].left(90)
-						correntes_desenho_sub_acima[i][j].forward(distancia_x/2 - 2*ramo_x)
-						correntes_desenho_sub_acima[i][j].left(90)
-						correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
-						correntes_desenho_sub_acima[i][j].right(90)
-						correntes_desenho_sub_acima[i][j].forward(20)
-						y_acima -= ramo_y
-					temp.sety(y_acima - 6)
-					temp.setx(-distancia_x/2 - distancia_cp - maior_cp_acima)
-				if dividida_quente_abaixo[i]:
-					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
-					for j in range(quantidade_quente_abaixo[i]-1):
-						correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
-						correntes_desenho_sub_abaixo[i][j].color("red")
-						correntes_desenho_sub_abaixo[i][j].pensize(3)
-						correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
-						correntes_desenho_sub_abaixo[i][j].penup()
-						correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
-						correntes_desenho_sub_abaixo[i][j].setx(ramo_x)
-						correntes_desenho_sub_abaixo[i][j].pendown()
-						correntes_desenho_sub_abaixo[i][j].right(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
-						correntes_desenho_sub_abaixo[i][j].left(90)
-						if fechar_corrente_abaixo[i]:
-							correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+0.5)*espaco_trocadores)
-							temperatura.sety(y_abaixo + 1)
-							temperatura.setx((len(matriz_trocadores_abaixo)+1)*espaco_trocadores)
-							temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="center", font=("Arial", 8, "normal"))
-						else:
-							correntes_desenho_sub_abaixo[i][j].forward(distancia_x/2 - 2*ramo_x)
-						correntes_desenho_sub_abaixo[i][j].left(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_y*(j+1))
-						correntes_desenho_sub_abaixo[i][j].right(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_x)
-						y_abaixo -= ramo_y
-				correntes_desenho[i].forward(distancia_x)
-
-				y_acima -= ramo_y
-				y_abaixo -= ramo_y
-
-				if y_acima < y_abaixo:
-					y_abaixo = y_acima
-				elif y_acima > y_abaixo:
-					y_acima = y_abaixo
-
-	def frias(onde, correntes_desenho, presente):
-		global y_acima, y_abaixo
+	def frias_backup(onde, correntes_desenho, presente):
+		global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo
+		distancia_x = 500
 		for i in range(len(correntes_desenho)):
-			if presente[i] and onde != "ambas":
+			if presente[i]:
 				correntes_desenho[i] = turtle.Turtle()
 				correntes_desenho[i].speed(1000)
 				if e_utilidade_fria[i]:
@@ -792,17 +734,16 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				correntes_desenho[i].penup()
 				correntes_desenho_sub_acima = [0] * ncold
 				correntes_desenho_sub_abaixo = [0] * ncold
-
 				if onde == "above":
 					correntes_desenho[i].sety(y_acima)
 					correntes_desenho[i].left(180)
 					temp.sety(y_acima - 6)
-					temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Tcf[i], 2))))*6 - 4)
+					temp.setx(-distancia_x - len(str(Tcf[i]))*6 - 4)
 					temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", 10, "normal"))
 					if Tc0_acima[i] != pinchf:
-						temp.setx(-distancia_x/2 - nao_toca_pinch + 5)
+						temp.setx(-94)
 						temp.write(str('{:.2f}'.format(round(Tc0_acima[i], 2))), align="left", font=("Arial", 10, "normal"))
-					temp.setx(-distancia_x/2 - distancia_cp - maior_cp_acima)
+					temp.setx(-distancia_x - 138)
 					if not dividida_fria[i]:
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i], 2)))), align="left", font=("Arial", 10, "normal"))
 					else:
@@ -817,58 +758,58 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							correntes_desenho_sub_acima[i][j].penup()
 							correntes_desenho_sub_acima[i][j].sety(y_acima)
 							if Tc0_acima[i] == pinchf:
-								correntes_desenho_sub_acima[i][j].setx(distancia_x/2 - ramo_x - 4)
+								correntes_desenho_sub_acima[i][j].setx(-24)
 								correntes_desenho_sub_acima[i][j].pendown()
 								correntes_desenho_sub_acima[i][j].right(90)
-								correntes_desenho_sub_acima[i][j].forward(ramo_y)
+								correntes_desenho_sub_acima[i][j].forward(40)
 								correntes_desenho_sub_acima[i][j].right(90)
 								if fechar_corrente[i]:
-									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+0.5)*espaco_trocadores)
+									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+1)*55)
 									temperatura.sety(y_acima + 1)
-									temperatura.setx(distancia_x/2 - (len(matriz_armazenada)+1)*espaco_trocadores)
-									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="center", font=("Arial", 8, "normal"))
+									temperatura.setx(-(len(matriz_armazenada)+1)*55 - len(str('{:.2f}'.format(round(temp_misturador[i], 2)))*6))
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="left", font=("Arial", 8, "normal"))
 								else:
-									correntes_desenho_sub_acima[i][j].forward(distancia_x - 2*ramo_x - 4)
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - 44)
 							else:
-								correntes_desenho_sub_acima[i][j].setx(distancia_x/2 - nao_toca_pinch - ramo_x)
+								correntes_desenho_sub_acima[i][j].setx(-120)
 								correntes_desenho_sub_acima[i][j].pendown()
 								correntes_desenho_sub_acima[i][j].right(90)
-								correntes_desenho_sub_acima[i][j].forward(ramo_y)
+								correntes_desenho_sub_acima[i][j].forward(40)
 								correntes_desenho_sub_acima[i][j].right(90)
 								if fechar_corrente[i]:
-									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+0.5)*espaco_trocadores)
+									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+1)*55)
 									temperatura.sety(y_acima + 1)
-									temperatura.setx(distancia_x/2 - (len(matriz_armazenada)+1)*espaco_trocadores)
-									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="center", font=("Arial", 8, "normal"))
+									temperatura.setx(-(len(matriz_armazenada)+1)*55 - len(str('{:.2f}'.format(round(temp_misturador[i], 2)))*6))
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="left", font=("Arial", 8, "normal"))
 								else:
-									correntes_desenho_sub_acima[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - 140)
 							correntes_desenho_sub_acima[i][j].right(90)
-							correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_acima[i][j].forward(40*(j+1))
 							correntes_desenho_sub_acima[i][j].left(90)
-							correntes_desenho_sub_acima[i][j].forward(ramo_x)
-							y_acima -= ramo_y
+							correntes_desenho_sub_acima[i][j].forward(20)
+							y_acima -= 40
 						temp.sety(y_acima - 6)
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
 					if Tc0_acima[i] == pinchf:
-						correntes_desenho[i].setx(distancia_x/2 -4)
+						correntes_desenho[i].setx(-4)
 						correntes_desenho[i].pendown()
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
-						correntes_desenho[i].setx(distancia_x/2 - nao_toca_pinch)
+						correntes_desenho[i].setx(-100)
 						correntes_desenho[i].pendown()
-						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+						correntes_desenho[i].forward(distancia_x - 100)
 				elif onde == "below":
 					correntes_desenho[i].sety(y_abaixo)
 					correntes_desenho[i].left(180)
-					correntes_desenho[i].setx(distancia_x/2)
+					correntes_desenho[i].setx(distancia_x)
 					correntes_desenho[i].pendown()
 					temp.sety(y_abaixo - 6)
-					temp.setx(distancia_x/2 + 6)
+					temp.setx(distancia_x + 6)
 					temp.write(str('{:.2f}'.format(round(Tc0[i], 2))), align="left", font=("Arial", 10, "normal"))
 					if Tcf_abaixo[i] != pinchf:
-						temp.setx(-distancia_x/2 + nao_toca_pinch - len(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))))*6)
+						temp.setx(100 - len(str(Tcf_abaixo[i]))*6 - 4)
 						temp.write(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))), align="left", font=("Arial", 10, "normal"))
-					temp.setx(distancia_x/2 + distancia_cp)
+					temp.setx(distancia_x + 90)
 					if not dividida_fria_abaixo[i]:
 						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i], 2)))), align="left", font=("Arial", 10, "normal"))
 					else:
@@ -884,7 +825,609 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							correntes_desenho_sub_abaixo[i][j].pensize(3)
 							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
 							correntes_desenho_sub_abaixo[i][j].penup()
-							correntes_desenho_sub_abaixo[i][j].setx(distancia_x/2 - ramo_x)
+							correntes_desenho_sub_abaixo[i][j].setx(distancia_x - 20)
+							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
+							correntes_desenho_sub_abaixo[i][j].pendown()
+							correntes_desenho_sub_abaixo[i][j].right(90)
+							correntes_desenho_sub_abaixo[i][j].forward(40)
+							correntes_desenho_sub_abaixo[i][j].right(90)
+							if Tcf_abaixo[i] == pinchf:
+								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 44)
+							else:
+								correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 140)
+							correntes_desenho_sub_abaixo[i][j].right(90)
+							correntes_desenho_sub_abaixo[i][j].forward(40*(j+1))
+							correntes_desenho_sub_abaixo[i][j].left(90)
+							correntes_desenho_sub_abaixo[i][j].forward(20)
+							y_abaixo -= 40
+						temp.sety(y_abaixo - 6)
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][quantidade_fria_abaixo[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
+					if Tcf_abaixo[i] == pinchf:
+						correntes_desenho[i].forward(distancia_x - 4)
+					else:
+						correntes_desenho[i].forward(distancia_x - 100)
+			if onde == "above":
+				if dividida_fria_abaixo[i] and dividida_fria[i]:
+					if quantidade_fria_abaixo[i] > quantidade_fria[i]:
+						y_acima -= 40 * (quantidade_fria_abaixo[i] - quantidade_fria[i])
+				elif dividida_fria_abaixo[i]:
+					y_acima -= 40 * (quantidade_fria_abaixo[i] - 1)
+			elif onde == "below":
+				if dividida_fria[i] and dividida_fria_abaixo[i]:
+					if quantidade_fria[i] > quantidade_fria_abaixo[i]:
+						y_abaixo -= 40 * (quantidade_fria[i] - quantidade_fria_abaixo[i])
+				elif dividida_fria[i]:
+					y_abaixo -= 40 * (quantidade_fria[i] - 1)
+
+			y_acima -= 40
+			y_abaixo -= 40
+
+	def pinch_backup(tamanho):
+		pinch = turtle.Turtle()
+		pinch.speed(1000)
+		pinch.shapesize(0.001, 0.001, 0.001)
+		pinch.pensize(2)
+		pinch.right(90)
+		pinch.penup()
+		pinch.sety(235)
+		temp.sety(240)
+		temp.setx(-len(str(pinchq))*3)
+		temp.write(str('{:.2f}'.format(round(pinchq, 2))), align="left", font=("Arial", 10, "normal"))
+		temp.right(90)
+		tamanho = 235 - tamanho
+		if str(tamanho)[-1] == 5:
+			tamanho += 5
+
+		for i in range(int(tamanho/10)+1):
+			pinch.pendown()
+			pinch.forward(5)
+			pinch.penup()
+			pinch.forward(5)
+			temp.forward(10)
+		temp.forward(20)
+		temp.write(str('{:.2f}'.format(round(pinchf, 2))), align="left", font=("Arial", 10, "normal"))
+
+	def inserir_trocador_desenho_backup(onde, corrente_quente, corrente_fria, subestagio, trocadorr, trocador_atual):
+		trocador = turtle.Turtle()
+		trocador.speed(1000)
+		trocador.pensize(1.5)
+		if e_utilidade_quente[trocadorr[0]-1]:
+			trocador.color("black", "orange")
+		elif e_utilidade_fria[trocadorr[1]-1]:
+			trocador.color("black", "#7FFFD4")
+		else:
+			trocador.color("black", "white")
+		trocador.shapesize(0.001, 0.001, 0.001)
+		trocador.penup()
+		if onde == "above":
+			trocador.setx(-subestagio*55)
+			temp.setx(-subestagio*55)
+			if dividida_quente[trocadorr[0]-1]:
+				trocador.sety(corrente_quente.pos()[1] - 10 - 40*(trocadorr[2]-1))
+				temp.sety(corrente_quente.pos()[1] + 10 - 40*(trocadorr[2]-1))
+				temperatura.sety(corrente_quente.pos()[1] - 11 - 40*(trocadorr[2]-1))
+				ident.sety(corrente_quente.pos()[1] - 5 - 40*(trocadorr[2]-1))
+			else:
+				trocador.sety(corrente_quente.pos()[1]-10)
+				temp.sety(corrente_quente.pos()[1]+10)
+				temperatura.sety(corrente_quente.pos()[1] - 11)
+				ident.sety(corrente_quente.pos()[1] - 5)
+			temperatura.setx(-subestagio*55 - len(str('{:.2f}'.format(round(trocadorr[7], 2))))*6)
+			temperatura.write(str('{:.2f}'.format(round(trocadorr[7], 2))), align="left", font=("Arial", 8, "normal"))
+			trocador.pendown()
+			trocador.begin_fill()
+			trocador.circle(10)
+			trocador.end_fill()
+			ident.setx(-subestagio*55 + 1)
+			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
+			if dividida_fria[trocadorr[1]-1]:
+				trocador.sety(corrente_fria.pos()[1] - 10 - 40*(trocadorr[3]-1))
+				temperatura.sety(corrente_fria.pos()[1] - 11 - 40*(trocadorr[3]-1))
+				ident.sety(corrente_fria.pos()[1] - 5 - 40*(trocadorr[3]-1))
+			else:
+				trocador.sety(corrente_fria.pos()[1] - 10)
+				temperatura.sety(corrente_fria.pos()[1] - 11)
+				ident.sety(corrente_fria.pos()[1] - 5)
+			temperatura.setx(-subestagio*55 - len(str('{:.2f}'.format(round(trocadorr[8], 2))))*6)
+			temperatura.write(str('{:.2f}'.format(round(trocadorr[8], 2))), align="left", font=("Arial", 8, "normal"))
+			trocador.begin_fill()
+			trocador.circle(10)
+			trocador.end_fill()
+			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
+		elif onde == "below":
+			trocador.setx(subestagio*55)
+			temp.setx(subestagio*55)
+			if dividida_quente_abaixo[trocadorr[0]-1]:
+				trocador.sety(corrente_quente.pos()[1] - 10 - 40*(trocadorr[2]-1))
+				temp.sety(corrente_quente.pos()[1] + 10 - 40*(trocadorr[2]-1))
+				temperatura.sety(corrente_quente.pos()[1] - 11 - 40*(trocadorr[2]-1))
+				ident.sety(corrente_quente.pos()[1] - 5 - 40*(trocadorr[2]-1))
+			else:
+				trocador.sety(corrente_quente.pos()[1]-10)
+				temp.sety(corrente_quente.pos()[1]+10)
+				temperatura.sety(corrente_quente.pos()[1] - 11)
+				ident.sety(corrente_quente.pos()[1] - 5)
+			temperatura.setx(subestagio*55 + 13)
+			temperatura.write(str('{:.2f}'.format(round(trocadorr[7], 2))), align="left", font=("Arial", 8, "normal"))
+			trocador.pendown()
+			trocador.begin_fill()
+			trocador.circle(10)
+			trocador.end_fill()
+			ident.setx(subestagio*55 + 1)
+			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
+			if dividida_fria_abaixo[trocadorr[1]-1]:
+				trocador.sety(corrente_fria.pos()[1] - 10 - 40*(trocadorr[3]-1))
+				temperatura.sety(corrente_fria.pos()[1] - 11 - 40*(trocadorr[3]-1))
+				ident.sety(corrente_fria.pos()[1] - 5 - 40*(trocadorr[3] - 1))
+			else:
+				trocador.sety(corrente_fria.pos()[1] - 10)
+				temperatura.sety(corrente_fria.pos()[1] - 11 - 40*(trocadorr[3]-1))
+				ident.sety(corrente_fria.pos()[1] - 5)
+			temperatura.setx(subestagio*55 + 13)
+			temperatura.write(str('{:.2f}'.format(round(trocadorr[8], 2))), align="left", font=("Arial", 8, "normal"))
+			trocador.begin_fill()
+			trocador.circle(10)
+			trocador.end_fill()
+			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
+
+		temp.write(str('{:.2f}'.format(round(trocadorr[6], 2))), align="center", font=("Arial", 10, "bold"))
+
+	def utilidade_desenho_backup(onde, corrente, subestagio, calor, primeiro, utilidade_atual):
+		utilidade = turtle.Turtle()
+		utilidade.speed(1000)
+		utilidade.pensize(1.5)
+		utilidade.shapesize(0.001, 0.001, 0.001)
+		utilidade.penup()
+		if onde == "above":
+			utilidade.color("black", "orange")
+			if primeiro == 0:
+				utilidade.setx(-(subestagio+1)*55)
+				temp.setx(-(subestagio+1)*55)
+				ident.setx(-(subestagio+1)*55 + 1)
+			else:
+				utilidade.setx(-(subestagio+1)*55 + primeiro*25)
+				temp.setx(-(subestagio+1)*55 + primeiro*25)
+				ident.setx(-(subestagio+1)*55 + primeiro*25 + 1)
+		elif onde == "below":
+			utilidade.color("black", "#7FFFD4")
+			if primeiro == 0:
+				utilidade.setx((subestagio+1)*55)
+				temp.setx((subestagio+1)*55)
+				ident.setx((subestagio+1)*55 + 1)
+			else:
+				utilidade.setx((subestagio+1)*55 - primeiro*25)
+				temp.setx((subestagio+1)*55 - primeiro*25)
+				ident.setx((subestagio+1)*55 - primeiro*25 + 1)
+		utilidade.sety(corrente.pos()[1]-10)
+		utilidade.pendown()
+		utilidade.begin_fill()
+		utilidade.circle(10)
+		utilidade.end_fill()
+		temp.sety(corrente.pos()[1]+10)
+		temp.write(str('{:.2f}'.format(round(calor, 2))), align="center", font=("Arial", 10, "bold"))
+		ident.sety(corrente.pos()[1] - 5)
+		if onde == "above":
+			ident.write("H" + str(utilidade_atual), align="center", font=("Arial", 10, "bold"))
+		if onde == "below":
+			ident.write("C" + str(utilidade_atual), align="center", font=("Arial", 10, "bold"))
+
+	def legenda_backup(onde_comecar, unidades):
+		trocador = turtle.Turtle()
+		trocador.shapesize(0.001, 0.001, 0.001)
+		trocador.color("black", "white")
+		trocador.pensize(3)
+		trocador.penup()
+		trocador.speed(1000)
+
+		corrente = turtle.Turtle()
+		corrente.pensize(3)
+		corrente.penup()
+		corrente.speed(1000)
+
+		texto = turtle.Turtle()
+		texto.shapesize(0.001, 0.001, 0.001)
+		texto.penup()
+		texto.speed(1000)
+
+		legenda = turtle.Turtle()
+		legenda.shapesize(0.001, 0.001, 0.001)
+		legenda.pensize(2)
+		legenda.penup()
+		legenda.speed(1000)
+
+
+		legenda_comeco_corrente = onde_comecar[0]
+		legenda_trocador = onde_comecar[0] + 150
+		legenda_raio_trocador = 30
+		caixa_horizontal = 300 + len("temperature")*4*2 + 80
+		caixa_vertical = legenda_raio_trocador*2 + 100
+
+		legenda.sety(onde_comecar[1] + caixa_vertical/2)
+		legenda.setx(onde_comecar[0] - len("temperature")*4 - 40)
+		legenda.pendown()
+		for i in range(2):
+			legenda.forward(caixa_horizontal)
+			legenda.right(90)
+			legenda.forward(caixa_vertical)
+			legenda.right(90)
+
+
+		corrente.setx(legenda_comeco_corrente)
+		corrente.sety(onde_comecar[1])
+		corrente.pendown()
+		corrente.forward(300)
+		trocador.setx(legenda_trocador)
+		trocador.sety(corrente.pos()[1] - legenda_raio_trocador)
+		trocador.pendown()
+		trocador.begin_fill()
+		trocador.circle(legenda_raio_trocador)
+		trocador.end_fill()
+		texto.setx(trocador.pos()[0])
+		texto.sety(corrente.pos()[1] + legenda_raio_trocador + 5)
+		if unidades[1] == "kW/K":
+			texto.write("HEAT LOAD ({})".format(unidades[1][:2]), align="center", font=("Arial", 10, "bold"))
+		else:
+			texto.write("HEAT LOAD ({})".format(unidades[1][:3]), align="center", font=("Arial", 10, "bold"))
+		texto.sety(corrente.pos()[1] + legenda_raio_trocador + 30)
+		texto.write("LEGEND", align="center", font=("Arial", 14, "bold"))
+		legenda.penup()
+		legenda.sety(texto.pos()[1] - 2)
+		legenda.setx(texto.pos()[0] + len("subtitle")*5)
+		legenda.pendown()
+		legenda.setx(texto.pos()[0] - len("subtitle")*5)
+
+		texto.setx(trocador.pos()[0] - legenda_raio_trocador - len("temperature")*2.75)
+		texto.sety(corrente.pos()[1] - 14)
+		texto.write("inlet", align="center", font=("Arial", 10, "normal"))
+		texto.sety(corrente.pos()[1] - 24)
+		texto.write("temperature", align="center", font=("Arial", 10, "normal"))
+		texto.setx(trocador.pos()[0] + legenda_raio_trocador + len("temperature")*2.90)
+		texto.write("temperature", align="center", font=("Arial", 10, "normal"))
+		texto.sety(corrente.pos()[1] - 14)
+		texto.write("outlet", align="center", font=("Arial", 10, "normal"))
+		texto.sety(corrente.pos()[1] + 2)
+		texto.setx(legenda_comeco_corrente - len("temperature")*4)
+		texto.write("Supply", align="center", font=("Arial", 10, "normal"))
+		texto.sety(corrente.pos()[1] - 14)
+		texto.write("Temperature", align="center", font=("Arial", 10, "normal"))
+		texto.setx(len("temperature")*4 + corrente.pos()[0])
+		texto.sety(corrente.pos()[1] + 2)
+		texto.write("Target", align="center", font=("Arial", 10, "normal"))
+		texto.sety(corrente.pos()[1] - 14)
+		texto.write("Temperature", align="center", font=("Arial", 10, "normal"))
+		texto.sety(trocador.pos()[1] - 40)
+		texto.setx(legenda_trocador)
+		texto.write("UNITS:   Temperature: {};   CP = {}".format(unidades[0], unidades[1]), align="center", font=("Arial", 10, "bold"))
+
+
+	quentes_backup("above", correntes_quentes, corrente_quente_presente_acima)
+	frias_backup("above", correntes_frias, corrente_fria_presente_acima)
+	tamanho_acima = y_acima
+	y_acima, y_abaixo = 200, 200
+	quentes_backup("below", correntes_quentes, corrente_quente_presente_abaixo)
+	frias_backup("below", correntes_frias, corrente_fria_presente_abaixo)
+	tamanho_abaixo = y_abaixo
+	if tamanho_acima > tamanho_abaixo:
+		tamanho = tamanho_acima
+	else:
+		tamanho = tamanho_abaixo
+	pinch_backup(tamanho)
+	onde_comecar = [250, tamanho-90]
+	legenda_backup(onde_comecar, [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText()])
+
+	trocador_atual = 1
+
+	if len(matriz_armazenada) > 0:
+		subestagio = 0
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_armazenada:
+			if Thf_acima[trocadorr[0]-1] != pinchq:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			if Tc0_acima[trocadorr[1]-1] != pinchf:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			subestagio += 1
+			i += 1
+			inserir_trocador_desenho_backup("above", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual)
+			trocador_atual += 1
+
+		if len(utilidades) > 0:
+			primeiro = 0
+			util = 1
+			for utilidadee in utilidades:
+				subestagio += 1
+				utilidade_desenho_backup("above", correntes_frias[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util)
+				primeiro += 1
+				util += 1
+
+	if len(matriz_trocadores_abaixo) > 0:
+		subestagio = 0
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_trocadores_abaixo:
+			if Th0_abaixo[trocadorr[0]-1] != pinchq:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			if Tcf_abaixo[trocadorr[1]-1] != pinchf:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			subestagio += 1
+			i += 1
+			inserir_trocador_desenho_backup("below", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual)
+			trocador_atual += 1
+
+		if len(utilidades_abaixo) > 0:
+			primeiro = 0
+			util = 1
+			for utilidadee in utilidades_abaixo:
+				subestagio += 1
+				utilidade_desenho_backup("below", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util)
+				primeiro += 1
+				util += 1
+
+	if teste:
+		salvar_rede_backup(teste)
+	else:
+		salvar_rede_backup(teste)
+
+
+
+#parte de desenhos
+def desenhar_rede(correntes_quentes, correntes_frias, teste=False):
+
+	def quentes(onde, correntes_desenho, presente):
+		global y_acima, y_abaixo
+		for i in range(len(correntes_desenho)):
+			if presente[i]:
+				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].speed(1000)
+				if e_utilidade_quente[i]:
+					correntes_desenho[i].color("orange")
+				else:
+					correntes_desenho[i].color("red")
+				correntes_desenho[i].pensize(3)
+				correntes_desenho[i].penup()
+				correntes_desenho_sub_acima = [0] * nhot
+				correntes_desenho_sub_abaixo = [0] * nhot
+				if onde == "above":
+					correntes_desenho[i].setx(-distancia_x)
+					correntes_desenho[i].sety(y_acima)
+					correntes_desenho[i].pendown()
+					temp.sety(y_acima - 6)
+					temp.setx(-distancia_x - len(str('{:.2f}'.format(round(Th0[i], 2))))*6 - 4)
+					temp.write(str('{:.2f}'.format(round(Th0[i], 2))), align="left", font=("Arial", 10, "normal"))
+					if Thf_acima[i] != pinchq:
+						temp.setx(-nao_toca_pinch + 5)
+						temp.write(str('{:.2f}'.format(round(Thf_acima[i], 2))), align="left", font=("Arial", 10, "normal"))
+					if not dividida_quente[i]:
+						temp.setx(-distancia_x - 138)#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i], 2)))), align="left", font=("Arial", 10, "normal"))
+					else:
+						correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
+						for j in range(quantidade_quente[i]-1):
+							temp.sety(y_acima - 6)
+							temp.setx(-distancia_x - 138)#aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+							temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][j], 2)))), align="left", font=("Arial", 10, "normal"))
+							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
+							if e_utilidade_quente[i]:
+								correntes_desenho_sub_acima[i][j].color("orange")
+							else:
+								correntes_desenho_sub_acima[i][j].color("red")
+							correntes_desenho_sub_acima[i][j].pensize(3)
+							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
+							correntes_desenho_sub_acima[i][j].penup()
+							correntes_desenho_sub_acima[i][j].setx(-distancia_x + ramo_x)
+							correntes_desenho_sub_acima[i][j].sety(y_acima)
+							correntes_desenho_sub_acima[i][j].pendown()
+							correntes_desenho_sub_acima[i][j].right(90)
+							correntes_desenho_sub_acima[i][j].forward(ramo_y)
+							correntes_desenho_sub_acima[i][j].left(90)
+							if Thf_acima[i] == pinchq:
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - 2*ramo_x - 4)
+							else:
+								correntes_desenho_sub_acima[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+							correntes_desenho_sub_acima[i][j].left(90)
+							correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_acima[i][j].right(90)
+							correntes_desenho_sub_acima[i][j].forward(20)
+							y_acima -= ramo_y
+						temp.sety(y_acima - 6)
+						temp.setx(-distancia_x - 138)#aaaaaaaaaaaaaaaaaaaaaaa
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][quantidade_quente[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
+					if Thf_acima[i] == pinchq:
+						correntes_desenho[i].forward(distancia_x - 4)
+					else:
+						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+				elif onde == "below":
+					correntes_desenho[i].sety(y_abaixo)
+					temp.sety(y_abaixo - 6)
+					temp.setx(distancia_x + 6)
+					temp.write(str('{:.2f}'.format(round(Thf[i], 2))), align="left", font=("Arial", 10, "normal"))
+					if Th0_abaixo[i] != pinchq:
+						temp.setx(nao_toca_pinch - len(str('{:.2f}'.format(round(Th0[i], 2))))*6)
+						temp.write(str('{:.2f}'.format(round(Th0_abaixo[i], 2))), align="left", font=("Arial", 10, "normal"))
+					temp.setx(distancia_x + 90)#aaaaaaaaaaaaaaaaaaaaaaaaa
+					if not dividida_quente_abaixo[i]:
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i], 2)))), align="left", font=("Arial", 10, "normal"))
+					else:
+						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
+						for j in range(quantidade_quente_abaixo[i]-1):
+							temp.sety(y_abaixo - 6)
+							temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][j], 2)))), align="left", font=("Arial", 10, "normal"))
+							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
+							correntes_desenho_sub_abaixo[i][j].color("red")
+							correntes_desenho_sub_abaixo[i][j].pensize(3)
+							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
+							correntes_desenho_sub_abaixo[i][j].penup()
+							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
+							if Th0_abaixo[i] == pinchq:
+								correntes_desenho_sub_abaixo[i][j].setx(ramo_x + 4)
+								correntes_desenho_sub_abaixo[i][j].pendown()
+								correntes_desenho_sub_abaixo[i][j].right(90)
+								correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
+								correntes_desenho_sub_abaixo[i][j].left(90)
+								if fechar_corrente_abaixo[i]:
+									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+1)*espaco_trocadores)
+									temperatura.sety(y_abaixo + 1)
+									temperatura.setx((len(matriz_trocadores_abaixo)+1)*espaco_trocadores + len(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))))*3)
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="left", font=("Arial", 8, "normal"))
+								else:
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - 2*ramo_x - 4)
+							else:
+								correntes_desenho_sub_abaixo[i][j].setx(nao_toca_pinch + ramo_x)
+								correntes_desenho_sub_abaixo[i][j].pendown()
+								correntes_desenho_sub_abaixo[i][j].right(90)
+								correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
+								correntes_desenho_sub_abaixo[i][j].left(90)
+								if fechar_corrente_abaixo[i]:
+									correntes_desenho_sub_abaixo[i][j].forward((len(matriz_trocadores_abaixo)+1)*espaco_trocadores)
+									temperatura.sety(y_abaixo + 1)
+									temperatura.setx((len(matriz_trocadores_abaixo)+1)*espaco_trocadores + len(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))))*3)
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador_abaixo[i], 2))), align="left", font=("Arial", 8, "normal"))
+								else:
+									correntes_desenho_sub_abaixo[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+							correntes_desenho_sub_abaixo[i][j].left(90)
+							correntes_desenho_sub_abaixo[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_abaixo[i][j].right(90)
+							correntes_desenho_sub_abaixo[i][j].forward(ramo_x)
+							y_abaixo -= ramo_y
+						temp.sety(y_abaixo - 6)
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
+					if Th0_abaixo[i] == pinchq:
+						correntes_desenho[i].setx(4)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 4)
+					else:
+						correntes_desenho[i].setx(nao_toca_pinch)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+			if onde == "above":
+				if dividida_quente[i] and dividida_quente_abaixo[i]:
+					if quantidade_quente[i] < quantidade_quente_abaixo[i]:
+						y_acima -= ramo_y * (quantidade_quente_abaixo[i] - quantidade_quente[i])
+				elif dividida_quente_abaixo[i]:
+					y_acima -= ramo_y * (quantidade_quente_abaixo[i] - 1)
+			elif onde == "below":
+				if dividida_quente[i] and dividida_quente_abaixo[i]:
+					if quantidade_quente[i] > quantidade_quente_abaixo[i]:
+						y_abaixo -= ramo_y * (quantidade_quente[i] - quantidade_quente_abaixo[i])
+				elif dividida_quente[i]:
+					y_abaixo -= ramo_y * (quantidade_quente[i] - 1)
+			y_acima -= ramo_y
+			y_abaixo -= ramo_y
+
+	def frias(onde, correntes_desenho, presente):
+		global y_acima, y_abaixo
+		for i in range(len(correntes_desenho)):
+			if presente[i]:
+				correntes_desenho[i] = turtle.Turtle()
+				correntes_desenho[i].speed(1000)
+				if e_utilidade_fria[i]:
+					correntes_desenho[i].color("#7FFFD4")
+				else:
+					correntes_desenho[i].color("blue")
+				correntes_desenho[i].pensize(3)
+				correntes_desenho[i].penup()
+				correntes_desenho_sub_acima = [0] * ncold
+				correntes_desenho_sub_abaixo = [0] * ncold
+				if onde == "above":
+					correntes_desenho[i].sety(y_acima)
+					correntes_desenho[i].left(180)
+					temp.sety(y_acima - 6)
+					temp.setx(-distancia_x - len(str('{:.2f}'.format(round(Tcf[i], 2))))*6 - 4)
+					temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", 10, "normal"))
+					if Tc0_acima[i] != pinchf:
+						temp.setx(-nao_toca_pinch + 5)
+						temp.write(str('{:.2f}'.format(round(Tc0_acima[i], 2))), align="left", font=("Arial", 10, "normal"))
+					temp.setx(-distancia_x - 138)#aaaaaaaaaaaaaaaaaaaa
+					if not dividida_fria[i]:
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i], 2)))), align="left", font=("Arial", 10, "normal"))
+					else:
+						correntes_desenho_sub_acima[i] = [0] * (quantidade_fria[i] - 1)
+						for j in range(quantidade_fria[i] - 1):
+							temp.sety(y_acima - 6)
+							temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][j], 2)))), align="left", font=("Arial", 10, "normal"))
+							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
+							correntes_desenho_sub_acima[i][j].color("blue")
+							correntes_desenho_sub_acima[i][j].pensize(3)
+							correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
+							correntes_desenho_sub_acima[i][j].penup()
+							correntes_desenho_sub_acima[i][j].sety(y_acima)
+							if Tc0_acima[i] == pinchf:
+								correntes_desenho_sub_acima[i][j].setx(-ramo_x - 4)
+								correntes_desenho_sub_acima[i][j].pendown()
+								correntes_desenho_sub_acima[i][j].right(90)
+								correntes_desenho_sub_acima[i][j].forward(ramo_y)
+								correntes_desenho_sub_acima[i][j].right(90)
+								if fechar_corrente[i]:
+									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+1)*espaco_trocadores)
+									temperatura.sety(y_acima + 1)
+									temperatura.setx(-(len(matriz_armazenada)+1)*espaco_trocadores - len(str('{:.2f}'.format(round(temp_misturador[i], 2)))*6))
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="left", font=("Arial", 8, "normal"))
+								else:
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - 2*ramo_x - 4)
+							else:
+								correntes_desenho_sub_acima[i][j].setx(-nao_toca_pinch - ramo_x)
+								correntes_desenho_sub_acima[i][j].pendown()
+								correntes_desenho_sub_acima[i][j].right(90)
+								correntes_desenho_sub_acima[i][j].forward(ramo_y)
+								correntes_desenho_sub_acima[i][j].right(90)
+								if fechar_corrente[i]:
+									correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+1)*espaco_trocadores)
+									temperatura.sety(y_acima + 1)
+									temperatura.setx(-(len(matriz_armazenada)+1)*espaco_trocadores - len(str('{:.2f}'.format(round(temp_misturador[i], 2)))*6))
+									temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="left", font=("Arial", 8, "normal"))
+								else:
+									correntes_desenho_sub_acima[i][j].forward(distancia_x - nao_toca_pinch - 2*ramo_x)
+							correntes_desenho_sub_acima[i][j].right(90)
+							correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
+							correntes_desenho_sub_acima[i][j].left(90)
+							correntes_desenho_sub_acima[i][j].forward(ramo_x)
+							y_acima -= ramo_y
+						temp.sety(y_acima - 6)
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1], 2)))), align="left", font=("Arial", 10, "normal"))
+					if Tc0_acima[i] == pinchf:
+						correntes_desenho[i].setx(-4)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - 4)
+					else:
+						correntes_desenho[i].setx(-nao_toca_pinch)
+						correntes_desenho[i].pendown()
+						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+				elif onde == "below":
+					correntes_desenho[i].sety(y_abaixo)
+					correntes_desenho[i].left(180)
+					correntes_desenho[i].setx(distancia_x)
+					correntes_desenho[i].pendown()
+					temp.sety(y_abaixo - 6)
+					temp.setx(distancia_x + 6)
+					temp.write(str('{:.2f}'.format(round(Tc0[i], 2))), align="left", font=("Arial", 10, "normal"))
+					if Tcf_abaixo[i] != pinchf:
+						temp.setx(nao_toca_pinch - len(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))))*6)
+						temp.write(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))), align="left", font=("Arial", 10, "normal"))
+					temp.setx(distancia_x + 90)#aaaaaaaaaaaaaaaaaaaaaaaaaa
+					if not dividida_fria_abaixo[i]:
+						temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i], 2)))), align="left", font=("Arial", 10, "normal"))
+					else:
+						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_abaixo[i] - 1)
+						for j in range(quantidade_fria_abaixo[i]-1):
+							temp.sety(y_abaixo - 6)
+							temp.write("CP = " + str(float('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][j], 2)))), align="left", font=("Arial", 10, "normal"))
+							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
+							if e_utilidade_fria[i]:
+								correntes_desenho_sub_abaixo[i][j].color("#7FFFD4")
+							else:
+								correntes_desenho_sub_abaixo[i][j].color("blue")
+							correntes_desenho_sub_abaixo[i][j].pensize(3)
+							correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
+							correntes_desenho_sub_abaixo[i][j].penup()
+							correntes_desenho_sub_abaixo[i][j].setx(distancia_x - ramo_x)
 							correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
 							correntes_desenho_sub_abaixo[i][j].pendown()
 							correntes_desenho_sub_abaixo[i][j].right(90)
@@ -905,91 +1448,23 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						correntes_desenho[i].forward(distancia_x - 4)
 					else:
 						correntes_desenho[i].forward(distancia_x - nao_toca_pinch)
+			if onde == "above":
+				if dividida_fria_abaixo[i] and dividida_fria[i]:
+					if quantidade_fria_abaixo[i] > quantidade_fria[i]:
+						y_acima -= ramo_y * (quantidade_fria_abaixo[i] - quantidade_fria[i])
+				elif dividida_fria_abaixo[i]:
+					y_acima -= ramo_y * (quantidade_fria_abaixo[i] - 1)
+			elif onde == "below":
+				if dividida_fria[i] and dividida_fria_abaixo[i]:
+					if quantidade_fria[i] > quantidade_fria_abaixo[i]:
+						y_abaixo -= ramo_y * (quantidade_fria[i] - quantidade_fria_abaixo[i])
+				elif dividida_fria[i]:
+					y_abaixo -= ramo_y * (quantidade_fria[i] - 1)
 
-			if onde != "ambas":
-				y_acima -= ramo_y
-				y_abaixo -= ramo_y
+			y_acima -= ramo_y
+			y_abaixo -= ramo_y
 
-			if onde == "ambas":
-				correntes_desenho[i] = turtle.Turtle()
-				correntes_desenho[i].speed(1000)
-				if e_utilidade_fria[i]:
-					correntes_desenho[i].color("#7FFFD4")
-				else:
-					correntes_desenho[i].color("blue")
-				correntes_desenho[i].pensize(3)
-				correntes_desenho[i].penup()
-				correntes_desenho_sub_acima = [0] * ncold
-				correntes_desenho_sub_abaixo = [0] * ncold
-				correntes_desenho[i].sety(y_acima)
-				correntes_desenho[i].left(180)
-				temp.sety(y_acima - 6)
-				temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Tcf[i], 2))))*6 - 4)
-				temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", 10, "normal"))
-				temp.setx(distancia_x/2 + 6)
-				temp.write(str('{:.2f}'.format(round(Tc0[i], 2))), align="left", font=("Arial", 10, "normal"))
-				if dividida_fria[i]:
-					correntes_desenho_sub_acima[i] = [0] * (quantidade_fria[i] - 1)
-					for j in range(quantidade_fria[i] - 1):
-						correntes_desenho_sub_acima[i][j] = turtle.Turtle()
-						correntes_desenho_sub_acima[i][j].color("blue")
-						correntes_desenho_sub_acima[i][j].pensize(3)
-						correntes_desenho_sub_acima[i][j].shapesize(0.001, 0.001, 0.001)
-						correntes_desenho_sub_acima[i][j].penup()
-						correntes_desenho_sub_acima[i][j].sety(y_acima)
-						correntes_desenho_sub_acima[i][j].setx(-ramo_x)
-						correntes_desenho_sub_acima[i][j].pendown()
-						correntes_desenho_sub_acima[i][j].right(90)
-						correntes_desenho_sub_acima[i][j].forward(ramo_y)
-						correntes_desenho_sub_acima[i][j].right(90)
-						if fechar_corrente[i]:
-							correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+0.5)*espaco_trocadores)
-							temperatura.sety(y_acima + 1)
-							temperatura.setx(-(len(matriz_armazenada)+1)*espaco_trocadores)
-							temperatura.write(str('{:.2f}'.format(round(temp_misturador[i], 2))), align="center", font=("Arial", 8, "normal"))
-						else:
-							correntes_desenho_sub_acima[i][j].forward(distancia_x/2 - 2*ramo_x)
-						correntes_desenho_sub_acima[i][j].right(90)
-						correntes_desenho_sub_acima[i][j].forward(ramo_y*(j+1))
-						correntes_desenho_sub_acima[i][j].left(90)
-						correntes_desenho_sub_acima[i][j].forward(ramo_x)
-						y_acima -= ramo_y
-				if dividida_fria_abaixo[i]:
-					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_abaixo[i] - 1)
-					for j in range(quantidade_fria_abaixo[i]-1):
-						correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
-						if e_utilidade_fria[i]:
-							correntes_desenho_sub_abaixo[i][j].color("#7FFFD4")
-						else:
-							correntes_desenho_sub_abaixo[i][j].color("blue")
-						correntes_desenho_sub_abaixo[i][j].pensize(3)
-						correntes_desenho_sub_abaixo[i][j].shapesize(0.001, 0.001, 0.001)
-						correntes_desenho_sub_abaixo[i][j].penup()
-						correntes_desenho_sub_abaixo[i][j].setx(distancia_x/2 - ramo_x)
-						correntes_desenho_sub_abaixo[i][j].sety(y_abaixo)
-						correntes_desenho_sub_abaixo[i][j].pendown()
-						correntes_desenho_sub_abaixo[i][j].right(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_y)
-						correntes_desenho_sub_abaixo[i][j].right(90)
-						correntes_desenho_sub_abaixo[i][j].forward(distancia_x/2 - 2*ramo_x)
-						correntes_desenho_sub_abaixo[i][j].right(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_y*(j+1))
-						correntes_desenho_sub_abaixo[i][j].left(90)
-						correntes_desenho_sub_abaixo[i][j].forward(ramo_x)
-						y_abaixo -= ramo_y
-				correntes_desenho[i].setx(distancia_x/2)
-				correntes_desenho[i].pendown()
-				correntes_desenho[i].forward(distancia_x)
-
-				y_acima -= ramo_y
-				y_abaixo -= ramo_y
-
-				if y_acima < y_abaixo:
-					y_abaixo = y_acima
-				elif y_acima > y_abaixo:
-					y_acima = y_abaixo
-
-	def pinch(tamanho, onde):
+	def pinch(tamanho):
 		pinch = turtle.Turtle()
 		pinch.speed(1000)
 		pinch.shapesize(0.001, 0.001, 0.001)
@@ -997,14 +1472,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		pinch.right(90)
 		pinch.penup()
 		pinch.sety(comecar_pinch)
-		if onde == "acima":
-			pinch.setx(distancia_x/2)
-			temp.setx(distancia_x/2)
-		elif onde == "abaixo":
-			pinch.setx(-distancia_x/2)
-			temp.setx(-distancia_x/2)
 		temp.sety(comecar_pinch + 5)
-		temp.write(str('{:.2f}'.format(round(pinchq, 2))), align="center", font=("Arial", 10, "normal"))
+		temp.setx(-len(str('{:.2f}'.format(round(pinchq, 2))))*3)
+		temp.write(str('{:.2f}'.format(round(pinchq, 2))), align="left", font=("Arial", 10, "normal"))
 		temp.right(90)
 		tamanho = comecar_pinch - tamanho
 		if str(tamanho)[-1] == 5:
@@ -1017,9 +1487,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			pinch.forward(5)
 			temp.forward(10)
 		temp.forward(15)
-		temp.write(str('{:.2f}'.format(round(pinchf, 2))), align="center", font=("Arial", 10, "normal"))
+		temp.write(str('{:.2f}'.format(round(pinchf, 2))), align="left", font=("Arial", 10, "normal"))
 
-	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, subestagio, trocadorr, trocador_atual, x):
+	def inserir_trocador_desenho(onde, corrente_quente, corrente_fria, subestagio, trocadorr, trocador_atual):
 		trocador = turtle.Turtle()
 		trocador.speed(1000)
 		trocador.pensize(1.5)
@@ -1031,13 +1501,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			trocador.color("black", "white")
 		trocador.shapesize(0.001, 0.001, 0.001)
 		trocador.penup()
-		if onde[:5] == "ambas":
-			distancia_x = 0
-		else:
-			distancia_x = x
-		if onde[6:] == "acima":
-			trocador.setx(distancia_x/2 - subestagio*espaco_trocadores)
-			temp.setx(distancia_x/2 - subestagio*espaco_trocadores)
+		if onde == "above":
+			trocador.setx(-subestagio*espaco_trocadores)
+			temp.setx(-subestagio*espaco_trocadores)
 			if dividida_quente[trocadorr[0]-1]:
 				trocador.sety(corrente_quente.pos()[1] - raio_trocador - ramo_y*(trocadorr[2]-1))
 				temp.sety(corrente_quente.pos()[1] + raio_trocador - ramo_y*(trocadorr[2]-1))
@@ -1048,13 +1514,13 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				temp.sety(corrente_quente.pos()[1] + raio_trocador)
 				temperatura.sety(corrente_quente.pos()[1] - raio_trocador - 1)
 				ident.sety(corrente_quente.pos()[1] - raio_trocador/2)
-			temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores - len(str('{:.2f}'.format(round(trocadorr[7], 2))))*6)
+			temperatura.setx(-subestagio*espaco_trocadores - len(str('{:.2f}'.format(round(trocadorr[7], 2))))*6)
 			temperatura.write(str('{:.2f}'.format(round(trocadorr[7], 2))), align="left", font=("Arial", 8, "normal"))
 			trocador.pendown()
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
 			trocador.end_fill()
-			ident.setx(distancia_x/2 - subestagio*espaco_trocadores + 1)
+			ident.setx(-subestagio*espaco_trocadores + 1)
 			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
 			if dividida_fria[trocadorr[1]-1]:
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador - ramo_y*(trocadorr[3]-1))
@@ -1064,15 +1530,15 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador)
 				temperatura.sety(corrente_fria.pos()[1] - raio_trocador - 1)
 				ident.sety(corrente_fria.pos()[1] - raio_trocador/2)
-			temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores - len(str('{:.2f}'.format(round(trocadorr[8], 2))))*6)
+			temperatura.setx(-subestagio*espaco_trocadores - len(str('{:.2f}'.format(round(trocadorr[8], 2))))*6)
 			temperatura.write(str('{:.2f}'.format(round(trocadorr[8], 2))), align="left", font=("Arial", 8, "normal"))
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
 			trocador.end_fill()
 			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
-		elif onde[6:] == "abaixo":
-			trocador.setx(-distancia_x/2 + subestagio*espaco_trocadores)
-			temp.setx(-distancia_x/2 + subestagio*espaco_trocadores)
+		elif onde == "below":
+			trocador.setx(subestagio*espaco_trocadores)
+			temp.setx(subestagio*espaco_trocadores)
 			if dividida_quente_abaixo[trocadorr[0]-1]:
 				trocador.sety(corrente_quente.pos()[1] - raio_trocador - ramo_y*(trocadorr[2]-1))
 				temp.sety(corrente_quente.pos()[1] + raio_trocador - ramo_y*(trocadorr[2]-1))
@@ -1083,13 +1549,13 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				temp.sety(corrente_quente.pos()[1] + raio_trocador)
 				temperatura.sety(corrente_quente.pos()[1] - raio_trocador - 1)
 				ident.sety(corrente_quente.pos()[1] - raio_trocador/2)
-			temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + raio_trocador + 3)
+			temperatura.setx(subestagio*espaco_trocadores + raio_trocador + 3)
 			temperatura.write(str('{:.2f}'.format(round(trocadorr[7], 2))), align="left", font=("Arial", 8, "normal"))
 			trocador.pendown()
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
 			trocador.end_fill()
-			ident.setx(-distancia_x/2 + subestagio*espaco_trocadores + 1)
+			ident.setx(subestagio*espaco_trocadores + 1)
 			ident.write("E" + str(trocador_atual), align="center", font=("Arial", 10, "bold"))
 			if dividida_fria_abaixo[trocadorr[1]-1]:
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador - ramo_y*(trocadorr[3]-1))
@@ -1099,7 +1565,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador)
 				temperatura.sety(corrente_fria.pos()[1] - raio_trocador - 1 - ramo_y*(trocadorr[3]-1))
 				ident.sety(corrente_fria.pos()[1] - raio_trocador/2)
-			temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + raio_trocador + 3)
+			temperatura.setx(subestagio*espaco_trocadores + raio_trocador + 3)
 			temperatura.write(str('{:.2f}'.format(round(trocadorr[8], 2))), align="left", font=("Arial", 8, "normal"))
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
@@ -1108,36 +1574,32 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 
 		temp.write(str('{:.2f}'.format(round(trocadorr[6], 2))), align="center", font=("Arial", 10, "bold"))
 
-	def utilidade_desenho(onde, corrente, subestagio, calor, primeiro, utilidade_atual, x):
+	def utilidade_desenho(onde, corrente, subestagio, calor, primeiro, utilidade_atual):
 		utilidade = turtle.Turtle()
 		utilidade.speed(1000)
 		utilidade.pensize(1.5)
 		utilidade.shapesize(0.001, 0.001, 0.001)
 		utilidade.penup()
-		if onde[:5] == "ambas":
-			distancia_x = 0
-		else:
-			distancia_x = x
-		if onde[6:] == "acima":
+		if onde == "above":
 			utilidade.color("black", "orange")
 			if primeiro == 0:
-				utilidade.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores)
-				temp.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores)
-				ident.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores + 1)
+				utilidade.setx(-(subestagio+1)*espaco_trocadores)
+				temp.setx(-(subestagio+1)*espaco_trocadores)
+				ident.setx(-(subestagio+1)*espaco_trocadores + 1)
 			else:
-				utilidade.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores + primeiro*espaco_utilidades)
-				temp.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores + primeiro*espaco_utilidades)
-				ident.setx(distancia_x/2 - (subestagio+0.5)*espaco_trocadores + primeiro*espaco_utilidades + 1)
-		elif onde[6:] == "abaixo":
+				utilidade.setx(-(subestagio+1)*espaco_trocadores + primeiro*espaco_utilidades)
+				temp.setx(-(subestagio+1)*espaco_trocadores + primeiro*espaco_utilidades)
+				ident.setx(-(subestagio+1)*espaco_trocadores + primeiro*espaco_utilidades + 1)
+		elif onde == "below":
 			utilidade.color("black", "#7FFFD4")
 			if primeiro == 0:
-				utilidade.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores)
-				temp.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores)
-				ident.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores + 1)
+				utilidade.setx((subestagio+1)*espaco_trocadores)
+				temp.setx((subestagio+1)*espaco_trocadores)
+				ident.setx((subestagio+1)*espaco_trocadores + 1)
 			else:
-				utilidade.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores - primeiro*espaco_utilidades)
-				temp.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores - primeiro*espaco_utilidades)
-				ident.setx(-distancia_x/2 + (subestagio+0.5)*espaco_trocadores - primeiro*espaco_utilidades + 1)
+				utilidade.setx((subestagio+1)*espaco_trocadores - primeiro*espaco_utilidades)
+				temp.setx((subestagio+1)*espaco_trocadores - primeiro*espaco_utilidades)
+				ident.setx((subestagio+1)*espaco_trocadores - primeiro*espaco_utilidades + 1)
 		utilidade.sety(corrente.pos()[1] - raio_trocador)
 		utilidade.pendown()
 		utilidade.begin_fill()
@@ -1146,9 +1608,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		temp.sety(corrente.pos()[1] + raio_trocador)
 		temp.write(str('{:.2f}'.format(round(calor, 2))), align="center", font=("Arial", 10, "bold"))
 		ident.sety(corrente.pos()[1] - raio_trocador/2)
-		if onde[6:] == "acima":
+		if onde == "above":
 			ident.write("H" + str(utilidade_atual), align="center", font=("Arial", 10, "bold"))
-		if onde[6:] == "abaixo":
+		if onde == "below":
 			ident.write("C" + str(utilidade_atual), align="center", font=("Arial", 10, "bold"))
 
 	def legenda(onde_comecar, unidades):
@@ -1239,7 +1701,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		texto.setx(legenda_trocador)
 		texto.write("UNITS:   Temperature: {};   CP = {}".format(unidades[0], unidades[1]), align="center", font=("Arial", 10, "bold"))
 
-	global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo, distancia_x, ramo_x, ramo_y, nao_toca_pinch, espaco_trocadores, comecar_pinch, raio_trocador, espaco_utilidades, distancia_cp, maior_cp_acima
+	global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo, distancia_x, ramo_x, ramo_y, nao_toca_pinch, espaco_trocadores, comecar_pinch, raio_trocador, espaco_utilidades
 
 	turtle.delay(0)
 	turtle.setup(width=1.0, height=1.0)
@@ -1258,19 +1720,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 	ident.penup()
 	y_acima, y_abaixo = 200, 200
 	y_acima_f, y_abaixo_f = y_acima, y_abaixo
-
-	if subrede == "acima":
-		distancia_x = 70 * (len(matriz_armazenada) + len(utilidades))
-	elif subrede == "abaixo":
-		distancia_x = 70 * (len(matriz_trocadores_abaixo) + len(utilidades_abaixo))
-	elif subrede == "ambas":
-		distancia_x = 70 * (len(matriz_armazenada) + len(matriz_trocadores_abaixo) + len(utilidades) + len(utilidades_abaixo))
-		# if distancia_x < 1000:
-			# distancia_x = 1000
-		distancia_x = 1000
-	if distancia_x < 500 and subrede != "ambas":
-		distancia_x = 500
-
+	distancia_x = 500
 	ramo_x = 20
 	ramo_y = 40
 	comecar_pinch = y_acima + ramo_y - 5
@@ -1282,125 +1732,77 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 	espaco_trocadores = 55
 	raio_trocador = 10
 	espaco_utilidades = 25
-	trocador_atual = 0
-	distancia_cp = nao_toca_pinch + 40
-	cps = CPh + CPc
-	tamanhos = []
-	for i in range(len(cps)):
-		tamanhos.append(len("CP = " + str('{:.2f}'.format(round(cps[i], 2))))*6)
-	maior_cp_acima = max(tamanhos)
 
+	quentes("above", correntes_quentes, corrente_quente_presente_acima)
+	frias("above", correntes_frias, corrente_fria_presente_acima)
+	tamanho_acima = y_acima
+	y_acima, y_abaixo = y_acima_f, y_abaixo_f
+	quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
+	frias("below", correntes_frias, corrente_fria_presente_abaixo)
+	tamanho_abaixo = y_abaixo
+	if tamanho_acima > tamanho_abaixo:
+		tamanho = tamanho_acima
+	else:
+		tamanho = tamanho_abaixo
+	pinch(tamanho)
+	onde_comecar = [250, tamanho-90]
+	legenda(onde_comecar, [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText()])
 
-	if subrede == "acima":
-		quentes("above", correntes_quentes, corrente_quente_presente_acima)
-		frias("above", correntes_frias, corrente_fria_presente_acima)
-		pinch(y_acima, "acima")
+	trocador_atual = 1
 
-		trocador_atual = 1
+	if len(matriz_armazenada) > 0:
+		subestagio = 0
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_armazenada:
+			if Thf_acima[trocadorr[0]-1] != pinchq:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			if Tc0_acima[trocadorr[1]-1] != pinchf:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			subestagio += 1
+			i += 1
+			inserir_trocador_desenho("above", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual)
+			trocador_atual += 1
 
-		if len(matriz_armazenada) > 0:
-			subestagio = 0
-			foi_pra_frente = False
-			i = 0
-			for trocadorr in matriz_armazenada:
-				if Thf_acima[trocadorr[0]-1] != pinchq:
-					if not foi_pra_frente and i < 1:
-						subestagio += 1 - i
-						foi_pra_frente = True
-				if Tc0_acima[trocadorr[1]-1] != pinchf:
-					if not foi_pra_frente and i < 1:
-						subestagio += 1 - i
-						foi_pra_frente = True
+		if len(utilidades) > 0:
+			primeiro = 0
+			util = 1
+			for utilidadee in utilidades:
 				subestagio += 1
-				i += 1
-				inserir_trocador_desenho("123456acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x)
-				trocador_atual += 1
+				utilidade_desenho("above", correntes_frias[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util)
+				primeiro += 1
+				util += 1
 
-			if len(utilidades) > 0:
-				primeiro = 0
-				util = 1
-				for utilidadee in utilidades:
-					subestagio += 1
-					utilidade_desenho("123456acima", correntes_frias[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util, distancia_x)
-					primeiro += 1
-					util += 1
+	if len(matriz_trocadores_abaixo) > 0:
+		subestagio = 0
+		foi_pra_frente = False
+		i = 0
+		for trocadorr in matriz_trocadores_abaixo:
+			if Th0_abaixo[trocadorr[0]-1] != pinchq:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			if Tcf_abaixo[trocadorr[1]-1] != pinchf:
+				if not foi_pra_frente and i < 2:
+					subestagio += 2 - i
+					foi_pra_frente = True
+			subestagio += 1
+			i += 1
+			inserir_trocador_desenho("below", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual)
+			trocador_atual += 1
 
-	elif subrede == "abaixo":
-		quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
-		frias("below", correntes_frias, corrente_fria_presente_abaixo)
-		pinch(y_abaixo, "abaixo")
-
-		if trocador_atual == 0:
-			trocador_atual = 1
-
-		if len(matriz_trocadores_abaixo) > 0:
-			subestagio = 0
-			foi_pra_frente = False
-			i = 0
-			for trocadorr in matriz_trocadores_abaixo:
-				if Th0_abaixo[trocadorr[0]-1] != pinchq:
-					if not foi_pra_frente and i < 1:
-						subestagio += 1 - i
-						foi_pra_frente = True
-				if Tcf_abaixo[trocadorr[1]-1] != pinchf:
-					if not foi_pra_frente and i < 1:
-						subestagio += 1 - i
-						foi_pra_frente = True
+		if len(utilidades_abaixo) > 0:
+			primeiro = 0
+			util = 1
+			for utilidadee in utilidades_abaixo:
 				subestagio += 1
-				i += 1
-				inserir_trocador_desenho("123456abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x)
-				trocador_atual += 1
-
-			if len(utilidades_abaixo) > 0:
-				primeiro = 0
-				util = 1
-				for utilidadee in utilidades_abaixo:
-					subestagio += 1
-					utilidade_desenho("123456abaixo", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util, distancia_x)
-					primeiro += 1
-					util += 1
-
-	elif subrede == "ambas":
-		quentes("ambas", correntes_quentes, corrente_quente_presente_acima)
-		frias("ambas", correntes_frias, corrente_fria_presente_acima)
-
-		trocador_atual = 1
-
-		if len(matriz_armazenada) > 0:
-			subestagio = 0
-			for trocadorr in matriz_armazenada:
-				subestagio += 1
-				inserir_trocador_desenho("ambas/acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x)
-				trocador_atual += 1
-
-			if len(utilidades) > 0:
-				primeiro = 0
-				util = 1
-				for utilidadee in utilidades:
-					subestagio += 1
-					utilidade_desenho("ambas/acima", correntes_frias[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util, distancia_x)
-					primeiro += 1
-					util += 1
-
-		if len(matriz_trocadores_abaixo) > 0:
-			subestagio = 0
-			for trocadorr in matriz_trocadores_abaixo:
-				subestagio += 1
-				inserir_trocador_desenho("ambas/abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x)
-				trocador_atual += 1
-
-			if len(utilidades_abaixo) > 0:
-				primeiro = 0
-				util = 1
-				for utilidadee in utilidades_abaixo:
-					subestagio += 1
-					utilidade_desenho("ambas/abaixo", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util, distancia_x)
-					primeiro += 1
-					util += 1
-
-	# onde_comecar = [250, tamanho-90]
-	# legenda(onde_comecar, [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText()])
-
+				utilidade_desenho("below", correntes_quentes[utilidadee[0]-1], subestagio, utilidadee[1], primeiro, util)
+				primeiro += 1
+				util += 1
 
 	if teste:
 		salvar_rede(teste)
@@ -1408,7 +1810,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		salvar_rede(teste)
 
 def salvar_rede(so_ver):
-	global primeira_vez, desenho_em_dia_abaixo, desenho_em_dia
+	global primeira_vez
 	turtle.getscreen()
 	turtle.getcanvas().postscript(file="duck.eps")
 	turtle.bye()
@@ -2127,7 +2529,7 @@ def printar():
 			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades[utilidade][1])))))
 
 def inserir_teste():
-	global subestagio_trocador, desenho_em_dia
+	global subestagio_trocador
 	subestagio_trocador += 1
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 	try:
@@ -2143,10 +2545,9 @@ def inserir_teste():
 	else:
 		printar()
 		checaresgotadosacima()
-	desenho_em_dia = False
 
 def remover_teste():
-	global subestagio_trocador, desenho_em_dia
+	global subestagio_trocador
 	indice_remover = dlg.tableWidget_2.currentRow()
 	if indice_remover == -1:
 		QMessageBox.about(dlg, "Error!", "Select the line of the Heat Exchanger that you want to remove")
@@ -2171,10 +2572,8 @@ def remover_teste():
 		corrente_remover_utilidade = utilidade_remover[0]
 		remover_utilidade(corrente_remover_utilidade, indice_remover, utilidades)
 	printar()
-	desenho_em_dia = False
 
 def utilidade_teste_acima():
-	global desenho_em_dia
 	corrente = int(dlg.comboBox_10.currentText())
 	utilidadee = adicionar_utilidade(dlg, corrente)
 	try:
@@ -2183,7 +2582,6 @@ def utilidade_teste_acima():
 	except:
 		print("erro utilidade teste acima")
 	printar()
-	desenho_em_dia = False
 
 def calcular_calor_teste():
 	dlg.TempLoadAbove=uic.loadUi("TempLoadAbove.ui")
@@ -2374,7 +2772,7 @@ def printar_abaixo():
 			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades_abaixo[utilidade][1])))))
 
 def inserir_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo
+	global subestagio_trocador_abaixo
 	subestagio_trocador_abaixo += 1
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 	try:
@@ -2390,10 +2788,9 @@ def inserir_teste_abaixo():
 	else:
 		printar_abaixo()
 		checaresgotadosabaixo()
-	desenho_em_dia_abaixo = False
 
 def remover_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo
+	global subestagio_trocador_abaixo
 	indice_remover = dlg.tableWidget_14.currentRow()
 	if indice_remover == -1:
 		QMessageBox.about(dlg, "Error!", "Select the line of the Heat Exchanger that you want to remove")
@@ -2418,10 +2815,8 @@ def remover_teste_abaixo():
 		corrente_remover_utilidade = utilidade_remover[0]
 		remover_utilidade_abaixo(corrente_remover_utilidade, indice_remover, utilidades_abaixo)
 	printar_abaixo()
-	desenho_em_dia_abaixo = False
 
 def utilidade_teste_abaixo():
-	global desenho_em_dia_abaixo
 	corrente = int(dlg.comboBox_43.currentText())
 	utilidadee = adicionar_utilidade_abaixo(dlg, corrente)
 	try:
@@ -2430,7 +2825,6 @@ def utilidade_teste_abaixo():
 	except:
 		print("utilidade teste abaixo")
 	printar_abaixo()
-	desenho_em_dia_abaixo = False
 
 def calcular_calor_abaixo():
 	dlg.TempLoadBelow = uic.loadUi("TempLoadBelow.ui")
@@ -2505,16 +2899,8 @@ def checaresgotadosabaixo():
 def suprir_9_correntes():
 
 	if nhot == 2 and ncold == 2:
-		acima = [[1, 1, 1, 1, 1, 1, 150], [1, 1, 2, 2, 2, 1, 150], [2, 2, 2, 2, 4, 1, 60], [2, 2, 1, 1, 3, 1, 60], [1], [2]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 15], [1, 2, 2, 2, 2, 1, 15], [2, 2, 2, 2, 4, 1, 5], [2, 2, 1, 1, 3, 1, 5], [2]]
-		#divtype, estagio, corrente, quantidade, fracao
-		divisao_de_correntes("Q", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes("Q", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes("F", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes("F", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("Q", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("Q", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("F", 1, 2, 2, [0.5, 0.5])
+		acima = [[1, 1, 1, 1, 1, 1, 300], [2, 2, 1, 1, 2, 1, 120], [1], [2]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 30], [2, 2, 1, 1, 2, 1, 10], [2]]
 	else:
 		# acima = [[3, 2, 1, 2, 1, 1, 674.63], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 309.77], [2]]
 		# abaixo = [[1, 2, 1, 1, 1, 1, 411.81], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.83], [1], [2], [3]]
@@ -2548,7 +2934,7 @@ def suprir_9_correntes():
 	testar_correntes(dlg)
 	testar_correntes_abaixo(dlg)
 
-	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+	desenhar_rede(correntes_quentes, correntes_frias)
 
 def centralizar_combobox_teste(x):
 	x.setEditable(True)
@@ -2588,7 +2974,7 @@ dlg.pushButton_6.clicked.connect(inserir_teste) #add heat exchanger
 dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
-dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "acima", True))
+dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
 dlg.pushButton_22.clicked.connect(suprir_9_correntes) #aaaaaaaa botao quebra de laços acima
 
 #below
@@ -2603,8 +2989,7 @@ dlg.pushButton_18.clicked.connect(inserir_teste_abaixo) #add heat exchanger
 dlg.pushButton_15.clicked.connect(remover_teste_abaixo) #remove heat exchanger
 dlg.pushButton_17.clicked.connect(calcular_calor_abaixo) #choose stream temperature to calculate heat
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
-dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True))
-dlg.pushButton_23.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "ambas"))
+dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
 
 
 #custos
@@ -2614,7 +2999,7 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 #evolução
 dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText())))
-# dlg.toolButton_2.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
+dlg.toolButton_2.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
 
 
 
