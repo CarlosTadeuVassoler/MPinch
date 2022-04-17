@@ -51,7 +51,7 @@ Thfinal01 = []
 Thfinal01k = []
 temperatura_atual_quente_ev = []
 temperatura_atual_quente_ev_mesclada = []
-temp_misturador_ev_abaixo = []
+temp_misturador_quente = []
 
 #VARIÁVEIS DE TEMPERATURAS FRIAS
 Tcski = []
@@ -62,7 +62,7 @@ Tcfinal01 = []
 Tcfinal01k = []
 temperatura_atual_fria_ev = []
 temperatura_atual_fria_ev_mesclada = []
-temp_misturador_ev = []
+temp_misturador_frio = []
 
 #VARIÁVEIS DE TEMPERATURAS "GERAIS"
 Thin = []
@@ -97,15 +97,8 @@ def preparar_dados_e_rede():
 	global Fharr, Fcarr, Qarr, Q, Qaux
 	global linha_interface, utilidades, utilidades_abaixo
 	global calor_atual_frio_ev, calor_atual_quente_ev, calor_atual_quente_ev_sub, calor_atual_frio_ev_sub, calor_sub_sem_utilidade_ev
-	global temperatura_atual_quente_ev,	temperatura_atual_quente_ev_mesclada, temp_misturador_ev_abaixo, temperatura_atual_fria_ev,	temperatura_atual_fria_ev_mesclada,	temp_misturador_ev
+	global temperatura_atual_quente_ev,	temperatura_atual_quente_ev_mesclada, temp_misturador_ev_abaixo, temperatura_atual_fria_ev,	temperatura_atual_fria_ev_mesclada,	temp_misturador_quente, temp_misturador_frio
 	global dividida_quente_ev, dividida_fria_ev, quantidade_quente_ev, quantidade_fria_ev, fracoes_quentes_ev, fracoes_frias_ev, fechar_corrente_ev, fechar_corrente_ev_abaixo
-
-	# linha_interface = utilidades = utilidades_abaixo = []
-	# calor_atual_frio_ev = calor_atual_quente_ev = calor_atual_quente_ev_sub = calor_atual_frio_ev_sub = calor_sub_sem_utilidade_ev = []
-	# temperatura_atual_quente_ev = temperatura_atual_quente_ev_mesclada = temp_misturador_ev_abaixo = temperatura_atual_fria_ev = temperatura_atual_fria_ev_mesclada = temp_misturador_ev = []
-	# dividida_quente_ev = dividida_fria_ev = quantidade_quente_ev = quantidade_fria_ev = fracoes_quentes_ev = fracoes_frias_ev = fechar_corrente_ev = fechar_corrente_ev_abaixo = []
-
-
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)
@@ -212,7 +205,7 @@ def preparar_dados_e_rede():
 	for quente in range(nhot):
 		temperatura_atual_quente_ev.append([])
 		temperatura_atual_quente_ev_mesclada.append(Th0[quente])
-		temp_misturador_ev_abaixo.append(0)
+		temp_misturador_quente.append(0)
 		calor_atual_quente_ev_sub.append([])
 		dividida_quente_ev.append(False)
 		fechar_corrente_ev_abaixo.append(False)
@@ -224,7 +217,7 @@ def preparar_dados_e_rede():
 	for fria in range(ncold):
 		temperatura_atual_fria_ev.append([])
 		temperatura_atual_fria_ev_mesclada.append(Tc0[fria])
-		temp_misturador_ev.append(0)
+		temp_misturador_frio.append(0)
 		calor_atual_frio_ev_sub.append([])
 		calor_sub_sem_utilidade_ev.append([])
 		dividida_fria_ev.append(False)
@@ -544,15 +537,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								tempdif = Thin[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
 								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
 
-								if tempdif < 0 or tempdif_terminal_frio < 0:
-									# QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									# Q[i][si][j][sj][sk][k] = 0
-									return True, "termo"
-								else:
-									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
-										violou = True
-										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
-
+								if True:
 									if dividida_fria_ev[j]:
 										temperatura_atual_fria_ev[j][sj] = Tcout[i][si][j][sj][sk][k]
 									temperatura_atual_fria_ev_mesclada[j] = Tcoutk[i][si][j][sj][sk][k]
@@ -690,6 +675,8 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 
 	calor_atual_quente_ev[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	calor_atual_frio_ev[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	temp_misturador_quente[chot-1] = Thkf[chot-1][estagio-1]
+	temp_misturador_frio[ccold-1] = Tckf[ccold-1][estagio-1]
 
 	if dividida_quente_ev[chot-1]:
 		calor_atual_quente_ev_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
@@ -762,13 +749,11 @@ def adicionar_utilidade_ev(dlg, corrente, tipo):
 	if tipo == "aquecedor":
 		utilidades.append([corrente, calor_atual_frio_ev[corrente-1]])
 		calor_atual_frio_ev[corrente-1] = 0
-		temp_misturador_ev[corrente-1] = temperatura_atual_fria_ev_mesclada[corrente-1]
 		fechar_corrente_ev[corrente-1] = True
 		return utilidades
 	else:
 		utilidades_abaixo.append([corrente, calor_atual_quente_ev[corrente-1]])
 		calor_atual_quente_ev[corrente-1] = 0
-		temp_misturador_ev_abaixo[corrente-1] = temperatura_atual_quente_ev_mesclada[corrente-1]
 		fechar_corrente_ev_abaixo[corrente-1] = True
 		return utilidades_abaixo
 

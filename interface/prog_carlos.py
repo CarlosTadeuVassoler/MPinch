@@ -727,6 +727,8 @@ def inserir_trocador(dlg, vetor):
 							Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1],
 							Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
 							Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1],
+							Thski[chot-1][sbhot-1][sestagio-1][estagio-1],
+							Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1],
 							fracao_quente,
 							fracao_fria])
 
