@@ -36,7 +36,7 @@ chot = ccold = sbhot = sbcold = qsi = qsj = ccoldutiila = 0
 tempdif = 0
 
 nstages = 1
-nsk = 20
+nsk = 10
 
 #VARIÁVEIS DE CALOR
 Qtotalh01 = []
@@ -461,7 +461,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 			Tckf[j][k] = Tc0[j]
 
 	violou = False
-	trocador_violado = []
+	trocador_violado = False
 
 	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range (nstages):
@@ -517,10 +517,6 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 									Q[i][si][j][sj][sk][k] = 0
 									return True, "termo"
 								else:
-									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
-										violou = True
-										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
-
 									if dividida_quente[i]:
 										temperatura_atual_quente[i][si] = Thout[i][si][j][sj][sk][k]
 									if dividida_fria[j]:
@@ -736,7 +732,7 @@ def inserir_trocador(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface, violou, trocador_violado
+	return linha_interface
 
 def remover_trocador(dlg, vetor, indice, linha_interface):
 	chot = vetor[0]

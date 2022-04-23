@@ -36,7 +36,7 @@ chot = ccold = sbhot = sbcold = qsi = qsj = chotutiil = 0
 tempdif = tempmeta = 0
 
 nstages = 1
-nsk = 20
+nsk = 10
 
 #VARIÁVEIS DO CALOR
 Qtotalh01 = []
@@ -461,7 +461,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 			Tckf[j][k] = Tcf[j]
 
 	violou = False
-	trocador_violado = []
+	trocador_violado = False
 
 	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range (nstages):
@@ -517,10 +517,6 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 									Q[i][sj][j][sj][sk][k] = 0
 									return True, "termo"
 								else:
-									if not (tempdif >= dTmin and tempdif_terminal_frio >= dTmin):
-										violou = True
-										trocador_violado = [i+1, j+1, si+1, sj+1, sk+1, k+1, tempdif, tempdif_terminal_frio]
-
 									if dividida_quente_abaixo[i]:
 										temperatura_atual_quente_abaixo[i][si] = Thout[i][si][j][sj][sk][k]
 									if dividida_fria_abaixo[j]:
@@ -736,7 +732,7 @@ def inserir_trocador_abaixo(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface_abaixo, violou, trocador_violado
+	return linha_interface_abaixo
 
 def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 	chot = vetor[0]
