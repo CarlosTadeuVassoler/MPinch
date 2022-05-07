@@ -350,31 +350,34 @@ def add_utilidade():
 def editar_corrente(correntes, tip, tabela):
 	global nhot, ncold, ja_mostrou
 
-	linha = tabela.currentItem().row()
-	coluna = tabela.currentItem().column()
-	coluna_comp = coluna - tip
-	dado = tabela.currentItem().text()
+	try:
+		linha = tabela.currentItem().row()
+		coluna = tabela.currentItem().column()
+		coluna_comp = coluna - tip
+		dado = tabela.currentItem().text()
 
-	if coluna == 3 and dado != "Hot" and dado != "Cold":
-		QMessageBox.about(dlg, "Error!", "Not allowed to change this column. Change the temperatures instead.")
-		tabela.setItem(linha, coluna, QTableWidgetItem(correntes[linha][coluna]))
-		tabela.currentItem().setTextAlignment(Qt.AlignHCenter)
-		return
-	elif coluna != 3:
-		correntes[linha][coluna_comp] = float(dado.replace(",", "."))
+		if coluna == 3 and dado != "Hot" and dado != "Cold":
+			QMessageBox.about(dlg, "Error!", "Not allowed to change this column. Change the temperatures instead.")
+			tabela.setItem(linha, coluna, QTableWidgetItem(correntes[linha][coluna]))
+			tabela.currentItem().setTextAlignment(Qt.AlignHCenter)
+			return
+		elif coluna != 3:
+			correntes[linha][coluna_comp] = float(dado.replace(",", "."))
 
-	tipo = QTableWidgetItem(correntes[linha][3])
-	if coluna_comp == 0 or coluna_comp == 1:
-		if correntes[linha][0] >= correntes[linha][1]:
-			correntes[linha][3] = "Hot"
-			tabela.setItem(linha, 3, tipo)
-		else:
-			correntes[linha][3] = "Cold"
-			tabela.setItem(linha, 3, tipo)
-		tabela.item(linha, 3).setTextAlignment(Qt.AlignHCenter)
+		tipo = QTableWidgetItem(correntes[linha][3])
+		if coluna_comp == 0 or coluna_comp == 1:
+			if correntes[linha][0] >= correntes[linha][1]:
+				correntes[linha][3] = "Hot"
+				tabela.setItem(linha, 3, tipo)
+			else:
+				correntes[linha][3] = "Cold"
+				tabela.setItem(linha, 3, tipo)
+			tabela.item(linha, 3).setTextAlignment(Qt.AlignHCenter)
 
-	if correntes_util[0][3] != correntes_util[1][3]:
-		dlg.pinchbutton.setEnabled(True)
+		if correntes_util[0][3] != correntes_util[1][3]:
+			dlg.pinchbutton.setEnabled(True)
+	except:
+		pass
 
 def done_teste(libera=False):
 	global dTmin, done, correntes
@@ -951,7 +954,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 					temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Tcf[i], 2))))*tamanho_string)
 					temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 					if Tc0_acima[i] != pinchf:
-						temp.setx(-distancia_x/2 - nao_toca_pinch + 5)
+						temp.setx(distancia_x/2 - nao_toca_pinch + 5)
 						temp.write(str('{:.2f}'.format(round(Tc0_acima[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 					if not dividida_fria[i]:
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
@@ -2069,7 +2072,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 					return c, t
 		return "o", "o"
 
-	def lacos(incidencia, matriz_trocadores, nivel, todos=False):
+	def lacos(incidencia, matriz_trocadores, nivel, todos):
 		ja_encontrado = []
 		for trocadores in range(len(matriz_trocadores)):
 			trocador_inicial = trocadores
@@ -2085,19 +2088,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				tenta_dnv = True
 				for n in range(nivel*2):
 					if tenta_dnv:
-						print("trocador", trocador+1, "corrente", corrente+1)
 						corrente, trocador = achar_trocador(incidencia, matriz_trocadores, corrente, trocador, comecar, nivel, n, trocador_inicial, trocadores_laco)
 						if corrente == "o":
-							print("nao achou")
-							print()
 							tenta_dnv = False
 						else:
 							trocadores_laco.append(trocador+1)
 							if corrente == corrente_inicial and trocador == trocador_inicial and n == nivel*2-1:
 								trocadores_laco.pop(-1)
-								print("achou")
-								print(trocadores_laco)
-								print()
 								if todos:
 									if not sorted(trocadores_laco) in ja_encontrado:
 										ja_encontrado.append(sorted(trocadores_laco))
@@ -2151,18 +2148,8 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 		trocadores_combo = []
 		for i in range(len(trocadores_laco)):
 			if trocadores_laco[i] != "None ":
-				if True:#not trocadores_uteis[trocadores_laco[i]-1][0]:
-					if trocadores_laco[i] >= len(matriz_acima_naomuda):
-						text += ("E" + str(trocadores_laco[i]) + ", ")
-					else:
-						text += ("E" + str(trocadores_laco[i]) + ", ")
-					menor_calor.append(trocadores[trocadores_laco[i]-1][6])
-				# if trocadores_laco[i] < len(matriz_acima_naomuda):
-				# 	text += ("H" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
-				# 	menor_calor.append(trocadores[trocadores_laco[i]-1][2])
-				# else:
-				# 	text += ("C" + str(trocadores_uteis[trocadores_laco[i]-1][1]) + ", ")
-				# 	menor_calor.append(trocadores[trocadores_laco[i]-1][2])
+				text += ("E" + str(trocadores_laco[i]) + ", ")
+				menor_calor.append(trocadores[trocadores_laco[i]-1][6])
 				trocadores_combo.append(text[len(text)-4:len(text)-2])
 				dlg.trocador_remover.addItem(text[len(text)-4:len(text)-2])
 				dlg.trocador_remover.setEnabled(True)
@@ -2189,11 +2176,89 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 			dlg.label_7.setText("Loop Found Among Heat Exchangers:")
 		dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()])
 
-		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_combo, trocadores_laco, matriz_completa, dlg.trocador_remover.currentIndex()))
+		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_laco, matriz_completa, dlg.trocador_remover.currentIndex()))
 
-	def distribuir_calor(trocadores, trocadores_laco, matriz_completa, trocador_removido):
+	def interface_todos(trocadores_laco, matriz_completa):
+
+		class Botao():
+			def __init__(self, nivel, laco):
+				self.nivel = nivel
+				self.laco = laco
+				self.button = QtWidgets.QPushButton("  Remove  ")
+				self.button.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+				self.button.setStyleSheet("QPushButton {font: 1000}")
+				self.combo = QtWidgets.QComboBox()
+				self.combo.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+				self.combo.setMinimumWidth(100)
+				self.button.clicked.connect(lambda: distribuir_calor(trocadores_laco[self.nivel][self.laco], matriz_completa, self.combo.currentIndex()))
+
+			def botaoo(self):
+				return self.button
+
+			def comboo(self):
+				return self.combo
+
+
+		dlg.lista_lacos = uic.loadUi("lista_lacos.ui")
+
+		if len(trocadores_laco) == 0:
+			label_nivel = QtWidgets.QLabel("No remaining Loop")
+			label_nivel.setStyleSheet("QLabel {font: 1000 12pt 'MS Shell Dlg 2'}")
+			label_nivel.setAlignment(Qt.AlignCenter)
+			dlg.lista_lacos.lista.addWidget(label_nivel)
+		else:
+			lay_nivel = [0] * len(trocadores_laco)
+			lay_laco = [0] * len(trocadores_laco)
+			label_nivel = [0] * len(trocadores_laco)
+			label_trocador = [0] * len(trocadores_laco)
+			botao_remover = [0] * len(trocadores_laco)
+
+
+			for nivel in range(len(trocadores_laco)):
+				lay_nivel[nivel] = QtWidgets.QVBoxLayout()
+				linha = QtWidgets.QFrame()
+				linha.setGeometry(QRect(60, 110, 751, 20))
+				linha.setFrameShape(QtWidgets.QFrame.HLine)
+				linha.setFrameShadow(QtWidgets.QFrame.Sunken)
+				if nivel != 0:
+					lay_nivel[nivel].addWidget(linha)
+				lay_laco[nivel] = [0] * len(trocadores_laco[nivel])
+				label_trocador[nivel] = [0] * len(trocadores_laco[nivel])
+				botao_remover[nivel] = [0] * len(trocadores_laco[nivel])
+				for laco in range(len(trocadores_laco[nivel])):
+					if laco == 0:
+						label_nivel[nivel] = QtWidgets.QLabel("Level " + str(int(len(trocadores_laco[nivel][laco])/2)) + " Loops")
+						label_nivel[nivel].setStyleSheet("QLabel {font: 1000 12pt 'MS Shell Dlg 2'}")
+						label_nivel[nivel].setAlignment(Qt.AlignCenter)
+						lay_nivel[nivel].addWidget(label_nivel[nivel])
+					lay_laco[nivel][laco] = QtWidgets.QHBoxLayout()
+					botao_remover[nivel][laco] = Botao(nivel, laco)
+					texto = "Loop " + str(laco+1) + ": "
+					menor_calor = []
+					for trocador in range(len(trocadores_laco[nivel][laco])):
+						texto += "E" + str(trocadores_laco[nivel][laco][trocador]) + ", "
+						botao_remover[nivel][laco].comboo().addItem("E" + str(trocadores_laco[nivel][laco][trocador]))
+						menor_calor.append(matriz_completa[trocadores_laco[nivel][laco][trocador]-1][6])
+					botao_remover[nivel][laco].comboo().setCurrentIndex(menor_calor.index(min(menor_calor)))
+					botao_remover[nivel][laco].comboo().setItemText(botao_remover[nivel][laco].comboo().currentIndex(), botao_remover[nivel][laco].comboo().currentText() + " (suggested)")
+					texto = texto[:len(texto)-2]
+					texto += "."
+					label_trocador[nivel][laco] = QtWidgets.QLabel(texto)
+					label_trocador[nivel][laco].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+					label_trocador[nivel][laco].setStyleSheet("QLabel {font: 10pt 'MS Shell Dlg 2'}")
+					lay_laco[nivel][laco].addWidget(label_trocador[nivel][laco])
+					lay_laco[nivel][laco].addWidget(botao_remover[nivel][laco].comboo())
+					lay_laco[nivel][laco].addWidget(botao_remover[nivel][laco].botaoo())
+					lay_nivel[nivel].addLayout(lay_laco[nivel][laco])
+				dlg.lista_lacos.lista.addLayout(lay_nivel[nivel])
+
+		dlg.lista_lacos.show()
+
+	def distribuir_calor(trocadores_laco, matriz_completa, trocador_removido):
 		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
 		dlg.dividir_calor.toolButton.triggered.connect(lambda: dlg.dividir_calor.toolButton.defaultAction())
+		print(trocadores_laco)
+		print(trocador_removido)
 
 		print("MATRIZ ANTES DE REMOVER")
 		for trocador in matriz_completa:
@@ -2207,18 +2272,18 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 		valores_recomendados = []
 		placeholders = [[], []]
 
-		label_trocador = [0] * len(trocadores)
-		set_calor = [0] * len(trocadores)
-		add_calor = [0] * len(trocadores)
-		dtquente = [0] * len(trocadores)
-		dtfrio = [0] * len(trocadores)
-		lay = [0] * len(trocadores)
+		label_trocador = [0] * len(trocadores_laco)
+		set_calor = [0] * len(trocadores_laco)
+		add_calor = [0] * len(trocadores_laco)
+		dtquente = [0] * len(trocadores_laco)
+		dtfrio = [0] * len(trocadores_laco)
+		lay = [0] * len(trocadores_laco)
 
-		dlg.dividir_calor.trocador_remover.setText(trocadores[trocador_removido] + " Heat Load: " + str(round(calor_trocador_removido, 2)))
+		dlg.dividir_calor.trocador_remover.setText("E" + str(trocadores_laco[trocador_removido]) + " Heat Load: " + str(round(calor_trocador_removido, 2)))
 		dlg.dividir_calor.horizontalLayout_3.setAlignment(Qt.AlignCenter)
 		dlg.dividir_calor.horizontalLayout_4.setAlignment(Qt.AlignCenter)
 
-		for i in range(len(trocadores)):
+		for i in range(len(trocadores_laco)):
 			if i != trocador_removido:
 				label_trocador[i] = QtWidgets.QLabel(dlg.dividir_calor)
 				label_trocador[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
@@ -2230,13 +2295,14 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				add_calor[i] = QtWidgets.QLineEdit(dlg.dividir_calor)
 				add_calor[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
 				add_calor[i].setAlignment(Qt.AlignCenter)
+				add_calor[i].setEnabled(False)
 				dtquente[i] = QtWidgets.QLabel(dlg.dividir_calor)
 				dtquente[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
 				dtquente[i].setAlignment(Qt.AlignCenter)
 				dtfrio[i] = QtWidgets.QLabel(dlg.dividir_calor)
 				dtfrio[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
 				dtfrio[i].setAlignment(Qt.AlignCenter)
-				label_trocador[i].setText(trocadores[i])
+				label_trocador[i].setText("E" + str(trocadores_laco[i]))
 				label_trocador[i].setMinimumWidth(95)
 				label_trocador[i].setMaximumWidth(95)
 				label_trocador[i].setStyleSheet("QLabel {font: 1000 10pt 'MS Shell Dlg 2'}")
@@ -2255,11 +2321,9 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				dlg.dividir_calor.trocadores.addLayout(lay[i])
 				if matriz_completa[trocadores_laco[i]-1][0] == corrente_quente_vai_remover or matriz_completa[trocadores_laco[i]-1][1] == corrente_fria_vai_remover:
 					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] + calor_trocador_removido
-					add_calor[i].setPlaceholderText("Ex: " + str(round(calor_trocador_removido, 2)))
 					placeholders[1].append("Ex: " + str(round(calor_trocador_removido, 2)))
 				else:
 					calor_recomendado = matriz_completa[trocadores_laco[i]-1][6] - calor_trocador_removido
-					add_calor[i].setPlaceholderText("Ex: -" + str(round(calor_trocador_removido, 2)))
 					placeholders[1].append("Ex: -" + str(round(calor_trocador_removido, 2)))
 				placeholders[0].append(str(round(calor_recomendado, 2)) + " (suggested)")
 				valores.append(calor_recomendado)
@@ -2273,22 +2337,30 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 		for i in range(len(set_calor)):
 			dlg.dividir_calor.radio_add.toggled.connect(lambda: liberar_bloquear([set_calor, add_calor], "add", trocador_removido, placeholders))
 			dlg.dividir_calor.radio_set.toggled.connect(lambda: liberar_bloquear([set_calor, add_calor], "setar", trocador_removido, placeholders))
+			dlg.dividir_calor.padrao.toggled.connect(lambda: liberar_bloquear([set_calor, add_calor], "padrão", trocador_removido, placeholders))
 
 		dlg.dividir_calor.show()
 		dlg.dividir_calor.prever.clicked.connect(lambda: distribuiu([set_calor, add_calor], valores, valores_recomendados, trocadores_laco, matriz_completa, trocador_removido, dtquente, dtfrio))
 
 		def distribuiu(valor_trocador, valores, valores_recomendados, trocadores_laco, matriz_completa_naomuda, trocador_removido, dtquente, dtfrio):
+			global ja_violava, layh, novas_violacoes
 			for i in range(len(trocadores_laco)):
 				try:
-					if dlg.dividir_calor.radio_set.isChecked():
-						valores[i] = float(valor_trocador[0][i].text().replace(",", "."))
+					if dlg.dividir_calor.padrao.isChecked():
+						valores[i] = valores_recomendados[i]
+					elif dlg.dividir_calor.radio_set.isChecked():
+						if i != trocador_removido:
+							valores[i] = float(valor_trocador[0][i].text().replace(",", "."))
+						else:
+							valores[i] = 0
 					elif dlg.dividir_calor.radio_add.isChecked():
 						if i != trocador_removido:
 							valores[i] = float(valor_trocador[1][i].text().replace(",", ".")) + matriz_completa_naomuda[trocadores_laco[i]-1][6]
 						else:
 							valores[i] = 0
 				except:
-					valores[i] = valores_recomendados[i]
+					QMessageBox.about(dlg, "Error!", "Specify all the values or select the standard method.")
+					return
 
 			matriz_completa = nao_sacrificar_matriz(matriz_completa_naomuda)
 
@@ -2311,13 +2383,20 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 
 			matriz_completa = nao_sacrificar_matriz(matriz_teste)
 
+			viola_agora = []
+			for trocador in matriz_completa:
+				if trocador[7] - trocador[8] < dTmin or trocador[9] - trocador[10] < dTmin:
+					if not matriz_completa.index(trocador)+1 in trocadores_laco:
+						viola_agora.append(matriz_completa.index(trocador))
+
+
 			dlg.dividir_calor.botaodone.setEnabled(True)
 			for i in range(len(trocadores_laco)):
 				if i != trocador_removido:
 					dt_quente = matriz_completa[trocadores_laco[i]-1][7]-matriz_completa[trocadores_laco[i]-1][8]
 					dt_frio = matriz_completa[trocadores_laco[i]-1][9]-matriz_completa[trocadores_laco[i]-1][10]
-					dtquente[i].setText(str(round(dt_quente, 2)))
-					dtfrio[i].setText(str(round(dt_frio, 2)))
+					dtquente[i].setText(str('{:.2f}'.format(round(dt_quente, 2))))
+					dtfrio[i].setText(str('{:.2f}'.format(round(dt_frio, 2))))
 					if dt_quente < 0 or dt_frio < 0:
 						dlg.dividir_calor.botaodone.setEnabled(False)
 					if dt_quente < dTmin:
@@ -2328,6 +2407,62 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 						dtfrio[i].setStyleSheet("QLabel {color: red; font: 1000 10pt 'MS Shell Dlg 2'}")
 					else:
 						dtfrio[i].setStyleSheet("QLabel {color: black; font: 1000 10pt 'MS Shell Dlg 2'}")
+
+			# try:
+			# 	print(ja_violava)
+			# except:
+			# 	try:
+			# 		print(novas_violacoes)
+			# 	except:
+			# 		ja_violava = []
+			# 		novas_violacoes = 0
+			#
+			# if len(ja_violava) != 0:
+			# 	for lay in range(len(ja_violava)-1, -1, -1):
+			# 		layh[lay].removeWidget(novas_violacoes[lay])
+			# 		layh[lay].removeWidget(dt_quente_novo[lay])
+			# 		layh[lay].removeWidget(dt_frio_novo[lay])
+			# 		dlg.dividir_calor.outras_violacoes.removeItem(layh[lay])
+			# elif novas_violacoes != 0:
+			# 	dlg.dividir_calor.outras_violacoes.removeWidget(novas_violacoes)
+
+			if len(viola_agora) != 0:
+				novas_violacoes = [0] * len(viola_agora)
+				dt_quente_novo = [0] * len(viola_agora)
+				dt_frio_novo = [0] * len(viola_agora)
+				layh = [0] * len(viola_agora)
+				for i in range(len(viola_agora)):
+					novas_violacoes[i] = QtWidgets.QLabel("E" + str(viola_agora[i]+1))
+					novas_violacoes[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+					novas_violacoes[i].setAlignment(Qt.AlignCenter)
+					novas_violacoes[i].setStyleSheet("QLabel {font: 1000 10pt 'MS Shell Dlg 2'}")
+					dt_quente_novo[i] = QtWidgets.QLabel(str('{:.2f}'.format(round(matriz_completa[viola_agora[i]][7] - matriz_completa[viola_agora[i]][8], 2))))
+					dt_quente_novo[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+					dt_quente_novo[i].setAlignment(Qt.AlignCenter)
+					if matriz_completa[viola_agora[i]][7] - matriz_completa[viola_agora[i]][8] < dTmin:
+						dt_quente_novo[i].setStyleSheet("QLabel {color: red; font: 1000 10pt 'MS Shell Dlg 2'}")
+					else:
+						dt_quente_novo[i].setStyleSheet("QLabel {color: black; font: 1000 10pt 'MS Shell Dlg 2'}")
+					dt_frio_novo[i] = QtWidgets.QLabel(str('{:.2f}'.format(round(matriz_completa[viola_agora[i]][9] - matriz_completa[viola_agora[i]][10], 2))))
+					dt_frio_novo[i].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+					dt_frio_novo[i].setAlignment(Qt.AlignCenter)
+					if matriz_completa[viola_agora[i]][9] - matriz_completa[viola_agora[i]][10] < dTmin:
+						dt_frio_novo[i].setStyleSheet("QLabel {color: red; font: 1000 10pt 'MS Shell Dlg 2'}")
+					else:
+						dt_frio_novo[i].setStyleSheet("QLabel {color: black; font: 1000 10pt 'MS Shell Dlg 2'}")
+					layh[i] = QtWidgets.QHBoxLayout()
+					layh[i].addWidget(novas_violacoes[i])
+					layh[i].addWidget(dt_quente_novo[i])
+					layh[i].addWidget(dt_frio_novo[i])
+					dlg.dividir_calor.outras_violacoes.addLayout(layh[i])
+			else:
+				novas_violacoes = QtWidgets.QLabel("None.")
+				novas_violacoes.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+				novas_violacoes.setAlignment(Qt.AlignCenter)
+				novas_violacoes.setStyleSheet("QLabel {font: 1000 10pt 'MS Shell Dlg 2'}")
+				dlg.dividir_calor.outras_violacoes.addWidget(novas_violacoes)
+
+			ja_violava = viola_agora[:]
 
 			print("MATRIZ APÓS REMOVER")
 			for trocador in matriz_completa:
@@ -2347,7 +2482,10 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				print()
 				desenho_em_dia_ambas = False
 				desenhar_rede(correntes_quentes, correntes_frias, "ambas")
-				evolucao([], [], nivel)
+				if todos:
+					evolucao([], [], "todos", True)
+				else:
+					evolucao([], [], nivel)
 
 			def undone(matriz_completa_undone):
 				global matriz_evolucao
@@ -2371,11 +2509,16 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 						valor_trocador[0][i].setEnabled(True)
 						valor_trocador[0][i].setPlaceholderText(placeholders[0][i])
 						valor_trocador[1][i].setPlaceholderText("")
-					else:
+					elif acao == "add":
 						valor_trocador[1][i].setEnabled(True)
 						valor_trocador[0][i].setEnabled(False)
 						valor_trocador[1][i].setPlaceholderText(placeholders[1][i])
 						valor_trocador[0][i].setPlaceholderText("")
+					else:
+						valor_trocador[1][i].setEnabled(False)
+						valor_trocador[0][i].setEnabled(False)
+						valor_trocador[0][i].setPlaceholderText("")
+						valor_trocador[1][i].setPlaceholderText("")
 
 	global primeiro_laco, matriz_evolucao
 
@@ -2404,14 +2547,21 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 			print(trocador)
 		print()
 	incidencia = criar_incidencia(trocadores, n_quentes, n_frias)
-	trocadores_laco = sorted(lacos(incidencia, trocadores, nivel, todos))
-	try:
-		if not todos:
-			coisas_interface(trocadores_laco, matriz_evolucao)
-		else:
-			dlg.lista_lacos = uic.loadUi("lista_lacos")
-	except:
-		pass
+	if todos:
+		trocadores_laco = []
+		for n in range(min(nhot, ncold)):
+			trocadores_laco.append(sorted(lacos(incidencia, trocadores, n, todos)))
+			if len(trocadores_laco[-1]) == 0:
+				trocadores_laco.pop(-1)
+	else:
+		trocadores_laco = sorted(lacos(incidencia, trocadores, nivel, todos))
+	# try:
+	if todos:
+		interface_todos(trocadores_laco, matriz_evolucao)
+	else:
+		coisas_interface(trocadores_laco, matriz_evolucao)
+	# except:
+	# 	pass
 
 
 
@@ -3048,8 +3198,8 @@ def jogar_evolucao():
 
 
 #streams
-# dlg.tableWidget.itemChanged.connect(lambda: editar_corrente(correntes, 0, dlg.tableWidget))
-# dlg.tableWidget_5.itemChanged.connect(lambda: editar_corrente(correntes_util, 1, dlg.tableWidget_5))
+dlg.tableWidget.itemChanged.connect(lambda: editar_corrente(correntes, 0, dlg.tableWidget))
+dlg.tableWidget_5.itemChanged.connect(lambda: editar_corrente(correntes_util, 1, dlg.tableWidget_5))
 dlg.botao_addstream.clicked.connect(apertaradd) #add stream
 dlg.botao_addutility.clicked.connect(add_utilidade)
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
@@ -3101,6 +3251,7 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 #evolução
 dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText())))
+dlg.identificar_todos.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, "todos", True))
 # dlg.toolButton_2.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
 
 

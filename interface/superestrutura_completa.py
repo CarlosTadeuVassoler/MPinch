@@ -767,7 +767,6 @@ def remover_utilidade_ev(corrente, indice_remover, tipo):
 		utilidades_abaixo.pop(indice_remover)
 		fechar_corrente_ev_abaixo[corrente-1] = False
 
-
 def remover_todos():
 	for i in range(len(linha_interface)-1, -1, -1):
 		remover_trocador_ev("oi", linha_interface[i], i, linha_interface)
@@ -775,83 +774,3 @@ def remover_todos():
 		remover_utilidade_ev(utilidades[i][0], i, "aquecedor")
 	for i in range(len(utilidades_abaixo)-1, -1, -1):
 		remover_utilidade_ev(utilidades_abaixo[i][0], i, "resf")
-
-
-
-
-
-
-# Th0 = [170, 150]
-# Thf = [60, 30]
-# CPh = [3, 1.5]
-#
-# Tc0 = [60, 40]
-# Tcf = [140, 170]
-# CPc = [4, 2]
-#
-# receber_pinch_ev(Thf, Tcf, 2, 2, CPh, CPc, 10, 70, 60, Th0, Tc0)
-# inserir_trocador_ev("oi", [1, 1, 1, 1, 1, 1, 300])
-# inserir_trocador_ev("oi", [2, 2, 1, 1, 2, 1, 120])
-# inserir_trocador_ev("oi", [1, 2, 1, 1, 3, 2, 30])
-# inserir_trocador_ev("oi", [2, 2, 1, 1, 4, 2, 10], ultima=True)
-# adicionar_utilidade_ev("oi", 1, 20, "aquecedor")
-# adicionar_utilidade_ev("oi", 2, 100, "aquecedor")
-# adicionar_utilidade_ev("oi", 2, 50, "resf")
-# print(utilidades)
-# print(utilidades_abaixo)
-#
-# for i in linha_interface:
-# 	print(i)
-#
-# print()
-# print()
-#
-#
-# Th0 = [159, 267, 343]
-# Thf = [77, 88, 90]
-# CPh = [22.85, 2.04, 5.35]
-#
-# Tc0 = [26, 118]
-# Tcf = [127, 265]
-# CPc = [9.33, 19.61]
-#
-# receber_pinch_ev(Thf, Tcf, 3, 2, CPh, CPc, 20, 159, 139, Th0, Tc0)
-# divisao_de_correntes_ev("F", 1, 2, 2, [0.56, 0.44])
-# inserir_trocador_ev("oi", [3, 2, 1, 1, 1, 1, 309.77])
-# inserir_trocador_ev("oi", [2, 2, 1, 1, 2, 1, 220.32])
-# inserir_trocador_ev("oi", [3, 2, 1, 2, 3, 1, 674.63])
-# inserir_trocador_ev("oi", [1, 2, 1, 1, 4, 2, 411.81])
-# inserir_trocador_ev("oi", [2, 1, 1, 1, 5, 2, 31.30])
-# inserir_trocador_ev("oi", [3, 1, 1, 1, 6, 2, 195.20])
-# inserir_trocador_ev("oi", [1, 1, 1, 1, 7, 2, 715.83], ultima=True)
-# adicionar_utilidade_ev("oi", 2, 1266.14, "aquecedor")
-# adicionar_utilidade_ev("oi", 1, 746.06, "resf")
-# adicionar_utilidade_ev("oi", 2, 113.54, "resf")
-# adicionar_utilidade_ev("oi", 3, 173.95, "resf")
-# print(utilidades)
-# print(utilidades_abaixo)
-#
-# for i in linha_interface:
-# 	print(i)
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-
-
-
-
-
-
-#oi
