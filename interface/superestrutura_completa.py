@@ -80,12 +80,18 @@ Fcarr = []
 Qarr = []
 Q = []
 Qaux = []
-dividida_quente_ev = []
-dividida_fria_ev = []
-quantidade_quente_ev = []
-quantidade_fria_ev = []
-fracoes_quentes_ev = []
-fracoes_frias_ev = []
+dividida_quente_ev_acima = []
+dividida_quente_ev_abaixo = []
+dividida_fria_ev_acima = []
+dividida_fria_ev_abaixo = []
+quantidade_quente_ev_acima = []
+quantidade_quente_ev_abaixo = []
+quantidade_fria_ev_acima = []
+quantidade_fria_ev_abaixo = []
+fracoes_quentes_ev_acima = []
+fracoes_quentes_ev_abaixo = []
+fracoes_frias_ev_acima = []
+fracoes_frias_ev_abaixo = []
 fechar_corrente_ev = []
 fechar_corrente_ev_abaixo = []
 
@@ -98,7 +104,7 @@ def preparar_dados_e_rede():
 	global linha_interface, utilidades, utilidades_abaixo
 	global calor_atual_frio_ev, calor_atual_quente_ev, calor_atual_quente_ev_sub, calor_atual_frio_ev_sub, calor_sub_sem_utilidade_ev
 	global temperatura_atual_quente_ev,	temperatura_atual_quente_ev_mesclada, temp_misturador_ev_abaixo, temperatura_atual_fria_ev,	temperatura_atual_fria_ev_mesclada,	temp_misturador_quente, temp_misturador_frio
-	global dividida_quente_ev, dividida_fria_ev, quantidade_quente_ev, quantidade_fria_ev, fracoes_quentes_ev, fracoes_frias_ev, fechar_corrente_ev, fechar_corrente_ev_abaixo
+	global dividida_quente_ev_acima, dividida_quente_ev_abaixo, dividida_fria_ev_acima, dividida_fria_ev_abaixo, quantidade_quente_ev_acima, quantidade_quente_ev_abaixo, quantidade_fria_ev_acima, quantidade_fria_ev_abaixo, fracoes_quentes_ev, fracoes_frias_ev, fechar_corrente_ev, fechar_corrente_ev_abaixo
 
 	Qtotalh0arr = np.array([0])
 	Qtotalh0arr.resize(nhot, ncold, nstages)
@@ -207,10 +213,13 @@ def preparar_dados_e_rede():
 		temperatura_atual_quente_ev_mesclada.append(Th0[quente])
 		temp_misturador_quente.append(0)
 		calor_atual_quente_ev_sub.append([])
-		dividida_quente_ev.append(False)
+		dividida_quente_ev_acima.append(False)
+		dividida_quente_ev_abaixo.append(False)
 		fechar_corrente_ev_abaixo.append(False)
-		quantidade_quente_ev.append(1)
-		fracoes_quentes_ev.append([])
+		quantidade_quente_ev_acima.append(1)
+		quantidade_quente_ev_abaixo.append(1)
+		fracoes_quentes_ev_acima.append([])
+		fracoes_quentes_ev_abaixo.append([])
 		for sub in range(ncold):
 			calor_atual_quente_ev_sub[quente].append(0)
 			temperatura_atual_quente_ev[quente].append(Th0[quente])
@@ -220,10 +229,13 @@ def preparar_dados_e_rede():
 		temp_misturador_frio.append(0)
 		calor_atual_frio_ev_sub.append([])
 		calor_sub_sem_utilidade_ev.append([])
-		dividida_fria_ev.append(False)
+		dividida_fria_ev_acima.append(False)
+		dividida_fria_ev_abaixo.append(False)
 		fechar_corrente_ev.append(False)
-		quantidade_fria_ev.append(1)
-		fracoes_frias_ev.append([])
+		quantidade_fria_ev_acima.append(1)
+		quantidade_fria_ev_abaixo.append(1)
+		fracoes_frias_ev_acima.append([])
+		fracoes_frias_ev_abaixo.append([])
 		for sub in range(nhot):
 			calor_atual_frio_ev_sub[fria].append(0)
 			temperatura_atual_fria_ev[fria].append(Tc0[fria])
@@ -470,8 +482,6 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								Think[i][si][j][sj][sk][k] = Thki[i][k]
 								Thoutk[i][si][j][sj][sk][k] = Think[i][si][j][sj][sk][k] - (Qestagioq[i][k]/CPh[i])
 
-								if dividida_quente_ev[i]:
-									temperatura_atual_quente_ev[i][si] = Thout[i][si][j][sj][sk][k]
 								temperatura_atual_quente_ev_mesclada[i] = Thoutk[i][si][j][sj][sk][k]
 
 								Thfinal01[i][si] = Thout[i][si][j][sj][sk][k]
@@ -537,10 +547,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								tempdif = Thin[i][si][j][sj][sk][k] - Tcout[i][si][j][sj][sk][k]
 								tempdif_terminal_frio = Thout[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
 
-								if True:
-									if dividida_fria_ev[j]:
-										temperatura_atual_fria_ev[j][sj] = Tcout[i][si][j][sj][sk][k]
-									temperatura_atual_fria_ev_mesclada[j] = Tcoutk[i][si][j][sj][sk][k]
+								temperatura_atual_fria_ev_mesclada[j] = Tcoutk[i][si][j][sj][sk][k]
 
 								Tcfinal01[j][sj] = Tcout[i][si][j][sj][sk][k]
 								Tcfinal01k[j][k] = Tcoutk[i][si][j][sj][sk][k]
@@ -617,13 +624,18 @@ def divisao_de_correntes_ev(divtype, estagio, corrente, quantidade, fracao):
 			if qsi <= ncold:
 				for si in range(qsi):
 					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
-					fracoes_quentes_ev[corrente-1].append(fracao[si])
 				for si in range(ncold-1, -1, -1):
 					if Fharr[estagio-1][corrente-1][si] != 0:
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
 						calor_atual_quente_ev_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
-			dividida_quente_ev[corrente-1] = True
-			quantidade_quente_ev[corrente-1] = qsi
+			if estagio == 1:
+				dividida_quente_ev_acima[corrente-1] = True
+				quantidade_quente_ev_acima[corrente-1] = qsi
+				fracoes_quentes_ev_acima[corrente-1] = fracao[:]
+			else:
+				dividida_quente_ev_abaixo[corrente-1] = True
+				quantidade_quente_ev_abaixo[corrente-1] = qsi
+				fracoes_quentes_ev_abaixo[corrente-1] = fracao[:]
 
 		if divtype.upper() == 'F':
 			#desfaz divisoes anteriores da corrente no estagio
@@ -636,13 +648,20 @@ def divisao_de_correntes_ev(divtype, estagio, corrente, quantidade, fracao):
 			if qsj <= nhot:
 				for sj in range(qsj):
 					Fcarr[estagio-1][corrente-1][sj] = 100 * fracao[sj]
-					fracoes_frias_ev[corrente-1].append(fracao[sj])
 				for sj in range(nhot-1, -1, -1):
 					if Fcarr[estagio-1][corrente-1][sj] != 0:
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
 						calor_atual_frio_ev_sub[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
-			dividida_fria_ev[corrente-1] = True
-			quantidade_fria_ev[corrente-1] = qsj
+			if estagio == 1:
+				dividida_fria_ev_acima[corrente-1] = True
+				quantidade_fria_ev_acima[corrente-1] = qsj
+				fracoes_frias_ev_acima[corrente-1] = fracao[:]
+			else:
+				dividida_fria_ev_abaixo[corrente-1] = True
+				quantidade_fria_ev_abaixo[corrente-1] = qsj
+				fracoes_frias_ev_abaixo[corrente-1] = fracao[:]
+			print(fracoes_frias_ev_acima)
+			print(fracoes_frias_ev_abaixo)
 
 def inserir_trocador_ev(dlg, vetor, ultima=False):
 	cont = 0
@@ -677,11 +696,6 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 	calor_atual_frio_ev[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	temp_misturador_quente[chot-1] = Thkf[chot-1][estagio-1]
 	temp_misturador_frio[ccold-1] = Tckf[ccold-1][estagio-1]
-
-	if dividida_quente_ev[chot-1]:
-		calor_atual_quente_ev_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-	if dividida_fria_ev[ccold-1]:
-		calor_atual_frio_ev_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 	linha_interface.append([chot,
 							ccold,
@@ -726,22 +740,11 @@ def remover_trocador_ev(dlg, vetor, indice, linha_interface, ultima=False):
 
 	calor_atual_quente_ev[chot-1] += vetor[6]
 	calor_atual_frio_ev[ccold-1] += vetor[6]
-	if dividida_quente_ev[chot-1]:
-		calor_atual_quente_ev_sub[chot-1][sbhot-1] += vetor[6]
-	if dividida_fria_ev[ccold-1]:
-		calor_atual_frio_ev_sub[ccold-1][sbcold-1] += vetor[6]
 
 	if calor_atual_quente_ev[chot-1] == Qtotalh01[chot-1]:
 		temperatura_atual_quente_ev_mesclada[chot-1] = pinchq
 	if calor_atual_frio_ev[ccold-1] == Qtotalc01[ccold-1]:
 		temperatura_atual_fria_ev_mesclada[ccold-1] = pinchf
-
-	if dividida_quente_ev[chot-1]:
-		if calor_atual_quente_ev_sub[chot-1][sbhot-1] == Qtotalh01[chot-1] * Fharr[estagio-1][chot-1][sbhot-1]/100:
-			temperatura_atual_quente_ev[chot-1][sbhot-1] = pinchq
-	if dividida_fria_ev[ccold-1]:
-		if calor_atual_frio_ev_sub[ccold-1][sbcold-1] == Qtotalc01[ccold-1] * Fcarr[estagio-1][ccold-1][sbcold-1]/100:
-			temperatura_atual_fria_ev[ccold-1][sbcold-1] = pinchf
 
 	linha_interface.pop(indice)
 

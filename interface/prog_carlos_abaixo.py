@@ -607,6 +607,7 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 				Qtotalh0[corrente-1][si][estagio-1] = 0
 			#faz a nova divisao
 			if qsi <= ncold:
+				fracoes_quentes_abaixo[corrente-1] = []
 				for si in range(qsi):
 					Fharr[estagio-1][corrente-1][si] = 100 * fracao[si]
 					fracoes_quentes_abaixo[corrente-1].append(fracao[si])
@@ -626,6 +627,7 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 				Qtotalc0[corrente-1][sj][estagio-1] = 0
 			#faz a nova divisao
 			if qsj <= nhot:
+				fracoes_frias_abaixo[corrente-1] = []
 				for sj in range(qsj):
 					Fcarr[estagio-1][corrente-1][sj] = 100 * fracao[sj]
 					fracoes_frias_abaixo[corrente-1].append(fracao[sj])

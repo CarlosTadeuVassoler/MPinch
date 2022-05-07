@@ -849,9 +849,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				temp.write(str('{:.2f}'.format(round(Th0[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 				temp.setx(distancia_x/2 + 6)
 				temp.write(str('{:.2f}'.format(round(Thf[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-				if dividida_quente[i]:
-					correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
-					for j in range(quantidade_quente[i]-1):
+				if dividida_quente_ev_acima[i]:
+					correntes_desenho_sub_acima[i] = [0] * (quantidade_quente_ev_acima[i] - 1)
+					for j in range(quantidade_quente_ev_acima[i]-1):
 						correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 						if e_utilidade_quente[i]:
 							correntes_desenho_sub_acima[i][j].color("orange")
@@ -874,9 +874,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						y_acima -= ramo_y
 					temp.sety(y_acima - h_string)
 					temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
-				if dividida_quente_abaixo[i]:
-					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
-					for j in range(quantidade_quente_abaixo[i]-1):
+				if dividida_quente_ev_abaixo[i]:
+					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_ev_abaixo[i] - 1)
+					for j in range(quantidade_quente_ev_abaixo[i]-1):
 						correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 						correntes_desenho_sub_abaixo[i][j].color("red")
 						correntes_desenho_sub_abaixo[i][j].pensize(grossura_corrente)
@@ -1101,9 +1101,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 				temp.setx(distancia_x/2 + 6)
 				temp.write(str('{:.2f}'.format(round(Tc0[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-				if dividida_fria[i]:
-					correntes_desenho_sub_acima[i] = [0] * (quantidade_fria[i] - 1)
-					for j in range(quantidade_fria[i] - 1):
+				if dividida_fria_ev_acima[i]:
+					correntes_desenho_sub_acima[i] = [0] * (quantidade_fria_ev_acima[i] - 1)
+					for j in range(quantidade_fria_ev_acima[i] - 1):
 						correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 						correntes_desenho_sub_acima[i][j].color("blue")
 						correntes_desenho_sub_acima[i][j].pensize(grossura_corrente)
@@ -1115,7 +1115,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						correntes_desenho_sub_acima[i][j].right(90)
 						correntes_desenho_sub_acima[i][j].forward(ramo_y)
 						correntes_desenho_sub_acima[i][j].right(90)
-						if fechar_corrente[i]:
+						if fechar_corrente_ev[i]:
 							correntes_desenho_sub_acima[i][j].forward((len(matriz_armazenada)+0.5)*espaco_trocadores)
 							temperatura.sety(y_acima + 1)
 							temperatura.setx(-(len(matriz_armazenada)+1)*espaco_trocadores + 6)
@@ -1127,9 +1127,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						correntes_desenho_sub_acima[i][j].left(90)
 						correntes_desenho_sub_acima[i][j].forward(ramo_x)
 						y_acima -= ramo_y
-				if dividida_fria_abaixo[i]:
-					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_abaixo[i] - 1)
-					for j in range(quantidade_fria_abaixo[i]-1):
+				if dividida_fria_ev_abaixo[i]:
+					correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_ev_abaixo[i] - 1)
+					for j in range(quantidade_fria_ev_abaixo[i]-1):
 						correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 						if e_utilidade_fria[i]:
 							correntes_desenho_sub_abaixo[i][j].color("#7FFFD4")
@@ -1792,7 +1792,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			# legenda([250, y_acima-90], ["K", "kW/K"])
 
 
-	# TARGET_BOUNDS = (distancia_x + maior_cp + distancia_cp + 50, y_acima_f + abs(y_acima) + 50)
+	if not desenha:
+		w = h = 0
 
 	if teste:
 		salvar_rede(teste, subrede, desenha, [w, h])
@@ -2143,7 +2144,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 	def coisas_interface(trocadores_laco, matriz_completa):
 		text = ""
 		dlg.trocador_remover.clear()
-		dlg.preview.setText("Network Preview by Removing -")
 		menor_calor = []
 		trocadores_combo = []
 		for i in range(len(trocadores_laco)):
@@ -2174,7 +2174,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 			dlg.label_7.setText("Loop Found Between Heat Exchangers:")
 		else:
 			dlg.label_7.setText("Loop Found Among Heat Exchangers:")
-		dlg.preview.setText("Network Preview by Removing " + trocadores_combo[dlg.trocador_remover.currentIndex()])
 
 		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_laco, matriz_completa, dlg.trocador_remover.currentIndex()))
 
@@ -2257,13 +2256,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 	def distribuir_calor(trocadores_laco, matriz_completa, trocador_removido):
 		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
 		dlg.dividir_calor.toolButton.triggered.connect(lambda: dlg.dividir_calor.toolButton.defaultAction())
-		print(trocadores_laco)
-		print(trocador_removido)
-
-		print("MATRIZ ANTES DE REMOVER")
-		for trocador in matriz_completa:
-			print(trocador)
-		print()
 
 		corrente_quente_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][0]
 		corrente_fria_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][1]
@@ -2343,7 +2335,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 		dlg.dividir_calor.prever.clicked.connect(lambda: distribuiu([set_calor, add_calor], valores, valores_recomendados, trocadores_laco, matriz_completa, trocador_removido, dtquente, dtfrio))
 
 		def distribuiu(valor_trocador, valores, valores_recomendados, trocadores_laco, matriz_completa_naomuda, trocador_removido, dtquente, dtfrio):
-			global ja_violava, layh, novas_violacoes
+			global ja_violava, layh, novas_violacoes, dt_quente_novo, dt_frio_novo
 			for i in range(len(trocadores_laco)):
 				try:
 					if dlg.dividir_calor.padrao.isChecked():
@@ -2364,7 +2356,57 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 
 			matriz_completa = nao_sacrificar_matriz(matriz_completa_naomuda)
 
+			corrente_quente = matriz_completa[trocadores_laco[trocador_removido]-1][0]
+			corrente_fria = matriz_completa[trocadores_laco[trocador_removido]-1][1]
+			ramo_quente = matriz_completa[trocadores_laco[trocador_removido]-1][2]
+			ramo_frio = matriz_completa[trocadores_laco[trocador_removido]-1][3]
+			estagio = matriz_completa[trocadores_laco[trocador_removido]-1][5]
+
+			ainda_tem_quente = False
+			ainda_tem_frio = False
+			for trocador in matriz_completa:
+				if matriz_completa.index(trocador) != trocadores_laco[trocador_removido]-1 and trocador[5] == estagio:
+					if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
+						ainda_tem_quente = True
+					if ramo_frio == trocador[3] and corrente_fria == trocador[1]:
+						ainda_tem_frio = True
+
 			remover_todos()
+
+
+			#divisao_de_correntes_ev(divisoes[i][0], divisoes[i][1], divisoes[i][2], divisoes[i][3], divisoes[i][4])
+			# ["F", 1, 2, 2, [0.72, 0.28]] divtype, estagio, corrente, quantidade, fracao
+			novas_divisoes = nao_sacrificar_matriz(divisoes)
+
+			if not ainda_tem_quente:
+				for divisao in divisoes:
+					if divisao[0] == "Q" and divisao[1] == estagio and divisao[2] == corrente_quente:
+						total = 0
+						for ramo in range(divisao[3]):
+							if ramo+1 != ramo_quente:
+								total += divisao[4][ramo]
+						fracao = []
+						for ramo in range(divisao[3]):
+							if ramo+1 != ramo_quente:
+								proporcao = divisao[4][ramo] / total
+								fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_quente-1])
+					divisao_de_correntes_ev("Q", estagio, corrente_quente, len(fracao), fracao)
+					novas_divisoes[divisoes.index(divisao)] = ["Q", estagio, corrente_fria, len(fracao), fracao]
+
+			if not ainda_tem_frio:
+				for divisao in divisoes:
+					if divisao[0] == "F" and divisao[1] == estagio and divisao[2] == corrente_fria:
+						total = 0
+						for ramo in range(divisao[3]):
+							if ramo+1 != ramo_frio:
+								total += divisao[4][ramo]
+						fracao = []
+						for ramo in range(divisao[3]):
+							if ramo+1 != ramo_frio:
+								proporcao = divisao[4][ramo] / total
+								fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_frio-1])
+					divisao_de_correntes_ev("F", estagio, corrente_fria, len(fracao), fracao)
+					novas_divisoes[divisoes.index(divisao)] = ["F", estagio, corrente_fria, len(fracao), fracao]
 
 			for i in range(len(trocadores_laco)):
 				matriz_completa[trocadores_laco[i]-1][6] = valores[i]
@@ -2408,23 +2450,21 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 					else:
 						dtfrio[i].setStyleSheet("QLabel {color: black; font: 1000 10pt 'MS Shell Dlg 2'}")
 
-			# try:
-			# 	print(ja_violava)
-			# except:
-			# 	try:
-			# 		print(novas_violacoes)
-			# 	except:
-			# 		ja_violava = []
-			# 		novas_violacoes = 0
-			#
-			# if len(ja_violava) != 0:
-			# 	for lay in range(len(ja_violava)-1, -1, -1):
-			# 		layh[lay].removeWidget(novas_violacoes[lay])
-			# 		layh[lay].removeWidget(dt_quente_novo[lay])
-			# 		layh[lay].removeWidget(dt_frio_novo[lay])
-			# 		dlg.dividir_calor.outras_violacoes.removeItem(layh[lay])
-			# elif novas_violacoes != 0:
-			# 	dlg.dividir_calor.outras_violacoes.removeWidget(novas_violacoes)
+			try:
+				if ja_violava[0] != "None.":
+					for lay in range(len(ja_violava)-1, -1, -1):
+						layh[lay].removeWidget(novas_violacoes[lay])
+						layh[lay].removeWidget(dt_quente_novo[lay])
+						layh[lay].removeWidget(dt_frio_novo[lay])
+						novas_violacoes[lay].setParent(None)
+						dt_quente_novo[lay].setParent(None)
+						dt_frio_novo[lay].setParent(None)
+						dlg.dividir_calor.outras_violacoes.removeItem(layh[lay])
+				else:
+					dlg.dividir_calor.outras_violacoes.removeWidget(novas_violacoes)
+					novas_violacoes.setParent(None)
+			except:
+				pass
 
 			if len(viola_agora) != 0:
 				novas_violacoes = [0] * len(viola_agora)
@@ -2461,25 +2501,20 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				novas_violacoes.setAlignment(Qt.AlignCenter)
 				novas_violacoes.setStyleSheet("QLabel {font: 1000 10pt 'MS Shell Dlg 2'}")
 				dlg.dividir_calor.outras_violacoes.addWidget(novas_violacoes)
+				viola_agora.append("None.")
 
-			ja_violava = viola_agora[:]
+			ja_violava = []
+			for i in range(len(viola_agora)):
+				ja_violava.append(viola_agora[i])
 
-			print("MATRIZ APÓS REMOVER")
-			for trocador in matriz_completa:
-				print(trocador)
-			print()
+			dlg.dividir_calor.botaodone.clicked.connect(lambda: done(matriz_completa, novas_divisoes))
+			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda, divisoes))
 
-			dlg.dividir_calor.botaodone.clicked.connect(lambda: done(matriz_completa))
-			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda))
-
-			def done(matriz_completa_done):
-				global matriz_evolucao, desenho_em_dia_ambas
+			def done(matriz_completa_done, novas_divisoes):
+				global matriz_evolucao, desenho_em_dia_ambas, divisoes
 				matriz_evolucao = nao_sacrificar_matriz(matriz_completa_done)
+				divisoes = nao_sacrificar_matriz(novas_divisoes)
 				dlg.dividir_calor.close()
-				print("MATRIZ CONFIRM")
-				for trocador in matriz_evolucao:
-					print(trocador)
-				print()
 				desenho_em_dia_ambas = False
 				desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 				if todos:
@@ -2487,18 +2522,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 				else:
 					evolucao([], [], nivel)
 
-			def undone(matriz_completa_undone):
-				global matriz_evolucao
+			def undone(matriz_completa_undone, novas_divisoes):
+				global matriz_evolucao, divisoes
 				remover_todos()
 				for trocador in matriz_completa_undone:
 					matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-
-				print("MATRIZ UNDONE")
-				for trocador in matriz_completa:
-					print(trocador)
-				print()
-
 				matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+				divisoes = nao_sacrificar_matriz(novas_divisoes)
 				dlg.dividir_calor.close()
 
 		def liberar_bloquear(valor_trocador, acao, trocador_removido, placeholders):
@@ -2542,10 +2572,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False):
 		matriz = criar_rede_completa(matriz_acima, matriz_abaixo)
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
-		print("MATRIZ EVOLUCAO SEGUNDO LACO")
-		for trocador in matriz_evolucao:
-			print(trocador)
-		print()
 	incidencia = criar_incidencia(trocadores, n_quentes, n_frias)
 	if todos:
 		trocadores_laco = []
