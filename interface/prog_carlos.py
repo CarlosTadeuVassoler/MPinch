@@ -615,7 +615,10 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 					if Fharr[estagio-1][corrente-1][si] != 0:
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
 						calor_atual_quente_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
-			dividida_quente[corrente-1] = True
+			if fracoes_quentes[corrente-1][0] != 1:
+				dividida_quente[corrente-1] = True
+			else:
+				dividida_quente[corrente-1] = False
 			quantidade_quente[corrente-1] = qsi
 
 		if divtype.upper() == 'F':
@@ -635,7 +638,10 @@ def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 					if Fcarr[estagio-1][corrente-1][sj] != 0:
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
 						calor_atual_frio_sub[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
-			dividida_fria[corrente-1] = True
+			if fracoes_frias[corrente-1][0] != 1:
+				dividida_fria[corrente-1] = True
+			else:
+				dividida_fria[corrente-1] = False
 			quantidade_fria[corrente-1] = qsj
 
 def ler_dados(dlg, subestagio_trocador):
@@ -867,8 +873,6 @@ def testar_correntes(dlg, primeira=False):
 					nhotc += quantidade_quente[quente]
 				else:
 					nhotc += 1
-					# if quente == 0:
-					# 	nhotc += 1
 
 	for fria in range(ncold):
 		if Tc0[fria] == pinchf: #se tocar o pinch
@@ -878,11 +882,6 @@ def testar_correntes(dlg, primeira=False):
 					ncoldc += quantidade_fria[fria]
 				else:
 					ncoldc += 1
-
-	# print("nhot toca pinch acima: ", nhotc)
-	# print("ncold toca pinch acima: ", ncoldc)
-	# print("soma cpquente acima: ", somaCPh)
-	# print("soma cpfrio acima: ", somaCPc)
 
 	if somaCPh > somaCPc:
 		dlg.label_24.setStyleSheet("QLabel {color: red}")

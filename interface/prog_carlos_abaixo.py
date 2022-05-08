@@ -615,7 +615,10 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 					if Fharr[estagio-1][corrente-1][si] != 0:
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
 						calor_atual_quente_sub_abaixo[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
-			dividida_quente_abaixo[corrente-1] = True
+			if fracoes_quentes_abaixo[corrente-1][0] != 1:
+				dividida_quente_abaixo[corrente-1] = True
+			else:
+				dividida_quente_abaixo[corrente-1] = False
 			quantidade_quente_abaixo[corrente-1] = qsi
 
 		if divtype.upper() == 'F':
@@ -635,7 +638,10 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 					if Fcarr[estagio-1][corrente-1][sj] != 0:
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
 						calor_atual_frio_sub_abaixo[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
-			dividida_fria_abaixo[corrente-1] = True
+			if fracoes_frias_abaixo[corrente-1][0] != 1:
+				dividida_fria_abaixo[corrente-1] = True
+			else:
+				dividida_fria_abaixo[corrente-1] = False
 			quantidade_fria_abaixo[corrente-1] = qsj
 
 def ler_dados_abaixo(dlg, subestagio_trocador_abaixo):

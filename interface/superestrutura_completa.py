@@ -629,11 +629,17 @@ def divisao_de_correntes_ev(divtype, estagio, corrente, quantidade, fracao):
 						Qtotalh0[corrente-1][si][estagio-1] = Qtotalh0[corrente-1][0][estagio-1]*(Fharr[estagio-1][corrente-1][si]/100)
 						calor_atual_quente_ev_sub[corrente-1][si] = Qtotalh0[corrente-1][si][estagio-1]
 			if estagio == 1:
-				dividida_quente_ev_acima[corrente-1] = True
+				if fracao[0] != 1:
+					dividida_quente_ev_acima[corrente-1] = True
+				else:
+					dividida_quente_ev_acima[corrente-1] = False
 				quantidade_quente_ev_acima[corrente-1] = qsi
 				fracoes_quentes_ev_acima[corrente-1] = fracao[:]
 			else:
-				dividida_quente_ev_abaixo[corrente-1] = True
+				if fracao[0] != 1:
+					dividida_quente_ev_abaixo[corrente-1] = True
+				else:
+					dividida_quente_ev_abaixo[corrente-1] = False
 				quantidade_quente_ev_abaixo[corrente-1] = qsi
 				fracoes_quentes_ev_abaixo[corrente-1] = fracao[:]
 
@@ -653,15 +659,19 @@ def divisao_de_correntes_ev(divtype, estagio, corrente, quantidade, fracao):
 						Qtotalc0[corrente-1][sj][estagio-1] = Qtotalc0[corrente-1][0][estagio-1]*(Fcarr[estagio-1][corrente-1][sj]/100)
 						calor_atual_frio_ev_sub[corrente-1][sj] = Qtotalc0[corrente-1][sj][estagio-1]
 			if estagio == 1:
-				dividida_fria_ev_acima[corrente-1] = True
+				if fracao[0] != 1:
+					dividida_fria_ev_acima[corrente-1] = True
+				else:
+					dividida_fria_ev_acima[corrente-1] = False
 				quantidade_fria_ev_acima[corrente-1] = qsj
 				fracoes_frias_ev_acima[corrente-1] = fracao[:]
 			else:
-				dividida_fria_ev_abaixo[corrente-1] = True
+				if fracao[0] != 1:
+					dividida_fria_ev_abaixo[corrente-1] = True
+				else:
+					dividida_fria_ev_abaixo[corrente-1] = False
 				quantidade_fria_ev_abaixo[corrente-1] = qsj
 				fracoes_frias_ev_abaixo[corrente-1] = fracao[:]
-			print(fracoes_frias_ev_acima)
-			print(fracoes_frias_ev_abaixo)
 
 def inserir_trocador_ev(dlg, vetor, ultima=False):
 	cont = 0
