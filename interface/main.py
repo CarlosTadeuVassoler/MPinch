@@ -293,6 +293,7 @@ def add_utilidade():
 	global n, n_util, ncold, nhot, correntes_util
 	dlg.donebutton.setEnabled(False)
 	dlg.botao_addstream.setEnabled(False)
+	dlg.remover_corrente.setEnabled(False)
 	# n += 1
 	n_util += 1
 	dados_da_corrente = []
@@ -340,10 +341,6 @@ def add_utilidade():
 	dlg.tableWidget_5.blockSignals(False)
 	if n_util == 2:
 		dlg.botao_addutility.setEnabled(False)
-		dlg.utilidade.setEnabled(False)
-		dlg.util_inlet.setEnabled(False)
-		dlg.util_outlet.setEnabled(False)
-		dlg.util_pelicula.setEnabled(False)
 		dlg.pinchbutton.setEnabled(True)
 
 def editar_corrente(correntes, tip, tabela):
@@ -377,6 +374,27 @@ def editar_corrente(correntes, tip, tabela):
 			dlg.pinchbutton.setEnabled(True)
 	except:
 		pass
+
+def remover_corrente(corrente, tabela, tipo):
+	global correntes, correntes_util, n_util, ncold, nhot, n
+
+	if corrente == -1:
+		QMessageBox.about(dlg, "Error!", "Select the line of the Stream that you want to remove")
+		return
+
+	if tipo == "corrente":
+		n -= 1
+		if correntes[corrente][3] == "Hot":
+			nhot -= 1
+		elif correntes[corrente][3] == "Cold":
+			ncold -= 1
+		correntes.pop(corrente)
+	elif tipo == "utilidade":
+		n_util -= 1
+		correntes_util.pop(corrente)
+		dlg.botao_addutility.setEnabled(True)
+
+	tabela.removeRow(corrente)
 
 def done_teste(libera=False):
 	global dTmin, done, correntes
@@ -419,12 +437,14 @@ def done_teste(libera=False):
 
 	def liberar_utilidades(libera):
 		dlg.botao_addutility.setEnabled(True)
+		dlg.remover_utilidade.setEnabled(True)
 		dlg.utilidade.setEnabled(True)
 		dlg.util_inlet.setEnabled(True)
 		dlg.util_outlet.setEnabled(True)
 		dlg.util_pelicula.setEnabled(True)
 		dlg.donebutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
+		dlg.remover_corrente.setEnabled(False)
 		dlg.done.close()
 		if libera:
 			correntes_util.append([300, 299, 1, "Hot", 0.5])
@@ -560,6 +580,8 @@ def pinch_teste():
 		dlg.pinchbutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
 		dlg.botao_addutility.setEnabled(False)
+		dlg.remover_utilidade.setEnabled(False)
+		dlg.remover_corrente.setEnabled(False)
 		dlg.donebutton.setEnabled(False)
 
 def correntesnoscombos(nhot,ncold):
@@ -572,8 +594,8 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_43.addItem(str(i+1))#abaixo   quadro de correntes quentes
 		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
 		dlg.comboBox_54.addItem(str(i+1))
-		if not e_utilidade_quente[i]:
-			dlg.comboutil.addItem("Hot " + str(i+1))
+		# if not e_utilidade_quente[i]:
+		# 	dlg.comboutil.addItem("Hot " + str(i+1))
 	for i in range (ncold):
 		dlg.comboBox_5.addItem(str(i+1))  #acima add heat ex
 		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
@@ -581,8 +603,8 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
-		if not e_utilidade_fria[i]:
-			dlg.comboutil.addItem("Cold " + str(i+1))
+		# if not e_utilidade_fria[i]:
+		# 	dlg.comboutil.addItem("Cold " + str(i+1))
 
 	for i in range(1, min(nhot, ncold)):
 		dlg.nivel.addItem(str(i+1))
@@ -1810,9 +1832,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 def salvar_rede(so_ver, onde, salva, tamanho):
 	global primeira_vez
 
-	if primeira_vez:
-		dlg.legenda_foto = QPixmap("legenda.png")
-		dlg.legenda.setPixmap(dlg.legenda_foto)
+	# if primeira_vez:
+	# 	dlg.legenda_foto = QPixmap("legenda.png")
+	# 	dlg.legenda.setPixmap(dlg.legenda_foto)
 
 	if salva:
 		turtle.getscreen()
@@ -2190,9 +2212,9 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			pass
 		dlg.trocador_remover.setItemText(dlg.trocador_remover.currentIndex(), dlg.trocador_remover.currentText() + " (suggested)")
 		if nivel == 1:
-			dlg.label_7.setText("Loop Found Between Heat Exchangers:")
+			dlg.label_7.setText("Loop Found Between:")
 		else:
-			dlg.label_7.setText("Loop Found Among Heat Exchangers:")
+			dlg.label_7.setText("Loop Found Among:")
 
 		dlg.remover.clicked.connect(lambda: distribuir_calor(trocadores_laco, matriz_completa, dlg.trocador_remover.currentIndex()))
 
@@ -3262,6 +3284,8 @@ dlg.tableWidget.itemChanged.connect(lambda: editar_corrente(correntes, 0, dlg.ta
 dlg.tableWidget_5.itemChanged.connect(lambda: editar_corrente(correntes_util, 1, dlg.tableWidget_5))
 dlg.botao_addstream.clicked.connect(apertaradd) #add stream
 dlg.botao_addutility.clicked.connect(add_utilidade)
+dlg.remover_corrente.clicked.connect(lambda: remover_corrente(dlg.tableWidget.currentRow(), dlg.tableWidget, "corrente"))
+dlg.remover_utilidade.clicked.connect(lambda: remover_corrente(dlg.tableWidget_5.currentRow(), dlg.tableWidget_5, "utilidade"))
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
 dlg.actionOpen_2.triggered.connect(lambda: openfile_teste(True)) #file > open
 dlg.donebutton.clicked.connect(lambda: done_teste(False)) #done
