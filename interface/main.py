@@ -33,7 +33,6 @@ from custo2 import varia
 from superestrutura_completa import *
 
 
-
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
 
@@ -465,24 +464,6 @@ def done_teste(libera=False):
 	dlg.done.escolher_utilidades.clicked.connect(liberar_utilidades)
 	dlg.done.pinch_sem_utilidades.clicked.connect(pinch_sem_util)
 
-
-
-
-	# Tdecre = coisas_graficos[0]
-	# Tmin = coisas_graficos[1]
-	# Tmax = coisas_graficos[2]
-	# cascat2certo = coisas_graficos[3]
-	# dT = coisas_graficos[4]
-	# cascat2 = coisas_graficos[5]
-	# utilidadesquente = coisas_graficos[6]
-	# menor = coisas_graficos[7]
-	# pinch = coisas_graficos[8]
-	# plotargrafico1(correntes, n, caixinha,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,unidadeusada,plotou)
-	# diagrama_th = plotargrafico2(correntes, len(correntes), dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch,cascat2certo,cascat,utilidadesquente,pinchf,pinchq,unidadeusada)
-	# plotargrafico3(correntes, n, caixinha4,dlg,Tmin,Tmax,dTmin,dT,Tdecre,pinch, cascat2certo,cascat,utilidadesquente,pinchf,pinchq,menor,cascat2,unidadeusada)
-	# dlg.done.grande_composta.addWidget(diagrama_th)
-	# dlg.caixinha3.addWidget(diagrama_th)
-
 def pinch_teste():
 	global done, Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
@@ -491,7 +472,7 @@ def pinch_teste():
 
 		if len(correntes_util) != 0:
 			if correntes_util[0][3] == correntes_util[1][3]:
-				QMessageBox.about(dlg, "Error!", "You won't be able to sinthetize the Heat Exchange Network with two Hot utilities. Edit some of the utilities to make sure you have the both types.")
+				QMessageBox.about(dlg, "Error!", "You won't be able to sinthetize the Heat Exchange Network with two " + correntes_util[0][3] + " utilities. Edit any of these to make sure you have the both types.")
 				dlg.pinchbutton.setEnabled(False)
 				return
 			else:
@@ -507,9 +488,9 @@ def pinch_teste():
 				util[2] = util_fria/(util[1] - util[0])
 				ncold += 1
 		if len(correntes_util) == 4:
-			correntes_util[1][2] = correntes_util[1][2] * 0.72667617689016
-			correntes_util[2][2] = correntes_util[2][2] * 0.10794103661436
-			correntes_util[3][2] = correntes_util[3][2] * 0.16538278649548
+			correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
+			correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
+			correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
 
 
 		correntes += correntes_util
@@ -591,6 +572,8 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_43.addItem(str(i+1))#abaixo   quadro de correntes quentes
 		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
 		dlg.comboBox_54.addItem(str(i+1))
+		if not e_utilidade_quente[i]:
+			dlg.comboutil.addItem("Hot " + str(i+1))
 	for i in range (ncold):
 		dlg.comboBox_5.addItem(str(i+1))  #acima add heat ex
 		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
@@ -598,6 +581,11 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
+		if not e_utilidade_fria[i]:
+			dlg.comboutil.addItem("Cold " + str(i+1))
+
+	for i in range(1, min(nhot, ncold)):
+		dlg.nivel.addItem(str(i+1))
 
 def unidades(header=True, corrente=True):
 	if not header:
@@ -1812,7 +1800,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 
 
 	if not desenha:
-		w = h = 0
+		w = h = 1280
 
 	if teste:
 		salvar_rede(teste, subrede, desenha, [w, h])
@@ -2187,12 +2175,10 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				dlg.trocador_remover.addItem(text[len(text)-4:len(text)-2])
 				dlg.trocador_remover.setEnabled(True)
 				dlg.remover.setEnabled(True)
-				dlg.preview.setEnabled(True)
 			else:
 				text = trocadores_laco[i] + "."
 				dlg.trocador_remover.setEnabled(False)
 				dlg.remover.setEnabled(False)
-				dlg.preview.setEnabled(False)
 
 		text = text[:len(text)-2]
 		text += "."
@@ -2593,6 +2579,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 	global matriz_evolucao
 
+
 	if jogar_evolucao:
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
@@ -2622,13 +2609,10 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				trocadores_laco.pop(-1)
 	else:
 		trocadores_laco = sorted(lacos(incidencia, trocadores, nivel, todos))
-	try:
-		if todos:
-			interface_todos(trocadores_laco, matriz_evolucao)
-		else:
-			coisas_interface(trocadores_laco, matriz_evolucao)
-	except:
-		pass
+	if todos:
+		interface_todos(trocadores_laco, matriz_evolucao)
+	else:
+		coisas_interface(trocadores_laco, matriz_evolucao)
 
 
 
@@ -3172,8 +3156,14 @@ def suprir_9_correntes():
 		# for i in range(10):
 		# 	acima.append([3, 2, 1, 2, i+1, 1, 1])
 		# 	abaixo.append([1, 2, 1, 1, i+1, 1, 1])
-		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5], [4, 2, 1, 1, 4, 1, "max"], [4, 2, 1, 2, 5, 1, "max"]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.8], [1, 3, 1, 1, 5, 1, "max"], [2, 4, 1, 1, 6, 1, 111.5], [3, 5, 1, 1, 7, 1, 170.9]]
+
+		#viola termo util
+		# acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5], [4, 2, 1, 1, 4, 1, "max"], [4, 2, 1, 2, 5, 1, "max"]]
+		# abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.8], [1, 3, 1, 1, 5, 1, "max"], [2, 4, 1, 1, 6, 1, 111.5], [3, 5, 1, 1, 7, 1, 170.9]]
+
+		#sem viola term util
+		acima = [[3, 2, 1, 2, 1, 1, "max"], [2, 2, 1, 1, 2, 1, "max"], [3, 2, 1, 1, 3, 1, "max"], [4, 2, 1, 1, 4, 1, "max"]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"], [1, 3, 1, 1, 5, 1, "max"], [2, 4, 1, 1, 6, 1, "max"], [3, 5, 1, 1, 7, 1, "max"]]
 
 		divisao_de_correntes("F", 1, 2, 2, [0.72, 0.28])
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
@@ -3181,11 +3171,12 @@ def suprir_9_correntes():
 	for trocador in acima:
 		if len(trocador) > 1:
 			if trocador[6] == "max":
-				trocador[6] = calor_atual_frio_sub[trocador[1]-1][trocador[3]-1]
-				if str(trocador[6])[:5] == "13.94":
-					trocador[6] = float(str(trocador[6])[:4])
+				trocador[6] = min(calor_atual_frio_sub[trocador[1]-1][trocador[3]-1], calor_atual_quente_sub[trocador[0]-1][trocador[2]-1])
 			nova_matriz = inserir_trocador(dlg, trocador)
-			matriz_armazenada.append(nova_matriz[-1])
+			try:
+				matriz_armazenada.append(nova_matriz[-1])
+			except:
+				print(trocador)
 			if nova_matriz[-1][7] - nova_matriz[-1][8] < dTmin or nova_matriz[-1][9] - nova_matriz[-1][10] < dTmin:
 				violados_acima.append(len(matriz_armazenada))
 		else:
@@ -3196,9 +3187,12 @@ def suprir_9_correntes():
 	for trocador in abaixo:
 		if len(trocador) > 1:
 			if trocador[6] == "max":
-				trocador[6] = round(calor_atual_quente_abaixo[trocador[0]-1], 2)
+				trocador[6] = min(calor_atual_quente_sub_abaixo[trocador[0]-1][trocador[2]-1], calor_atual_frio_sub_abaixo[trocador[1]-1][trocador[3]-1])
 			nova_matriz = inserir_trocador_abaixo(dlg, trocador)
-			matriz_trocadores_abaixo.append(nova_matriz[-1])
+			try:
+				matriz_trocadores_abaixo.append(nova_matriz[-1])
+			except:
+				print(trocador)
 			if nova_matriz[-1][7] - nova_matriz[-1][8] < dTmin or nova_matriz[-1][9] - nova_matriz[-1][10] < dTmin:
 				violados_abaixo.append(len(matriz_trocadores_abaixo))
 		else:
@@ -3214,9 +3208,7 @@ def suprir_9_correntes():
 	desenho_em_dia = False
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
-	print(matriz_armazenada)
-	print(matriz_trocadores_abaixo)
-	evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1)
+	evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True)
 	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 def centralizar_combobox_teste(x):
@@ -3226,7 +3218,6 @@ def centralizar_combobox_teste(x):
 	x.setStyleSheet("QComboBox { background-color: #e1e1e1 }")
 	for i in range(x.count()):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
-
 
 def jogar_evolucao():
 	acima = [[1, 2, 1, 1, 1, 1, 50], [2, 1, 1, 1, 2, 1, 90], [1, 1, 1, 1, 3, 1, 230], [1, 2, 1, 1, 4, 1, 20], [2, 2, 1, 1, 5, 1, 30]]
@@ -3319,9 +3310,8 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 #evolução
-dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText())))
-dlg.identificar_todos.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, "todos", True))
-# dlg.toolButton_2.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, True))
+dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText()), jogar_evolucao=False))
+dlg.identificar_todos.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, "todos", todos=True))
 
 
 

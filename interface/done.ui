@@ -146,6 +146,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QPushButton" name="escolher_utilidades">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Input Utilities</string>
          </property>
@@ -153,6 +159,12 @@
        </item>
        <item>
         <widget class="QPushButton" name="cancelar">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Cancel</string>
          </property>
@@ -168,8 +180,14 @@
          <height>30</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
-        <string>Pinch</string>
+        <string>Pinch with Unspecified Utilities</string>
        </property>
       </widget>
      </item>

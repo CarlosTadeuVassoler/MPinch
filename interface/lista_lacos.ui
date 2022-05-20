@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>The suggested heat exchanger has the lowest heat load of the loop.</string>
+      <string>The suggested heat exchanger to be removed has the lowest heat load of the loop.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

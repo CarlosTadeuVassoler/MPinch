@@ -280,12 +280,7 @@
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>&quot;By not typing any heat load, the standard will be set.
-
-Standard: After removing a Heat Exchanger from the loop, its heat load will be distributed among the remaining as follows:
-
-Added, if its streams are not supplied;
-Removed, if its streams are over supplied.&quot;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard: After removing a Heat Exchanger from the loop, its heat load will be distributed among the remaining as follows:&lt;/p&gt;&lt;p&gt;Added, if its streams are not supplied;&lt;/p&gt;&lt;p&gt;Removed, if its streams are over supplied.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
             <string notr="true">QToolButton{

@@ -716,11 +716,11 @@ def inserir_trocador(dlg, vetor):
 
 	calor_atual_quente[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	calor_atual_frio[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	calor_atual_quente_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	calor_atual_frio_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
-	if dividida_quente[chot-1]:
-		calor_atual_quente_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-	if dividida_fria[ccold-1]:
-		calor_atual_frio_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	# if dividida_quente[chot-1]:
+	# if dividida_fria[ccold-1]:
 
 	linha_interface.append([chot,
 							ccold,
@@ -771,22 +771,18 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 
 	calor_atual_quente[chot-1] += vetor[6]
 	calor_atual_frio[ccold-1] += vetor[6]
-	if dividida_quente[chot-1]:
-		calor_atual_quente_sub[chot-1][sbhot-1] += vetor[6]
-	if dividida_fria[ccold-1]:
-		calor_atual_frio_sub[ccold-1][sbcold-1] += vetor[6]
+	calor_atual_quente_sub[chot-1][sbhot-1] += vetor[6]
+	calor_atual_frio_sub[ccold-1][sbcold-1] += vetor[6]
 
 	if calor_atual_quente[chot-1] == Qtotalh01[chot-1]:
 		temperatura_atual_quente_mesclada[chot-1] = pinchq
 	if calor_atual_frio[ccold-1] == Qtotalc01[ccold-1]:
 		temperatura_atual_fria_mesclada[ccold-1] = pinchf
 
-	if dividida_quente[chot-1]:
-		if calor_atual_quente_sub[chot-1][sbhot-1] == Qtotalh01[chot-1] * Fharr[estagio-1][chot-1][sbhot-1]/100:
-			temperatura_atual_quente[chot-1][sbhot-1] = pinchq
-	if dividida_fria[ccold-1]:
-		if calor_atual_frio_sub[ccold-1][sbcold-1] == Qtotalc01[ccold-1] * Fcarr[estagio-1][ccold-1][sbcold-1]/100:
-			temperatura_atual_fria[ccold-1][sbcold-1] = pinchf
+	if calor_atual_quente_sub[chot-1][sbhot-1] == Qtotalh01[chot-1] * Fharr[estagio-1][chot-1][sbhot-1]/100:
+		temperatura_atual_quente[chot-1][sbhot-1] = pinchq
+	if calor_atual_frio_sub[ccold-1][sbcold-1] == Qtotalc01[ccold-1] * Fcarr[estagio-1][ccold-1][sbcold-1]/100:
+		temperatura_atual_fria[ccold-1][sbcold-1] = pinchf
 
 	linha_interface.pop(indice)
 

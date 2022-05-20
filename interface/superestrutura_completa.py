@@ -116,8 +116,12 @@ def preparar_dados_e_rede():
 	map(float, Qtotalc0)
 	Qestagioq = np.array([0])
 	Qestagioq.resize(nhot, nstages)
+	Qestagioq = Qestagioq.tolist()
+	map(float, Qestagioq)
 	Qestagiof = np.array([0])
 	Qestagiof.resize(ncold, nstages)
+	Qestagiof = Qestagiof.tolist()
+	map(float, Qestagiof)
 
 	Thskiarr = np.array ([0])
 	Thskiarr.resize(nhot, ncold, nsk, nstages)
