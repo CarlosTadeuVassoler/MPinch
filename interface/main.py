@@ -594,8 +594,8 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_43.addItem(str(i+1))#abaixo   quadro de correntes quentes
 		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
 		dlg.comboBox_54.addItem(str(i+1))
-		# if not e_utilidade_quente[i]:
-		# 	dlg.comboutil.addItem("Hot " + str(i+1))
+		if not e_utilidade_quente[i]:
+			dlg.comboutil.addItem("Hot " + str(i+1))
 	for i in range (ncold):
 		dlg.comboBox_5.addItem(str(i+1))  #acima add heat ex
 		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
@@ -603,8 +603,8 @@ def correntesnoscombos(nhot,ncold):
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1))	#n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
-		# if not e_utilidade_fria[i]:
-		# 	dlg.comboutil.addItem("Cold " + str(i+1))
+		if not e_utilidade_fria[i]:
+			dlg.comboutil.addItem("Cold " + str(i+1))
 
 	for i in range(1, min(nhot, ncold)):
 		dlg.nivel.addItem(str(i+1))
@@ -677,7 +677,7 @@ def unidades_compativeis(unidade_temp, unidade_cp, unidade_pelicula, cp_printar)
 
 
 
-#parte de desenhos
+#desenhos
 def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 
 	def criar_turtle():
@@ -1832,10 +1832,6 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 def salvar_rede(so_ver, onde, salva, tamanho):
 	global primeira_vez
 
-	# if primeira_vez:
-	# 	dlg.legenda_foto = QPixmap("legenda.png")
-	# 	dlg.legenda.setPixmap(dlg.legenda_foto)
-
 	if salva:
 		turtle.getscreen()
 		turtle.getcanvas().postscript(file = (onde + ".eps"))
@@ -1876,6 +1872,7 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 
 
 
+#outros
 def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 	dlg.dtmin = uic.loadUi("dtmin.ui")
 	dlg.dtmin.show()
@@ -2044,18 +2041,22 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
 	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
 
+
+
+#evolução
+def nao_sacrificar_matriz(matriz_naomuda):
+	matriz = []
+	for i in range(len(matriz_naomuda)):
+		trocador = []
+		for j in range(len(matriz_naomuda[0])):
+			try:
+				trocador.append(matriz_naomuda[i][j])
+			except:
+				pass
+		matriz.append(trocador)
+	return matriz
+
 def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jogar_evolucao=False):
-	def nao_sacrificar_matriz(matriz_naomuda):
-		matriz = []
-		for i in range(len(matriz_naomuda)):
-			trocador = []
-			for j in range(len(matriz_naomuda[0])):
-				try:
-					trocador.append(matriz_naomuda[i][j])
-				except:
-					pass
-			matriz.append(trocador)
-		return matriz
 
 	def criar_matriz(matriz_acima, matriz_abaixo):
 		for i in range(len(matriz_acima)-1, -1, -1):
@@ -2296,7 +2297,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 	def distribuir_calor(trocadores_laco, matriz_completa, trocador_removido):
 		dlg.dividir_calor = uic.loadUi("distribuir_calor.ui")
-		dlg.dividir_calor.toolButton.triggered.connect(lambda: dlg.dividir_calor.toolButton.defaultAction())
 
 		corrente_quente_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][0]
 		corrente_fria_vai_remover = matriz_completa[trocadores_laco[trocador_removido]-1][1]
@@ -2566,6 +2566,8 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				dlg.dividir_calor.close()
 				desenho_em_dia_ambas = False
 				desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+				dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
+				dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
 				if todos:
 					evolucao([], [], "todos", True)
 				else:
@@ -2599,8 +2601,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 						valor_trocador[0][i].setPlaceholderText("")
 						valor_trocador[1][i].setPlaceholderText("")
 
-	global matriz_evolucao
-
+	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
 
 	if jogar_evolucao:
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
@@ -2608,7 +2609,14 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
+		desenho_em_dia_ambas = False
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+		if dlg.trocador_editar.count() > 0:
+			dlg.trocador_editar.clear()
+			dlg.trocador_path.clear()
+		for i in range(len(matriz_evolucao)):
+			dlg.trocador_editar.addItem("E" + str(i+1))
+			dlg.trocador_path.addItem("E" + str(i+1))
 	else:
 		matriz_acima_nm = []
 		matriz_abaixo_nm = []
@@ -2635,6 +2643,86 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		interface_todos(trocadores_laco, matriz_evolucao)
 	else:
 		coisas_interface(trocadores_laco, matriz_evolucao)
+		if trocadores_laco == ["None "] and nivel+1 <= min(n_quentes, n_frias):
+			dlg.nivel.setCurrentIndex(nivel)
+			evolucao([], [], nivel+1)
+
+def editar_calor(matriz_naomuda, trocador, calor, path=False):
+	global desenho_em_dia_ambas, matriz_evolucao, n_quentes, n_frias
+	matriz = nao_sacrificar_matriz(matriz_naomuda)
+	remover_todos()
+	desenho_em_dia_ambas = False
+	if not path:
+		if calor == 0:
+			matriz.pop(trocador)
+			dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
+		else:
+			matriz[trocador][6] = calor
+		for trocadorr in matriz:
+			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
+		matriz_completa = nao_sacrificar_matriz(matriz_teste)
+		matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+	else:
+		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True))
+		# matriz_completa = nao_sacrificar_matriz(matriz_teste)
+		# matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+
+def utilidade(matriz_naomuda, dados, path=False):
+	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
+	matriz = nao_sacrificar_matriz(matriz_naomuda)
+	if path:
+		trocador = dados[0]
+		calor = dados[1]
+		corrente_quente = matriz_naomuda[trocador][0]
+		corrente_fria = matriz_naomuda[trocador][1]
+		sub_quente = matriz_naomuda[trocador][2]
+		sub_fria = matriz_naomuda[trocador][3]
+		matriz[trocador][6] = matriz_naomuda[trocador][6] - calor
+		tipo = ""
+	else:
+		oi = dlg.comboutil.currentText().split(" ")
+		corrente = int(oi[1])
+		if oi[0] == "Hot":
+			tipo = "Cold"
+			calor = calor_atual_quente_ev[corrente-1]
+		else:
+			tipo = "Hot"
+			calor = calor_atual_frio_ev[corrente-1]
+	if tipo == "Hot" or path:
+		for trocador in matriz:
+			if trocador[5] == 2:
+				parar = matriz.index(trocador)
+				break
+			else:
+				trocador[4] += 1
+		matriz_reserva = nao_sacrificar_matriz(matriz[parar:])
+		for i in range(parar, len(matriz)):
+			matriz.pop(-1)
+		if path:
+			matriz.append([n_quentes, corrente_fria, 1, sub_fria, 1, 1, calor])
+		else:
+			matriz.append([n_quentes, corrente, 1, 1, 1, 1, calor])
+		for reserva in matriz_reserva:
+			reserva[4] += 1
+			matriz.append(reserva)
+	else:
+		matriz.append([corrente, n_frias, 1, 1, matriz_naomuda[-1][4]+1, 2, calor])
+	if path:
+		matriz.append([corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor])
+	for trocador in matriz:
+		print(trocador)
+	else:
+		remover_todos()
+	for trocadorr in matriz:
+		matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
+	if path:
+		return matriz_teste
+	else:
+		desenho_em_dia_ambas = False
+		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
+		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 
 
@@ -3310,7 +3398,6 @@ dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "acima", True))
-dlg.pushButton_22.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True))
 
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
@@ -3325,8 +3412,6 @@ dlg.pushButton_15.clicked.connect(remover_teste_abaixo) #remove heat exchanger
 dlg.pushButton_17.clicked.connect(calcular_calor_abaixo) #choose stream temperature to calculate heat
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True))
-dlg.pushButton_23.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True))
-
 
 #custos
 dlg.otimizabotao.clicked.connect(lambda: otimizafun())
@@ -3334,8 +3419,12 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 #evolução
+dlg.botao_evolucao.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True))
 dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText()), jogar_evolucao=False))
 dlg.identificar_todos.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, "todos", todos=True))
+dlg.botao_editar.clicked.connect(lambda: editar_calor(matriz_evolucao, dlg.trocador_editar.currentIndex(), float(dlg.calor_editar.text().replace(",", "."))))
+dlg.botao_path.clicked.connect(lambda: editar_calor(matriz_evolucao, dlg.trocador_path.currentIndex(), float(dlg.calor_path.text().replace(",", ".")), path=True))
+dlg.add_util.clicked.connect(lambda: utilidade(matriz_evolucao, []))
 
 
 
