@@ -4792,7 +4792,7 @@ QToolButton:focus{
                    <bool>true</bool>
                   </property>
                   <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing a specified Heat Load of some Heat Exchanger and supplying its streams with utilities.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: Using this might result in a most expensive network.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing a specified Heat Load of some Heat Exchanger and supplying its streams with utilities.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Using this might result in a most expensive network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: The suggested Heat Loads make ΔT &amp;gt; 0 or ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; in both of the Heat Exchanger therminals. If both values are equal, there is no Heat Load that make ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QToolButton{
@@ -4966,6 +4966,27 @@ QToolButton:focus{
                   </property>
                   <property name="text">
                    <string>Apply</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="sugerir_path">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Suggest Heat Load</string>
                   </property>
                  </widget>
                 </item>

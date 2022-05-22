@@ -1273,17 +1273,33 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			if onde[:5] == "ambas":
 				if viola[1] or anterior[0]:
 					temperatura.color("red")
+					if viola[3] or anterior[2]:
+						estilo = "bold"
+						destaque = "**"
+					else:
+						estilo = "normal"
+						destaque = ""
 				else:
 					temperatura.color("black")
+					estilo = "normal"
+					destaque = ""
 				temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores + onde_temperatura_q)
-				temperatura.write(str('{:.2f}'.format(round(tq_out, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+				temperatura.write(str('{:.2f}'.format(round(tq_out, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 				if duas_temp[0]:
 					if viola[0]:
 						temperatura.color("red")
+						if viola[2]:
+							estilo = "bold"
+							destaque = "**"
+						else:
+							estilo = "normal"
+							destaque = ""
 					else:
 						temperatura.color("black")
+						estilo = "normal"
+						destaque = ""
 					temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores + onde_temperatura_q_in)
-					temperatura.write(str('{:.2f}'.format(round(tq_in, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+					temperatura.write(str('{:.2f}'.format(round(tq_in, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			else:
 				if anterior[0] or viola[1]:
 					temperatura.color("red")
@@ -1314,17 +1330,33 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				ident.sety(corrente_fria.pos()[1] - raio_trocador/2)
 			if anterior[1] or viola[1]:
 				temperatura.color("red")
+				if anterior[3] or viola[3]:
+					estilo = "bold"
+					destaque = "**"
+				else:
+					estilo = "normal"
+					destaque = ""
 			else:
 				temperatura.color("black")
+				estilo = "normal"
+				destaque = ""
 			temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores + onde_temperatura_f_in)
-			temperatura.write(str('{:.2f}'.format(round(tf_in, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+			temperatura.write(str('{:.2f}'.format(round(tf_in, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			if duas_temp[1]:
 				if viola[0]:
 					temperatura.color("red")
+					if viola[2]:
+						estilo = "bold"
+						destaque = "**"
+					else:
+						estilo = "normal"
+						destaque = ""
 				else:
 					temperatura.color("black")
+					estilo = "normal"
+					destaque = ""
 				temperatura.setx(distancia_x/2 - subestagio*espaco_trocadores + onde_temperatura_f)
-				temperatura.write(str('{:.2f}'.format(round(tf_out, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+				temperatura.write(str('{:.2f}'.format(round(tf_out, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
 			trocador.end_fill()
@@ -1344,17 +1376,33 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				ident.sety(corrente_quente.pos()[1] - raio_trocador/2)
 			if anterior[0] or viola[0]:
 				temperatura.color("red")
+				if anterior[1] or viola[1]:
+					estilo = "bold"
+					destaque = "**"
+				else:
+					estilo = "normal"
+					destaque = ""
 			else:
 				temperatura.color("black")
+				estilo = "normal"
+				destaque = ""
 			temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + onde_temperatura_q_in)
-			temperatura.write(str('{:.2f}'.format(round(tq_in, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+			temperatura.write(str('{:.2f}'.format(round(tq_in, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			if duas_temp[0]:
 				if viola[1]:
 					temperatura.color("red")
+					if viola[3]:
+						estilo = "bold"
+						destaque = "**"
+					else:
+						estilo = "normal"
+						destaque = ""
 				else:
 					temperatura.color("black")
+					estilo = "normal"
+					destaque = ""
 				temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + onde_temperatura_q)
-				temperatura.write(str('{:.2f}'.format(round(tq_out, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+				temperatura.write(str('{:.2f}'.format(round(tq_out, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			trocador.pendown()
 			trocador.begin_fill()
 			trocador.circle(raio_trocador)
@@ -1372,17 +1420,33 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			if onde[:5] == "ambas":
 				if anterior[1] or viola[0]:
 					temperatura.color("red")
+					if anterior[3] or viola[1]:
+						estilo = "bold"
+						destaque = "**"
+					else:
+						estilo = "normal"
+						destaque = ""
 				else:
 					temperatura.color("black")
+					estilo = "normal"
+					destaeu = ""
 				temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + onde_temperatura_f)
-				temperatura.write(str('{:.2f}'.format(round(tf_out, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+				temperatura.write(str('{:.2f}'.format(round(tf_out, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 				if duas_temp[1]:
 					if viola[1]:
 						temperatura.color("red")
+						if viola[3]:
+							estilo = "bold"
+							destaque = "**"
+						else:
+							estilo = "normal"
+							destaque = ""
 					else:
 						temperatura.color("black")
+						estilo = "normal"
+						destaque = ""
 					temperatura.setx(-distancia_x/2 + subestagio*espaco_trocadores + onde_temperatura_f_in)
-					temperatura.write(str('{:.2f}'.format(round(tf_in, 2))), align="left", font=("Arial", fonte_temp, "normal"))
+					temperatura.write(str('{:.2f}'.format(round(tf_in, 2))) + destaque, align="left", font=("Arial", fonte_temp, estilo))
 			else:
 				if anterior[1] or viola[0]:
 					temperatura.color("red")
@@ -1611,7 +1675,13 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			if distancia_x < x:
 				distancia_x = x
 		elif subrede == "ambas":
-			distancia_x = espaco_trocadores * (2*max([len(matriz_armazenada), len(matriz_trocadores_abaixo)]) + 3)
+			acima = abaixo = 0
+			for trocador in matriz_evolucao:
+				if trocador[5] == 1:
+					acima += 1
+				if trocador[5] == 2:
+					abaixo += 1
+			distancia_x = espaco_trocadores * 2 * (max(acima, abaixo) + 1)
 			if distancia_x < 2*x:
 				distancia_x = 2*x
 
@@ -1691,7 +1761,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 								viola_anterior_fria = True
 					except:
 						pass
-					inserir_trocador_desenho("123456acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio], [viola_anterior_quente, viola_anterior_fria])
+					inserir_trocador_desenho("123456acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, False, False], [viola_anterior_quente, viola_anterior_fria, False, False])
 					trocador_atual += 1
 
 				if len(utilidades) > 0:
@@ -1739,7 +1809,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 								viola_anterior_fria = True
 					except:
 						pass
-					inserir_trocador_desenho("123456abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio], [viola_anterior_quente, viola_anterior_fria])
+					inserir_trocador_desenho("123456abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, False, False], [viola_anterior_quente, viola_anterior_fria, False, False])
 					trocador_atual += 1
 
 				if len(utilidades_abaixo) > 0:
@@ -1764,11 +1834,16 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						duas_temp_quente = True
 						duas_temp_fria = True
 						viola_quente, viola_frio = False, False
+						termo_quente, termo_frio = False, False
 						viola_anterior_quente, viola_anterior_fria = False, False
 						if trocadorr[7] - trocadorr[8] < dTmin:
-							viola_quente = True
+							termo_quente = True
+							if trocadorr[7] - trocadorr[8] < dTmin:
+								viola_termo = True
 						if trocadorr[9] - trocadorr[10] < dTmin:
 							viola_frio = True
+							if trocadorr[9] - trocadorr[10] < 0:
+								termo_frio = True
 						try:
 							if matriz_evolucao[matriz_evolucao.index(trocadorr)+1][0] == trocadorr[0] and matriz_evolucao[matriz_evolucao.index(trocadorr)+1][2] == trocadorr[2]:
 								duas_temp_quente = False
@@ -1780,24 +1855,37 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						except:
 							pass
 						try:
+							termo, termo_quente_anterior, termo_fria_anterior = False, False, False
 							if (matriz_evolucao[matriz_evolucao.index(trocadorr)-1][7] - matriz_evolucao[matriz_evolucao.index(trocadorr)-1][8]) < dTmin and matriz_evolucao.index(trocadorr) != 0:
+								if (matriz_evolucao[matriz_evolucao.index(trocadorr)-1][7] - matriz_evolucao[matriz_evolucao.index(trocadorr)-1][8]) < dTmin and matriz_evolucao.index(trocadorr) != 0:
+									termo = True
 								if matriz_evolucao[matriz_evolucao.index(trocadorr)-1][0] == trocadorr[0] and matriz_evolucao[matriz_evolucao.index(trocadorr)-1][2] == trocadorr[2]:
 									viola_anterior_quente = True
+									if termo:
+										termo_quente_anterior = True
 								if matriz_evolucao[matriz_evolucao.index(trocadorr)-1][1] == trocadorr[1] and matriz_evolucao[matriz_evolucao.index(trocadorr)-1][3] == trocadorr[3]:
 									viola_anterior_fria = True
+									if termo:
+										termo_fria_anterior = True
 						except:
 							pass
-						inserir_trocador_desenho("ambas/acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio], [viola_anterior_quente, viola_anterior_fria])
+						inserir_trocador_desenho("ambas/acima", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, termo_quente, termo_frio], [viola_anterior_quente, viola_anterior_fria, termo_quente_anterior, termo_fria_anterior])
 					elif trocadorr[5] == 2:
 						subestagio_abaixo += 1
 						duas_temp_quente = True
 						duas_temp_fria = True
 						viola_quente, viola_frio = False, False
+						termo_quente, termo_frio = False, False
 						viola_anterior_quente, viola_anterior_fria = False, False
 						if trocadorr[7] - trocadorr[8] < dTmin:
 							viola_quente = True
+							if trocadorr[7] - trocadorr[8] < 0:
+								termo_quente = True
 						if trocadorr[9] - trocadorr[10] < dTmin:
 							viola_frio = True
+							if trocadorr[9] - trocadorr[10] < 0:
+								termo_frio = True
+
 						try:
 							if matriz_evolucao[matriz_evolucao.index(trocadorr)+1][0] == trocadorr[0] and matriz_evolucao[matriz_evolucao.index(trocadorr)+1][2] == trocadorr[2]:
 								duas_temp_quente = False
@@ -1806,17 +1894,24 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						except:
 							pass
 						try:
+							termo, termo_quente_anterior, termo_fria_anterior = False, False, False
 							if (matriz_evolucao[matriz_evolucao.index(trocadorr)-1][9] - matriz_evolucao[matriz_evolucao.index(trocadorr)-1][10]) < dTmin:
+								if (matriz_evolucao[matriz_evolucao.index(trocadorr)-1][9] - matriz_evolucao[matriz_evolucao.index(trocadorr)-1][10]) < 0:
+									termo = True
 								if matriz_evolucao[matriz_evolucao.index(trocadorr)-1][0] == trocadorr[0] and matriz_evolucao[matriz_evolucao.index(trocadorr)-1][2] == trocadorr[2]:
 									viola_anterior_quente = True
+									if termo:
+										termo_quente_anterior = True
 								if matriz_evolucao[matriz_evolucao.index(trocadorr)-1][1] == trocadorr[1] and matriz_evolucao[matriz_evolucao.index(trocadorr)-1][3] == trocadorr[3]:
 									viola_anterior_fria = True
+									if termo:
+										termo_fria_anterior
 						except:
 							pass
 						if matriz_evolucao[matriz_evolucao.index(trocadorr)-1][5] == 1:
 							viola_anterior_quente = False
 							viola_anterior_frio = False
-						inserir_trocador_desenho("ambas/abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio_abaixo, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio], [viola_anterior_quente, viola_anterior_fria])
+						inserir_trocador_desenho("ambas/abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio_abaixo, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, termo_quente, termo_frio], [viola_anterior_quente, viola_anterior_fria, termo_quente_anterior, termo_fria_anterior])
 					trocador_atual += 1
 			# legenda([250, y_acima-90], ["K", "kW/K"])
 
@@ -1862,7 +1957,7 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 		dlg.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
 		dlg.label_teste.setPixmap(dlg.rede)
 		dlg.ambasScroll.setWidgetResizable(True)
-		dlg.ambasScroll.ensureVisible(int(tamanho[0]/2), int(tamanho[1]/10), 10, 10)
+		dlg.ambasScroll.ensureVisible(int(tamanho[0]/2), 0, 10, 10)
 		dlg.tabWidget.setCurrentIndex(5)
 	else:#subredes
 		dlg.tela_rede = uic.loadUi("tela_rede.ui")
@@ -2162,7 +2257,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 			for trocador in matriz_abaixo:
 				if len(trocador) > 2:
-					trocador[4] += ultimo_subestagio_acima
+					# trocador[4] += ultimo_subestagio_acima
 					trocador[5] = 2
 			try:
 				remover_todos()
@@ -2238,7 +2333,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 			def comboo(self):
 				return self.combo
-
 
 		dlg.lista_lacos = uic.loadUi("lista_lacos.ui")
 
@@ -2459,11 +2553,12 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 			for trocador in matriz_completa:
 				if trocador[6] == 0:
+					estagio = trocador[5]
 					partir_estagio = trocador[4]
 					matriz_completa.pop(matriz_completa.index(trocador))
 
 			for trocador in matriz_completa:
-				if trocador[4] > partir_estagio:
+				if trocador[4] > partir_estagio and trocador[5] == estagio:
 					trocador[4] -= 1
 
 			for trocador in matriz_completa:
@@ -2489,7 +2584,8 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 					dtquente[i].setText(str('{:.2f}'.format(round(dt_quente, 2))))
 					dtfrio[i].setText(str('{:.2f}'.format(round(dt_frio, 2))))
 					if dt_quente < 0 or dt_frio < 0:
-						dlg.dividir_calor.botaodone.setEnabled(False)
+						# dlg.dividir_calor.botaodone.setEnabled(False)
+						pass
 					if dt_quente < dTmin:
 						dtquente[i].setStyleSheet("QLabel {color: red; font: 1000 10pt 'MS Shell Dlg 2'}")
 					else:
@@ -2631,6 +2727,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
 	incidencia = criar_incidencia(trocadores, n_quentes, n_frias)
+	dlg.sugerir_path.clicked.connect(lambda: calcular_recomendado_violacao(dlg, matriz_evolucao[dlg.trocador_path.currentIndex()]))
 	if todos:
 		trocadores_laco = []
 		for n in range(min(nhot, ncold)):
@@ -2654,6 +2751,9 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 	desenho_em_dia_ambas = False
 	if not path:
 		if calor == 0:
+			for i in range(len(matriz)):
+				if matriz[trocador][4] < matriz[i][4] and matriz[trocador][5] == matriz[i][5]:
+					matriz[i][4] -= 1
 			matriz.pop(trocador)
 			dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
 		else:
@@ -2662,6 +2762,8 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
 		matriz_completa = nao_sacrificar_matriz(matriz_teste)
 		matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+		for trocador in matriz_evolucao:
+			print(trocador)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 	else:
 		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True))
@@ -2681,6 +2783,7 @@ def utilidade(matriz_naomuda, dados, path=False):
 		sub_fria = matriz_naomuda[trocador][3]
 		matriz[trocador][6] = matriz_naomuda[trocador][6] - calor
 		tipo = ""
+		dlg.calor_path.clear()
 	else:
 		oi = dlg.comboutil.currentText().split(" ")
 		corrente = int(oi[1])
@@ -2705,14 +2808,11 @@ def utilidade(matriz_naomuda, dados, path=False):
 		else:
 			matriz.append([n_quentes, corrente, 1, 1, 1, 1, calor])
 		for reserva in matriz_reserva:
-			reserva[4] += 1
 			matriz.append(reserva)
 	else:
 		matriz.append([corrente, n_frias, 1, 1, matriz_naomuda[-1][4]+1, 2, calor])
 	if path:
 		matriz.append([corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor])
-	for trocador in matriz:
-		print(trocador)
 	else:
 		remover_todos()
 	for trocadorr in matriz:

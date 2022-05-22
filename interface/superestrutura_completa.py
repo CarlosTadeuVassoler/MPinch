@@ -20,7 +20,7 @@ chot = ccold = sbhot = sbcold = estagio = sestagio = qsi = qsj = 0
 tempdif = 0
 
 nstages = 2
-nsk = 20
+nsk = 10
 
 linha_interface = []
 utilidades = []
@@ -791,3 +791,53 @@ def remover_todos():
 		remover_utilidade_ev(utilidades[i][0], i, "aquecedor")
 	for i in range(len(utilidades_abaixo)-1, -1, -1):
 		remover_utilidade_ev(utilidades_abaixo[i][0], i, "resf")
+
+def calcular_recomendado_violacao(dlg, trocador):
+	if Fharr[trocador[5]-1][trocador[0]-1][trocador[2]-1] == 0:
+		fracao_quente = 1
+	else:
+		fracao_quente = Fharr[trocador[5]-1][trocador[0]-1][trocador[2]-1] / 100
+	if Fcarr[trocador[5]-1][trocador[1]-1][trocador[3]-1] == 0:
+		fracao_fria = 1
+	else:
+		fracao_fria = Fcarr[trocador[5]-1][trocador[1]-1][trocador[3]-1] / 100
+	cpquente = CPh[trocador[0]-1] * fracao_quente
+	cpfrio = CPc[trocador[1]-1] * fracao_fria
+	tqin = trocador[7]
+	tfout = trocador[8]
+	tqout = trocador[9]
+	tfin = trocador[10]
+	calor = original = trocador[6]
+	x = ["None", "None"]
+	if tqin - tfout < 0 or tqout - tfin < 0:
+		while calor > 0:
+			calor -= 1
+			tqout = -calor / cpquente + tqin
+			tfout = calor / cpfrio + tfin
+			dtquente = tqin - tfout
+			dtfrio = tqout - tfin
+			if dtquente > 0 and dtfrio > 0 and x[0] == "None":
+				calor1 = original - calor
+				x[0] = str('{:.2f}'.format(round(calor1, 2)))
+				x[1] = str('{:.2f}'.format(round(calor1, 2)))
+			if dtquente > dTmin and dtfrio > dTmin:
+				calor2 = original - calor
+				x[1] =  str('{:.2f}'.format(round(calor2, 2)))
+				break
+	dlg.calor_path.clear()
+	dlg.calor_path.setPlaceholderText("ΔT > 0: " + x[0] + ", ΔT > ΔTmin: " + x[1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#oi
