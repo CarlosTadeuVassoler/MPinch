@@ -3,7 +3,7 @@ import funchpinchcerto as fp2
 import testesoriginal as tt
 import matplotlib.pyplot as plt
 
-def varia(inicio,passo,fim,corrente):
+def varia(inicio,passo,fim,corrente,nnn):
     variadt = np.arange(inicio, fim + passo, passo)
 
     a = 6600
@@ -27,7 +27,7 @@ def varia(inicio,passo,fim,corrente):
     # print(Fatoranual)
     for n in range(0,len(variadt)):
 
-        uf,uq=fp2.pontopinch(corrente,ncorrentes,variadt[n])
+        uf,uq,_,_=fp2.pontopinch(corrente,ncorrentes,variadt[n])
         uflista.append(uf)
         uqlista.append(uq)
         # print(uq,uf)
@@ -35,15 +35,31 @@ def varia(inicio,passo,fim,corrente):
         # print(corrente[4][1])
         corrente[4][2]=uq/(corrente[4][0]-corrente[4][1])
         corrente[5][2] = uf / (corrente[5][1] - corrente[5][0])
-
+        print(corrente)
         #dar um jeito de tirar os append, criar uma matriz de n elementos de correntes+n de ut
-        areat,nareas = tt.CUSTO(corrente, ncorrentes + nut)
+
+        areat,nareas,ajuste,_,_,_,_ = tt.CUSTO(corrente, ncorrentes + nut)
         yplot.append(areat)
 
-        custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
-        custocapital.append(nareas*(a+b*(areat/nareas)**c))
-        custocapitalanual.append(Fatoranual*nareas*(a+b*(areat/nareas)**c))
-        custototanual.append(custoopano[n]+custocapitalanual[n])
+        if nnn==-1:
+            custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+            custocapital.append(nareas*(a+b*(areat/nareas)**c))
+            custocapitalanual.append(Fatoranual*nareas*(a+b*(areat/nareas)**c))
+            custototanual.append(custoopano[n]+custocapitalanual[n])
+        elif nnn==-2:
+            custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+            custocapital.append((ncorrentes+nut-1)*(a+b*(areat/(ncorrentes+nut-1))**c))
+            custocapitalanual.append(Fatoranual*(ncorrentes+nut-1)*(a+b*(areat/(ncorrentes+nut-1))**c))
+            custototanual.append(custoopano[n]+custocapitalanual[n])
+        else:
+            custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+            custocapital.append((nnn)*(a+b*(areat/(nnn))**c))
+            custocapitalanual.append(Fatoranual*(nnn)*(a+b*(areat/(nnn))**c))
+            custototanual.append(custoopano[n]+custocapitalanual[n])
+
+
+
+
 
     return uflista,uqlista,variadt,yplot,custoopano,custocapital,custocapitalanual,custototanual
 

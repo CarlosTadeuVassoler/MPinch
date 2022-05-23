@@ -2,15 +2,18 @@ from PyQt5 import QtWidgets , uic, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
 from PyQt5.QtGui import QIcon, QPixmap
 import numpy as np
+import funchpinchcerto as fp2
 from funcPPinch import pontopinch
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import pylab as P
-from canvas import plotargrafico1,plotargrafico2,plotargrafico3
-from tkinter import Tk
+from Graficocurva import plotgrafcurva,plotgrafcurva2
+from Graficocurvabalanceada import cc1,cc2
+import testesoriginal as tt
+import xlsxwriter
+from canvas import Gc1,Gc2
 from tkinter.filedialog import askopenfilename
-import tkinter
 import xlrd
 import re
 import sys
@@ -20,18 +23,22 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
+from CORRENTEGRAPH import cascata,cascata2
 from prog_carlos import *
 from prog_carlos_abaixo import *
 from converter_unidades import *
 from matplotlib.figure import Figure
 from PIL import Image
-
 import turtle
+from exportaa import export
 from svg_turtle import SvgTurtle
 import os
 from custo2 import varia
 from superestrutura_completa import *
+from tkinter import Tk
 
+workbook = xlsxwriter.Workbook('testevv.xlsx')
+worksheet = workbook.add_worksheet()
 
 app=QtWidgets.QApplication([])
 dlg=uic.loadUi("MPinch.ui")
@@ -50,7 +57,6 @@ cascat=[]
 nstages=1
 subestagio_trocador = 0
 subestagio_trocador_abaixo = 0
-unidadeusada=["Temperature (K)","Enthalpy (kJ)","Enthalpy (kJ)"]
 alreadypinched=0
 plotou=0
 corrente_quente_presente_acima = []
@@ -65,6 +71,7 @@ e_utilidade = []
 e_utilidade_quente = []
 e_utilidade_fria = []
 correntes_util = []
+correntes=[]
 primeira_vez = True
 divisoes = []
 primeiro_laco = True
@@ -74,7 +81,7 @@ desenho_em_dia_ambas = False
 violados_acima = []
 violados_abaixo = []
 ja_mostrou = False
-
+unidadeusada=["Temperature (K)","Enthalpy (kJ)","Enthalpy (kJ)"]
 
 
 #######################
@@ -82,28 +89,180 @@ def formatando(valor,index):
 	if valor>=1_000_000:
 		fomatador = '{:1.1f}M'.format(valor*0.000_001)
 	else:
-		fomatador = '{:1.0f}K'.format(valor * 0.001)
-
+		fomatador = '{:1.0f}k'.format(valor * 0.001)
 	return fomatador
 
-def otimizafun():
+def eq():
 	start=float(dlg.dtstart.text())
 	step=float(dlg.dtstep.text())
+	asch=dlg.dtstep.text()
+	asch = asch.split(".")
+	try:
+		if len(asch[1])>4:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("The limit is 4 digits after the separator.\nChange the step value and try again.")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+			return 0
+	except:
+		pass
+
+	bsch=dlg.dtstart.text()
+	bsch = bsch.split(".")
+
+	try:
+		if len(bsch[1])>4:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("The limit is 4 digits after the separator.\nChange the start value and try again.")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+			return 0
+	except:
+		pass
+
+
+
+	stop=float(dlg.dtstop.text())
+	csch=dlg.dtstop.text()
+	csch = csch.split(".")
+
+	try:
+		if len(csch[1])>4:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("The limit is 4 digits after the separator.\nChange the stop value and try again.")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+			return 0
+	except:
+		pass
+
+	if stop<start:
+		msg = QMessageBox()
+		msg.setIcon(QMessageBox.Warning)
+		msg.setStyleSheet("font-weight: bold")
+		msg.setStyleSheet("text-align:center")
+		msg.setText("The stop value needs to be higher than start value.\nChange the start or stop value and try again.")
+		msg.setWindowTitle("Error")
+		msg.setStandardButtons(QMessageBox.Ok)
+		msg.exec_()
+		return 0
+
+	if len(np.arange(start, stop + step, step))>500:
+		msgBox = QMessageBox()
+		msgBox.setIcon(QMessageBox.Information)
+		msgBox.setWindowTitle("This may take some time")
+		msgBox.setText("You will run about "+ str(len(np.arange(start, stop + step, step))) +" iteractions\nDo you want to proceed?")
+		msgBox.setStyleSheet("font-weight: bold")
+		msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+		returnValue = msgBox.exec()
+		if returnValue == QMessageBox.Cancel:
+			return 0
+
+	dlg.equation = uic.loadUi("Select.ui")
+	dlg.equation.show()
+
+	def z3():
+		if (dlg.equation.nareas.isChecked() == True):
+			nnn=-1
+			otimizafun(nnn)
+		elif(dlg.equation.us1.isChecked() == True):
+			nnn=-2
+			otimizafun(nnn)
+		elif(dlg.equation.esp.isChecked() == True):
+			nnn=float(dlg.equation.lineesp.text())
+			otimizafun(nnn)
+		dlg.equation.close()
+
+
+	dlg.equation.otimizarun.clicked.connect(lambda: z3())
+
+def otimizafun(nnn):
+	start=float(dlg.dtstart.text())
+
+	step=float(dlg.dtstep.text())
+
 	stop=float(dlg.dtstop.text())
 
-	dlg.sc = QtWidgets.QLabel(dlg)
 
-	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq
-	uf,uq,variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual=varia(start,step,stop,correntes)
+
+
+	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,dtopt
+	uf,uq,variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual=varia(start,step,stop,correntes,nnn)
+	changedv=[]
+	print(uf,uq)
+	changedv.append(variadt[0])
+	for i in range(0,len(custocapitalanual)):
+		try:
+			changedv.append(variadt[i+1])
+			if not(custocapitalanual[i]>custocapitalanual[i+1] and custocapitalanual[i+2]<custocapitalanual[i+1]):
+				"""changedv.pop()"""
+				"""custocapitalanual[i+1]=((custocapitalanual[i+2]-custocapitalanual[i])*(variadt[i+1]-variadt[i+2])/(variadt[i+2]-variadt[i]))+custocapitalanual[i+2]
+				changedv.append(str(str(round(variadt[i+1],3))+"*"))"""
+				"""custototanual[i+1]=custoopano[i+1]+custocapitalanual[i+1]"""
+			else:
+				pass
+		except:
+			pass
+
+
+	Custoopotimizado=custoopano[custototanual.index(min(custototanual))]
+	cccapitalanualopt=custocapitalanual[custototanual.index(min(custototanual))]
+	dtopt=variadt[custototanual.index(min(custototanual))]
+	print(dtopt)
+	cccapitalopt=custocapital[custototanual.index(min(custototanual))]
+	areaopt = yplot[custototanual.index(min(custototanual))]
+	custototanualopt=min(custototanual)
+
+	dlg.label_46.setText("Operating Cost : "+str(round(Custoopotimizado,2)))
+	dlg.label_46.setFont(QFont('Arial', 10))
+	dlg.label_46.setStyleSheet("font-weight: bold")
+	try:
+		dlg.label_45.setText("ΔTmin : "+str(round(dtopt,5))) #preciso prestar atenção nisso quanto ao passo
+	except:
+		dlg.label_45.setText("ΔTmin : "+str(dtopt)) #preciso prestar atenção nisso quanto ao passo
+
+	dlg.label_45.setFont(QFont('Arial', 10))
+	dlg.label_45.setStyleSheet("font-weight: bold")
+	dlg.label_50.setText("Capital Cost : "+str(round(cccapitalopt,2)))
+	dlg.label_50.setFont(QFont('Arial', 10))
+	dlg.label_50.setStyleSheet("font-weight: bold")
+	dlg.label_52.setText("Anualized Capital Cost : "+str(round(cccapitalanualopt,2)))
+	dlg.label_52.setFont(QFont('Arial', 10))
+	dlg.label_52.setStyleSheet("font-weight: bold")
+	dlg.label_49.setText("Total Cost: "+str(round(custototanualopt,2)))
+	dlg.label_49.setFont(QFont('Arial', 10))
+	dlg.label_49.setStyleSheet("font-weight: bold")
+	dlg.label_53.setText("Area: "+str(round(areaopt,2)))
+	dlg.label_53.setFont(QFont('Arial', 10))
+	dlg.label_53.setStyleSheet("font-weight: bold")
+
 
 
 	row = 0
-	valorbonito = []
-	valorbonito = np.round(variadt, 3)
+	valorbonito = np.round(variadt, 5)
 	dlg.TABELA.setRowCount(len(valorbonito))
 
+	p=0
+
 	for data in range(0, len(valorbonito)):
-		dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(variadt[data], 3))))
+		try:
+			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(changedv[data], 5))))
+
+		except:
+			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(changedv[data])))
 		dlg.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(np.round(yplot[data], 2))))
 		dlg.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(np.round(custoopano[data], 2))))
 		dlg.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(np.round(custocapitalanual[data], 2))))
@@ -112,25 +271,29 @@ def otimizafun():
 
 	# print(variadt)
 	dlg.sc = myCanvas()
-	print(dlg.sc)
-	dlg.l = QVBoxLayout(dlg.dtminxcusto)
-
-	dlg.l.addWidget(dlg.sc)
 	y=[0]
 	x=[0]
 	dlg.sc.plot(x, y)
 
 
 	dlg.sc2 = myCanvas2()
-	dlg.l = QVBoxLayout(dlg.dtminxarea)
-	dlg.l.addWidget(dlg.sc2)
 	dlg.sc2.plot(x, y)
 
 
 	dlg.sc3 = myCanvas3()
-	dlg.l = QVBoxLayout(dlg.dtminxut)
-	dlg.l.addWidget(dlg.sc3)
 	dlg.sc3.plot(x, y)
+	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
+
+
+def mostra3():
+	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
+
+def mostra2():
+	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva3.png"))
+
+def mostra1():
+	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva2.png"))
+
 
 class myCanvas(FigureCanvas):
 	def __init__(self):
@@ -138,20 +301,22 @@ class myCanvas(FigureCanvas):
 		FigureCanvas.__init__(self,self.fig)
 
 	def plot(self,x,y):
-		self.fig.clear()
+		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
+		plt.close("all")
 
-		plt.style.use('ggplot')
+		plt.style.use('bmh')
 		self.ax= self.fig.add_subplot(111)
-		self.ax.clear()
 		self.ax.yaxis.set_major_formatter(formatando)
-		self.ax.plot(variadt,custoopano, label='C.Operacional x ΔTmin')
-		self.ax.plot(variadt,custocapitalanual, label='C.Capital x ΔTmin', color='k')
-		self.ax.plot(variadt,custototanual, label='C.Total x ΔTmin', color='r')
+		self.ax.plot(variadt,custoopano, label='Operational Cost x ΔTmin')
+		self.ax.plot(variadt,custocapitalanual, label='Capital Cost x ΔTmin', color='k')
+		self.ax.plot(variadt, custototanual, label='Total Cost x ΔTmin', color='r')
 		self.ax.set_xlabel('ΔTmin')
 		self.ax.set_ylabel('Cost')
 		self.ax.legend()
-		self.ax.grid(True)
+		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
 		self.draw()
+		self.fig.savefig("canva1.png",bbox_inches="tight", pad_inches=0.5)
 
 class myCanvas2(FigureCanvas):
 	def __init__(self):
@@ -159,9 +324,10 @@ class myCanvas2(FigureCanvas):
 		FigureCanvas.__init__(self,self.fig)
 
 	def plot(self,x,y):
-		self.fig.clear()
+		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
+		plt.close("all")
+		plt.style.use('bmh')
 
-		plt.style.use('ggplot')
 		self.ax= self.fig.add_subplot(111)
 		self.ax.yaxis.set_major_formatter(formatando)
 
@@ -170,8 +336,10 @@ class myCanvas2(FigureCanvas):
 		self.ax.set_xlabel('ΔTmin')
 		self.ax.set_ylabel('Area')
 		self.ax.legend()
-		self.ax.grid(True)
+		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
 		self.draw()
+		self.fig.savefig("canva2.png",bbox_inches="tight", pad_inches=0.5)
 
 class myCanvas3(FigureCanvas):
 	def __init__(self):
@@ -179,9 +347,9 @@ class myCanvas3(FigureCanvas):
 		FigureCanvas.__init__(self,self.fig)
 
 	def plot(self,x,y):
-		self.fig.clear()
-
-		plt.style.use('ggplot')
+		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
+		plt.close("all")
+		plt.style.use('bmh')
 		self.ax= self.fig.add_subplot(111)
 		#self.ax.yaxis.set_major_formatter(formatando)
 		self.ax.plot(variadt,uq, label='Hot utility x ΔTmin', color='r')
@@ -189,8 +357,628 @@ class myCanvas3(FigureCanvas):
 		self.ax.set_xlabel('ΔTmin')
 		self.ax.set_ylabel('Utility')
 		self.ax.legend()
-		self.ax.grid(True)
+		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
 		self.draw()
+		self.fig.savefig("canva3.png",bbox_inches="tight", pad_inches=0.5)
+########################
+
+
+def plotgraficocurva():
+
+	try:
+		dlg.labe1.hide()
+		dlg.scrola1.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola1)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		None
+	try:
+		dlg.labe2.hide()
+		dlg.scrola2.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola2)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		None
+
+	try:
+		asch = dlg.DTMIN1.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				return 0
+		except:
+			pass
+		pinchf1,pinchq1,uq1,uf1,_=pontopinch(correntes,len(correntes),float(dlg.DTMIN1.text()))
+
+		plotgrafcurva(correntes, float(dlg.DTMIN1.text()),uf1,uq1,pinchf1,pinchq1)
+
+		dlg.graficodt1.setPixmap(QtGui.QPixmap("curvadt1.png"))
+
+	except:
+		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+
+	try:
+		asch = dlg.DTMIN2.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+
+				return 0
+		except:
+			pass
+		pinchf2, pinchq2, uq2, uf2,_ = pontopinch(correntes, len(correntes),float(dlg.DTMIN2.text()))
+
+		plotgrafcurva2(correntes, float(dlg.DTMIN2.text()), uf2, uq2, pinchf2, pinchq2)
+
+		dlg.graficodt2.setPixmap(QtGui.QPixmap("curvadt2.png"))
+
+	except:
+		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+
+def plotgraficocurvacomp():
+	try:
+		dlg.labe1.hide()
+		dlg.scrola1.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola1)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		None
+	try:
+		dlg.labe2.hide()
+		dlg.scrola2.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola2)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		None
+
+	try:
+		try:
+			asch = dlg.DTMIN1.text()
+			asch = asch.split(".")
+			if len(asch[1]) > 4:
+				dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				return 0
+		except:
+			pass
+		contador=0
+		correntecomp = correntes
+		tf1,tq1,uq1, uf1,_ = pontopinch(correntes, len(correntes), float(dlg.DTMIN1.text()))
+		uf1, uq1,_,_ = fp2.pontopinch(correntes, len(correntes), float(dlg.DTMIN1.text()))
+		for i in range(0,len(ccopi)):
+			if ccopi[i][3]=='Cold':
+				ccopi[i][2]=uf1/(ccopi[i][1]-ccopi[i][0])
+				correntecomp.append(ccopi[i])
+				contador+=1
+			else:
+				ccopi[i][2] = uq1 / (ccopi[i][0] - ccopi[i][1])
+				correntecomp.append(ccopi[i])
+				contador+=1
+
+		_,_,datagraph,_,_,_,_ = tt.CUSTO(correntecomp, len(correntecomp))
+		for i in range(0,contador):
+			correntecomp.pop()
+		cc1(datagraph,float(dlg.DTMIN1.text()),round(tf1,6),round(tq1,6))
+		dlg.graficodt1.setPixmap(QtGui.QPixmap("cc1.png"))
+	except:
+		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+	try:
+		try:
+			asch = dlg.DTMIN2.text()
+			asch = asch.split(".")
+			if len(asch[1]) > 4:
+				dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				return 0
+		except:
+			pass
+		contador=0
+		tf2,tq2,uq2, uf2,_ = pontopinch(correntes, len(correntes), float(dlg.DTMIN2.text()))
+		uf2, uq2,_,_ = fp2.pontopinch(correntes, len(correntes), float(dlg.DTMIN2.text()))
+		for i in range(0,len(ccopi)):
+			if ccopi[i][3]=='Cold':
+				ccopi[i][2]=uf2/(ccopi[i][1]-ccopi[i][0])
+				correntecomp.append(ccopi[i])
+				contador+=1
+			else:
+				ccopi[i][2] = uq2 / (ccopi[i][0] - ccopi[i][1])
+				correntecomp.append(ccopi[i])
+				contador+=1
+
+		_,_,datagraph,_,_,_,_  = tt.CUSTO(correntecomp, len(correntecomp))
+		for i in range(0,contador):
+			correntecomp.pop()
+		cc2(datagraph,float(dlg.DTMIN2.text()),round(tf2,6),round(tq2,6))
+
+		dlg.graficodt2.setPixmap(QtGui.QPixmap("cc2.png"))
+
+	except:
+		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+
+def GC():
+	try:
+		dlg.labe1.hide()
+		dlg.scrola1.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola1)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		print("1")
+		pass
+	try:
+		dlg.labe2.hide()
+		dlg.scrola2.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola2)
+		dlg.graficodt1.show()
+		dlg.graficodt2.show()
+		dlg.linicio.show()
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	except:
+		print("2")
+		pass
+
+	try:
+		asch = dlg.DTMIN1.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				return 0
+		except:
+			print("3")
+		_, _, _, _, coisas_graficos1 = pontopinch(correntes, len(correntes), float(dlg.DTMIN1.text()))
+		Gc1(len(correntes),dlg,coisas_graficos1[0],coisas_graficos1[7],coisas_graficos1[5],unidadeusada)
+	except:
+		print("4")
+		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
+	try:
+		asch = dlg.DTMIN2.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				return 0
+		except:
+			print("5")
+		_, _, _, _, coisas_graficos2 = pontopinch(correntes, len(correntes), float(dlg.DTMIN2.text()))
+		Gc2(len(correntes),dlg,coisas_graficos2[0],coisas_graficos2[7],coisas_graficos2[5],unidadeusada)
+	except:
+		print("6")
+		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+
+def savefile():
+
+	contador = 0
+	correntecomp4 = correntes
+	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
+
+	for i in range(0, len(ccopi)):
+		if ccopi[i][3] == 'Cold':
+			ccopi[i][2] = uf1 / (ccopi[i][1] - ccopi[i][0])
+			correntecomp4.append(ccopi[i])
+			contador += 1
+		else:
+			ccopi[i][2] = uq1 / (ccopi[i][0] - ccopi[i][1])
+			correntecomp4.append(ccopi[i])
+
+			contador += 1
+
+	akt, _, ajustado, cpf, cpq, areak, deltalmnk = tt.CUSTO(correntecomp4, len(correntecomp4))
+	for i in range(0, contador):
+		correntecomp4.pop()
+	export(correntes,ccopi, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
+
+def CASCA():
+
+	try:
+		dlg.labe1.hide()
+		dlg.scrola1.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola1)
+	except:
+		None
+	try:
+		dlg.labe2.hide()
+		dlg.scrola2.hide()
+		dlg.horizontalLayout_37.removeWidget(dlg.scrola2)
+	except:
+		None
+
+	dlg.labe1=QLabel()
+	dlg.labe2=QLabel()
+	dlg.graficodt1.hide()
+	dlg.graficodt2.hide()
+	dlg.linicio.hide()
+	dlg.lmeio.hide()
+	dlg.lfim.hide()
+	try:
+		asch = dlg.DTMIN1.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.linicio.show()
+				dlg.graficodt1.show()
+				dlg.graficodt1.setText('Waiting for ΔTmin1 data...')  #
+				dlg.lmeio.show()
+				dlg.lfim.show()
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+			else:
+				try:
+					cascata(correntes, float(dlg.DTMIN1.text()))
+					dlg.labe1.setPixmap(QtGui.QPixmap("EC.png"))
+					dlg.scrola1 = QScrollArea()
+					dlg.scrola1.setBackgroundRole(QPalette.Light)
+					dlg.scrola1.setAlignment(Qt.AlignCenter)
+					dlg.horizontalLayout_37.insertWidget(1, dlg.scrola1)
+					dlg.scrola1.setWidget(dlg.labe1)
+				except:
+					pass
+		except:
+			cascata(correntes, float(dlg.DTMIN1.text()))
+			dlg.labe1.setPixmap(QtGui.QPixmap("EC.png"))
+			dlg.scrola1 = QScrollArea()
+			dlg.scrola1.setBackgroundRole(QPalette.Light)
+			dlg.scrola1.setAlignment(Qt.AlignCenter)
+			dlg.horizontalLayout_37.insertWidget(1, dlg.scrola1)
+			dlg.scrola1.setWidget(dlg.labe1)
+
+	except:
+		dlg.linicio.show()
+		dlg.graficodt1.show()
+		dlg.graficodt1.setText('Waiting for ΔTmin1 data...') #
+		dlg.lmeio.show()
+		dlg.lfim.show()
+	try:
+		asch = dlg.DTMIN2.text()
+		asch = asch.split(".")
+		try:
+			if len(asch[1]) > 4:
+				dlg.graficodt2.show()
+				dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+				dlg.lfim.show()
+				dlg.lmeio.show()
+				msg = QMessageBox()
+				msg.setIcon(QMessageBox.Warning)
+				msg.setStyleSheet("font-weight: bold")
+				msg.setStyleSheet("text-align:center")
+				msg.setText(
+					"The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+				msg.setWindowTitle("Error")
+				msg.setStandardButtons(QMessageBox.Ok)
+				msg.exec_()
+				dlg.linicio.show()
+			else:
+				try:
+					cascata2(correntes, float(dlg.DTMIN2.text()))
+					dlg.labe2.setPixmap(QtGui.QPixmap("EC2.png"))
+					dlg.scrola2 = QScrollArea()
+					dlg.scrola2.setBackgroundRole(QPalette.Light)
+					dlg.scrola2.setAlignment(Qt.AlignCenter)
+					dlg.horizontalLayout_37.insertWidget(3, dlg.scrola2)
+					dlg.scrola2.setWidget(dlg.labe2)
+				except:
+					pass
+
+		except:
+			cascata2(correntes, float(dlg.DTMIN2.text()))
+			dlg.labe2.setPixmap(QtGui.QPixmap("EC2.png"))
+			dlg.scrola2 = QScrollArea()
+			dlg.scrola2.setBackgroundRole(QPalette.Light)
+			dlg.scrola2.setAlignment(Qt.AlignCenter)
+			dlg.horizontalLayout_37.insertWidget(3,dlg.scrola2)
+			dlg.scrola2.setWidget(dlg.labe2)
+	except:
+		dlg.linicio.show()
+
+		dlg.graficodt2.show()
+		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
+		dlg.lfim.show()
+		dlg.lmeio.show()
+
+def caxa():
+	asch=dlg.DTMIN1.text()
+	asch = asch.split(".")
+	try:
+		if len(asch[1])>4:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+			return 0
+	except:
+		pass
+	try:
+
+		contador=0
+		correntecomp4 = correntes
+		uf1, uq1,_,_ = fp2.pontopinch(correntes, len(correntes), float(dlg.DTMIN1.text()))
+
+		for i in range(0,len(ccopi)):
+			if ccopi[i][3]=='Cold':
+				ccopi[i][2]=uf1/(ccopi[i][1]-ccopi[i][0])
+				correntecomp4.append(ccopi[i])
+				contador+=1
+			else:
+				ccopi[i][2] = uq1 / (ccopi[i][0] - ccopi[i][1])
+				correntecomp4.append(ccopi[i])
+
+				contador+=1
+
+		akt,_,ajustado,cpf,cpq,areak,deltalmnk = tt.CUSTO(correntecomp4, len(correntecomp4))
+
+
+
+
+		dlg.area = uic.loadUi("Area.ui")
+		dlg.area.show()
+		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT ONE} :  "+str(round(float(dlg.DTMIN1.text()),5)))
+		dlg.area.label.setFont(QFont('Arial', 14))
+		dlg.area.label.setStyleSheet("font-weight: bold")
+		row = 0
+		dlg.area.TABELA.setRowCount(len(areak)+1)
+
+		for data in range(0, len(areak)):
+			dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data],2))))
+			dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data + 1],2))))
+			dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data],2))))
+			dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data + 1],2))))
+			dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data],2))))
+			dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data],2))))
+			dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data],2))))
+			dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data],2))))
+			row += 1
+		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
+		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt),2))))
+
+
+
+			##################acaba aq
+		for i in range(0,contador):
+			correntecomp4.pop()
+	except:
+		try:
+			f = float(dlg.DTMIN1.text())
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("Please input utility data in 'Streams' tab")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+		except:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("Please input ΔTmin₁ data")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+
+def caxa2():
+	asch=dlg.DTMIN2.text()
+	asch = asch.split(".")
+	try:
+		if len(asch[1])>4:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+			return 0
+	except:
+		pass
+	try:
+		contador = 0
+		correntecomp4 = correntes
+		uf1, uq1,_,_ = fp2.pontopinch(correntes, len(correntes), float(dlg.DTMIN2.text()))
+
+		for i in range(0, len(ccopi)):
+			if ccopi[i][3] == 'Cold':
+				ccopi[i][2] = uf1 / (ccopi[i][1] - ccopi[i][0])
+
+				correntecomp4.append(ccopi[i])
+				contador += 1
+			else:
+				ccopi[i][2] = uq1 / (ccopi[i][0] - ccopi[i][1])
+				correntecomp4.append(ccopi[i])
+				contador += 1
+
+		akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntecomp4, len(correntecomp4))
+
+		dlg.area = uic.loadUi("Area.ui")
+		dlg.area.show()
+		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT TWO} :  "+str(round(float(dlg.DTMIN2.text()),5)))
+		dlg.area.label.setFont(QFont('Arial', 14))
+		dlg.area.label.setStyleSheet("font-weight: bold")
+		row = 0
+		dlg.area.TABELA.setRowCount(len(areak) + 1)
+
+		for data in range(0, len(areak)):
+			dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data],2))))
+			dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data + 1],2))))
+			dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data],2))))
+			dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data + 1],2))))
+			dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data],2))))
+			dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data],2))))
+			dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data],2))))
+			dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data],2))))
+			row += 1
+		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
+		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt),2))))
+
+		##################acaba aq
+		for i in range(0, contador):
+			correntecomp4.pop()
+	except:
+		try:
+			f=float(dlg.DTMIN2.text())
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("Please input utility data in 'Streams' tab")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+		except:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Warning)
+			msg.setStyleSheet("font-weight: bold")
+			msg.setStyleSheet("text-align:center")
+			msg.setText("Please input ΔTmin₂ data")
+			msg.setWindowTitle("Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.exec_()
+
+def OPTA():
+	contador = 0
+	correntecomp4 = correntes
+	uf1, uq1,_,_ = fp2.pontopinch(correntes, len(correntes), float(dtopt))
+	for i in range(0, len(ccopi)):
+		if ccopi[i][3] == 'Cold':
+			ccopi[i][2] = uf1 / (ccopi[i][1] - ccopi[i][0])
+
+			correntecomp4.append(ccopi[i])
+			contador += 1
+		else:
+			ccopi[i][2] = uq1 / (ccopi[i][0] - ccopi[i][1])
+			correntecomp4.append(ccopi[i])
+			contador += 1
+
+	akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntecomp4, len(correntecomp4))
+
+	dlg.area = uic.loadUi("Area.ui")
+	dlg.area.show()
+	dlg.area.label.setText("Optimized ΔTmin:  " + str(round(dtopt,5)))
+	dlg.area.label.setFont(QFont('Arial', 14))
+	dlg.area.label.setStyleSheet("font-weight: bold")
+	row = 0
+	dlg.area.TABELA.setRowCount(len(areak) + 1)
+
+	for data in range(0, len(areak)):
+		dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data],2))))
+		dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data + 1],2))))
+		dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data],2))))
+		dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data + 1],2))))
+		dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data],2))))
+		dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data],2))))
+		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data],2))))
+		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data],2))))
+		row += 1
+	dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
+	dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt),2))))
+
+		##################acaba aq
+	for i in range(0, contador):
+		correntecomp4.pop()
+
+kct=uic.loadUi("Select.ui")
+dlg.TABELA.setColumnWidth(3,150)
+#custos
+dlg.CASCA.clicked.connect(lambda: CASCA())
+dlg.otimizabotao.clicked.connect(lambda: eq())
+kct.otimizarun.clicked.connect(lambda: otimizafun())
+dlg.botaocurva.clicked.connect(lambda: plotgraficocurva())
+dlg.botaocurvac.clicked.connect(lambda: plotgraficocurvacomp())
+dlg.GC.clicked.connect(lambda: GC())
+dlg.CUSTO.clicked.connect(lambda: mostra3())
+dlg.UT.clicked.connect(lambda: mostra2())
+dlg.OPTA.clicked.connect(lambda: OPTA())
+dlg.AREA.clicked.connect(lambda: mostra1())
+dlg.ESTIMA.clicked.connect(lambda: caxa())
+dlg.ESTIMA2.clicked.connect(lambda: caxa2())
+dlg.actionSave_File.triggered.connect(savefile)
 ########################
 
 
@@ -455,24 +1243,6 @@ def done_teste(libera=False):
 			e_utilidade.append(True)
 			e_utilidade.append(True)
 			e_utilidade.append(True)
-		# else:
-		# 	correntes_util.append([250, 249, 1, "Hot", 0.5])
-		# 	correntes_util.append([10, 20, 1, "Cold", 0.5])
-		# 	e_utilidade.append(True)
-		# 	e_utilidade.append(True)
-		# 	pinch_teste()
-		# 	dlg.done.close()
-		# 	divisao_de_correntes("Q", 1, 1, 3, [0.33, 0.33, 0.34])
-		# 	divisao_de_correntes("F", 1, 1, 3, [0.33, 0.33, 0.34])
-		# 	divisoes.append(["Q", 1, 1, 3, [0.33, 0.33, 0.34]])
-		# 	divisoes.append(["F", 1, 1, 3, [0.33, 0.33, 0.34]])
-		# 	nova_matriz = inserir_trocador(dlg, [1, 1, 1, 1, 1, 1, 1])
-		# 	matriz_armazenada.append(nova_matriz[-1])
-		# 	nova_matriz = inserir_trocador(dlg, [1, 1, 2, 2, 2, 1, 1])
-		# 	matriz_armazenada.append(nova_matriz[-1])
-		# 	nova_matriz = inserir_trocador(dlg, [1, 1, 3, 3, 3, 1, 1])
-		# 	matriz_armazenada.append(nova_matriz[-1])
-
 
 	def pinch_sem_util():
 		pinch_teste()
@@ -512,7 +1282,7 @@ def pinch_teste():
 			correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
 			correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
 
-
+		ccopi = nao_sacrificar_matriz(correntes_util)
 		correntes += correntes_util
 		n += len(correntes_util)
 		#arruma as temperaturas baseado no pinch
@@ -561,6 +1331,10 @@ def pinch_teste():
 					Tcf_abaixo.append(pinchf)
 					corrente_fria_presente_acima.append(True)
 
+		global unidades_usadas
+		calor = dlg.cp_unidade.currentText().split("/")
+		unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
+
 
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
@@ -570,13 +1344,15 @@ def pinch_teste():
 		correntesnoscombos(nhot,ncold)
 		testar_correntes(dlg, True)
 		testar_correntes_abaixo(dlg)
+		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 		#libera botões e coisas
 		dlg.tabWidget.setTabEnabled(1,True)
 		dlg.tabWidget.setTabEnabled(2,True)
 		dlg.tabWidget.setTabEnabled(3,True)
 		dlg.tabWidget.setTabEnabled(4,True)
-		dlg.tabWidget.setCurrentIndex(3)
+		dlg.tabWidget.setCurrentIndex(1)
 		dlg.pinchbutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
 		dlg.botao_addutility.setEnabled(False)
@@ -1958,12 +2734,14 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 		dlg.label_teste.setPixmap(dlg.rede)
 		dlg.ambasScroll.setWidgetResizable(True)
 		dlg.ambasScroll.ensureVisible(int(tamanho[0]/2), 0, 10, 10)
-		dlg.tabWidget.setCurrentIndex(5)
+		dlg.tabWidget.setCurrentIndex(4)
 	else:#subredes
-		dlg.tela_rede = uic.loadUi("tela_rede.ui")
-		dlg.tela_rede.showMaximized()
-		dlg.tela_rede.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-		dlg.tela_rede.so_mostrar.setPixmap(QtGui.QPixmap(onde + ".png"))
+		if onde == "acima":
+			dlg.lay_acima.setContentsMargins(0, 0, 0, 0)
+			dlg.hen_acima.setPixmap(QtGui.QPixmap(onde + ".png"))
+		if onde == "abaixo":
+			dlg.lay_abaixo.setContentsMargins(0, 0, 0, 0)
+			dlg.hen_abaixo.setPixmap(QtGui.QPixmap(onde + ".png"))
 
 
 
@@ -2092,6 +2870,10 @@ def dividir_corrente(divisao, onde):
 			fracao[i] = round(float(caixa_fracao[i].value()), 2)
 		if soma != 1:
 			QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
+			if divtype == "Q":
+				dlg.DivisaoQuente.show()
+			if divtype == "F":
+				dlg.DivisaoFria.show()
 			return
 
 		if onde == "above":
@@ -2128,6 +2910,12 @@ def dividir_corrente(divisao, onde):
 
 		printar()
 		printar_abaixo()
+		if onde == "above":
+			if dlg.tab_acima.currentIndex() == 0:
+				desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+		if onde == "below":
+			if dlg.tab_abaixo.currentIndex() == 0:
+				desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 	dlg.DivisaoQuente.pushButton.clicked.connect(lambda: confirm())
 	dlg.DivisaoQuente.pushButton_3.clicked.connect(lambda: split(onde))
@@ -2760,15 +3548,10 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			matriz[trocador][6] = calor
 		for trocadorr in matriz:
 			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
-		matriz_completa = nao_sacrificar_matriz(matriz_teste)
 		matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
-		for trocador in matriz_evolucao:
-			print(trocador)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 	else:
 		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True))
-		# matriz_completa = nao_sacrificar_matriz(matriz_teste)
-		# matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 def utilidade(matriz_naomuda, dados, path=False):
@@ -2982,6 +3765,8 @@ def inserir_teste():
 	checaresgotadosacima()
 	desenho_em_dia = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_acima.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 
 def remover_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
@@ -3011,6 +3796,8 @@ def remover_teste():
 	printar()
 	desenho_em_dia = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_acima.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 
 def utilidade_teste_acima():
 	global desenho_em_dia, desenho_em_dia_ambas
@@ -3024,6 +3811,8 @@ def utilidade_teste_acima():
 	printar()
 	desenho_em_dia = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_acima.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 
 def calcular_calor_teste():
 	dlg.TempLoadAbove=uic.loadUi("TempLoadAbove.ui")
@@ -3234,6 +4023,8 @@ def inserir_teste_abaixo():
 	checaresgotadosabaixo()
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_abaixo.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 def remover_teste_abaixo():
 	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas
@@ -3263,6 +4054,8 @@ def remover_teste_abaixo():
 	printar_abaixo()
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_abaixo.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 def utilidade_teste_abaixo():
 	global desenho_em_dia_abaixo, desenho_em_dia_ambas
@@ -3276,6 +4069,8 @@ def utilidade_teste_abaixo():
 	printar_abaixo()
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
+	if dlg.tab_abaixo.currentIndex() == 0:
+		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 def calcular_calor_abaixo():
 	dlg.TempLoadBelow = uic.loadUi("TempLoadBelow.ui")
@@ -3491,6 +4286,8 @@ dlg.radioButton_4.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(False)) #blo
 dlg.radioButton_4.setChecked(True) #por padrao abre o prog com max heat selecionado
 dlg.pushButton_9.clicked.connect(lambda: dividir_corrente("Q", "above"))
 dlg.pushButton_13.clicked.connect(lambda: dividir_corrente("F", "above"))
+dlg.divq_acima.clicked.connect(lambda: dividir_corrente("Q", "above"))
+dlg.divf_acima.clicked.connect(lambda: dividir_corrente("F", "above"))
 dlg.checkBox.stateChanged.connect(printar) #show splited streams printa tudo dnv
 dlg.checkBox_2.stateChanged.connect(printar) #show splited streams printa tudo dnv
 dlg.pushButton_6.clicked.connect(inserir_teste) #add heat exchanger
@@ -3503,8 +4300,10 @@ dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, corre
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_20.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(False)) #block o heat load quando max heat ta ativado
 dlg.radioButton_20.setChecked(True) #por padrao abre o prog com max heat selecionado
-dlg.pushButton_12.clicked.connect(lambda: dividir_corrente("F", "below"))
 dlg.pushButton_11.clicked.connect(lambda: dividir_corrente("Q", "below"))
+dlg.pushButton_12.clicked.connect(lambda: dividir_corrente("F", "below"))
+dlg.divq_abaixo.clicked.connect(lambda: dividir_corrente("Q", "below"))
+dlg.divf_abaixo.clicked.connect(lambda: dividir_corrente("F", "below"))
 dlg.checkBox_9.stateChanged.connect(printar_abaixo) #show splited streams printa tudo dnv
 dlg.checkBox_10.stateChanged.connect(printar_abaixo) #show splited streams printa tudo dnv
 dlg.pushButton_18.clicked.connect(inserir_teste_abaixo) #add heat exchanger
@@ -3550,7 +4349,7 @@ for i in range(5):
 openfile_teste(False)
 done_teste(True)
 pinch_teste()
-suprir_9_correntes()
+# suprir_9_correntes()
 
 
 

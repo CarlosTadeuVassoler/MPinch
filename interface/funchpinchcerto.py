@@ -106,7 +106,7 @@ def pontopinch (correntes, n, dTmin) :
 		cascat2.append(sub3)
 	cascat2certo = [ '%.2f' % elem for elem in cascat2]
 	for i in range (len(cascat2)): #arredondar para encontrar o 0
-		x=round(cascat2[i], 2)
+		x=round(cascat2[i], 5)
 		cascat2[i]=x
 	#("segunda cascata de energia:")
 	#(cascat2)
@@ -135,11 +135,11 @@ def pontopinch (correntes, n, dTmin) :
 	#('sdsd',Tdecre,'sssss')
 	menor = min(float(s) for s in cascat)  # encontrando a maior demanda de energia
 	menor = menor*(-1)
-	utilidadesquente = round(menor,2)
-	menorc = ['%.2f' % menor]
+	utilidadesquente = menor
+
 
 
 	utilidadesfria=cascat2[len(cascat2)-1]
 
 
-	return utilidadesfria,utilidadesquente
+	return utilidadesfria,utilidadesquente,pinchf,pinchq

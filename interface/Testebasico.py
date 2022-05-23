@@ -1,9 +1,7 @@
 
 import numpy as np
-import math
 
-
-def CUSTO (correntes, n) :
+def CUSTO (correntes, n,pinchf,pinchq) :
     cfria = []
     cquente = []
     tfria = []
@@ -21,6 +19,11 @@ def CUSTO (correntes, n) :
             cquente.append(correntes[i])
             ncorrentequente += 1
 
+    TmaxCold=max(cfria, key=lambda l: l[1])
+    TminCold=min(cfria, key=lambda l: l[0])
+    TmaxHOT=max(cquente, key=lambda l: l[0])
+    TminHOT=min(cquente, key=lambda l: l[1])
+
 
     for n in range(0,ncorrentefria):
         tfria.append(cfria[n][0])
@@ -36,7 +39,7 @@ def CUSTO (correntes, n) :
                     c = 0
                 else:
                     somacp[n]+=cfria[i][2]
-
+    hentalpia[0]=pinchf
     cont=int(len(hentalpia))
     for n in range(cont-1,0,-1):
         if n==len(hentalpia)-1:
@@ -52,7 +55,7 @@ def CUSTO (correntes, n) :
     tquente = sorted(set(tquente))
     somacpquente = np.zeros(len(tquente), dtype=float)
     hentalpiaquente = np.zeros(len(tquente), dtype=float)
-
+    hentalpiaquente[len(tquente)-1]=pinchq
     for n in range(0, len(tquente) - 1):
         for i in range(0, len(cquente)):
             if (cquente[i][0] <= tquente[n] and cquente[i][1] <= tquente[n]):
@@ -66,14 +69,17 @@ def CUSTO (correntes, n) :
 
 
 
+
     cont = int(len(hentalpiaquente))
     for n in range(cont - 1, 0, -1):
+        print(hentalpiaquente)
         if n == len(hentalpiaquente) - 1:
             for i in range(0, ncorrentequente):
                 hentalpiaquente[n] += (cquente[i][0] - cquente[i][1]) * cquente[i][2]
         else:
             hentalpiaquente[n] = hentalpiaquente[n + 1] - (tquente[n + 1] - tquente[n]) * somacpquente[n]
-
+    print("FFFFFFFFFFFFF")
+    print(hentalpiaquente)
     ajusteF = np.full((1, len(tfria)), '-999')
     ajusteQ = np.full((1, len(tquente)), '-999')
 
@@ -85,11 +91,10 @@ def CUSTO (correntes, n) :
 
 
     for i in range(0,len(ajuste[2])):
-        ajuste[2][i]=round(ajuste[2][i],5)
+        ajuste[2][i]=round(ajuste[2][i],2)
 
     for n in range(0, len(ajuste[0])):
         for i in range(0, len(ajuste[0])):
-
             if(ajuste[2][n]==ajuste[2][i]):
                 if(ajuste[0][i]=='-999'):
                     ajuste[0][i]=ajuste[0][n]
@@ -114,9 +119,7 @@ def CUSTO (correntes, n) :
         ajuste = np.delete(ajuste, b2[n], 1)
         b2=list(np.asarray(b2) - 1)
 
-
-
-
+    print(ajuste)
     ajuste = sorted(ajuste.T, key=lambda l: l[2])
 
 
@@ -165,46 +168,17 @@ def CUSTO (correntes, n) :
         cphfrio.append((ajuste[1][n+1]-ajuste[1][n])*somador)
         somador=0
 
-    deltalmnk=[]
-    areak=[]
-    for n in range(0,len(cphfrio)):
-        try:
-            deltalmnk.append(((ajuste[0][n]-ajuste[1][n])-(ajuste[0][n+1]-ajuste[1][n+1]))/math.log((ajuste[0][n]-ajuste[1][n])/(ajuste[0][n+1]-ajuste[1][n+1])))
-        except:
-            deltalmnk.append((ajuste[0][n]-ajuste[1][n]))
-        areak.append((cphfrio[n]+cphquente[n])/deltalmnk[n])
+    print(ajuste)
 
-
-    p=len(areak)
-    areatotal=sum(areak)
-    return areatotal,p,ajuste,cphfrio,cphquente,areak,deltalmnk
-
-
-
-
-"""
 corrente=[[20,180,0.2,'Cold', 0.0006 ],
           [250,40,0.15,'Hot', 0.001 ],
           [140,230,0.3,'Cold', 0.0008 ],
-          [200,80,0.25,'Hot', 0.0008 ],
-          [240,239,7.5,'Hot', 0.003 ],
-          [20,30,1,'Cold', 0.001 ]]
+          [200,80,0.25,'Hot', 0.0008 ]]
 
-n=6
+n=4
 
+pinchf=10.8
+pinchq=-8.30
 
-corrente=[[ 327, 40,0.10,'Hot', 0.50*10**-3],
- [ 220, 160,0.16,'Hot', 0.40*10**-3],
- [ 220, 60,0.06,'Hot', 0.14*10**-3],
- [ 160, 45,0.40,'Hot', 0.30*10**-3],
- [100, 300,0.10,'Cold', 0.35*10**-3],
-[ 35, 164,0.07,'Cold', 0.70*10**-3],
-[85, 138,0.35, 'Cold', 0.50*10**-3],
- [ 60, 170,0.06,'Cold', 0.14*10**-3],
- [140, 300,0.20,'Cold', 0.60*10**-3],
-[330,250,0.216,'Hot',500*10**-6],
-[15,30,1.6666667,'Cold',500*10**-6]]
+CUSTO(corrente,n,pinchf,pinchq)
 
-
-n=11
-"""
