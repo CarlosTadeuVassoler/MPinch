@@ -897,3 +897,9 @@ def testar_correntes(dlg, primeira=False):
 	else:
 		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")
+
+def remover_todos_acima():
+	for i in range(len(linha_interface)-1, -1, -1):
+		remover_trocador("oi", linha_interface[i], i, linha_interface)
+	for i in range(len(utilidades)-1, -1, -1):
+		remover_utilidade(utilidades[i][0], i, utilidades)

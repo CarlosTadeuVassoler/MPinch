@@ -902,3 +902,9 @@ def testar_correntes_abaixo(dlg, primeira=False):
 	else:
 		dlg.label_27.setText("Not Respected")
 		dlg.label_27.setStyleSheet("QLabel {color: red}")
+
+def remover_todos_abaixo():
+	for i in range(len(linha_interface_abaixo)-1, -1, -1):
+		remover_trocador_abaixo("oi", linha_interface_abaixo[i], i, linha_interface_abaixo)
+	for i in range(len(utilidades_abaixo)-1, -1, -1):
+		remover_utilidade_abaixo(utilidades_abaixo[i][0], i, utilidades_abaixo)

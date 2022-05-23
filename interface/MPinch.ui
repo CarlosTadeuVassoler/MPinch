@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1288,7 +1288,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -2324,6 +2324,36 @@ QToolButton:focus{
                      </widget>
                     </item>
                     <item>
+                     <widget class="QPushButton" name="pushButton_14">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>41</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Calculete Heat</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QPushButton" name="pushButton_6">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -2343,8 +2373,30 @@ QToolButton:focus{
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string> Add Heat Exchanger </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="Line" name="line_60">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="trocador_acima">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
                       </property>
                      </widget>
                     </item>
@@ -2368,38 +2420,13 @@ QToolButton:focus{
                         <height>16777215</height>
                        </size>
                       </property>
-                      <property name="text">
-                       <string> Remove Heat Exchanger </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_14">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>41</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
                       <property name="font">
                        <font>
-                        <pointsize>8</pointsize>
+                        <pointsize>10</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string> Choose Stream Temperature to Calculete Heat </string>
+                       <string> Remove Heat Exchanger </string>
                       </property>
                      </widget>
                     </item>
@@ -3209,7 +3236,20 @@ QToolButton:focus{
                  </widget>
                 </item>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_31"/>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Minimum</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QPushButton" name="pushButton_16">
@@ -3481,6 +3521,30 @@ QToolButton:focus{
                      </widget>
                     </item>
                     <item>
+                     <widget class="QPushButton" name="pushButton_17">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>41</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Calculete Heat</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QPushButton" name="pushButton_18">
                       <property name="minimumSize">
                        <size>
@@ -3494,8 +3558,30 @@ QToolButton:focus{
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string> Add Heat Exchanger </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="Line" name="line">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="trocador_abaixo">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
                       </property>
                      </widget>
                     </item>
@@ -3513,27 +3599,13 @@ QToolButton:focus{
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string> Remove Heat Exchanger </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_17">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>41</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string> Choose Stream Temperature to Calculete Heat </string>
                       </property>
                      </widget>
                     </item>
