@@ -22,7 +22,7 @@ tempdif = 0
 nstages = 2
 nsk = 10
 
-linha_interface = []
+linha_interface_ev = []
 utilidades = []
 utilidades_abaixo = []
 
@@ -101,7 +101,7 @@ def preparar_dados_e_rede():
 	global Tcski, Tcki, Tcskf, Tckf, Tcfinal01, Tcfinal01k
 	global Thin, Thout, Tcin, Tcout, Think, Thoutk, Tcink, Tcoutk
 	global Fharr, Fcarr, Qarr, Q, Qaux
-	global linha_interface, utilidades, utilidades_abaixo
+	global linha_interface_ev, utilidades, utilidades_abaixo
 	global calor_atual_frio_ev, calor_atual_quente_ev, calor_atual_quente_ev_sub, calor_atual_frio_ev_sub, calor_sub_sem_utilidade_ev
 	global temperatura_atual_quente_ev,	temperatura_atual_quente_ev_mesclada, temp_misturador_ev_abaixo, temperatura_atual_fria_ev,	temperatura_atual_fria_ev_mesclada,	temp_misturador_quente, temp_misturador_frio
 	global dividida_quente_ev_acima, dividida_quente_ev_abaixo, dividida_fria_ev_acima, dividida_fria_ev_abaixo, quantidade_quente_ev_acima, quantidade_quente_ev_abaixo, quantidade_fria_ev_acima, quantidade_fria_ev_abaixo, fracoes_quentes_ev, fracoes_frias_ev, fechar_corrente_ev, fechar_corrente_ev_abaixo
@@ -711,7 +711,7 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 	temp_misturador_quente[chot-1] = Thkf[chot-1][estagio-1]
 	temp_misturador_frio[ccold-1] = Tckf[ccold-1][estagio-1]
 
-	linha_interface.append([chot,
+	linha_interface_ev.append([chot,
 							ccold,
 							sbhot,
 							sbcold,
@@ -725,15 +725,15 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 							fracao_quente,
 							fracao_fria])
 
-	for trocador in linha_interface:
+	for trocador in linha_interface_ev:
 		trocador[7] = Thski[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 		trocador[9] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[10] = Tcski[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface, violou, trocador_violado
+	return linha_interface_ev, violou, trocador_violado
 
-def remover_trocador_ev(dlg, vetor, indice, linha_interface, ultima=False):
+def remover_trocador_ev(dlg, vetor, indice, linha_interface_ev, ultima=False):
 	chot = vetor[0]
 	ccold = vetor[1]
 	sbhot = vetor[2]
@@ -760,7 +760,7 @@ def remover_trocador_ev(dlg, vetor, indice, linha_interface, ultima=False):
 	if calor_atual_frio_ev[ccold-1] == Qtotalc01[ccold-1]:
 		temperatura_atual_fria_ev_mesclada[ccold-1] = pinchf
 
-	linha_interface.pop(indice)
+	linha_interface_ev.pop(indice)
 
 def adicionar_utilidade_ev(dlg, corrente, tipo):
 	if tipo == "aquecedor":
@@ -784,9 +784,9 @@ def remover_utilidade_ev(corrente, indice_remover, tipo):
 		utilidades_abaixo.pop(indice_remover)
 		fechar_corrente_ev_abaixo[corrente-1] = False
 
-def remover_todos():
-	for i in range(len(linha_interface)-1, -1, -1):
-		remover_trocador_ev("oi", linha_interface[i], i, linha_interface)
+def remover_todos_ev():
+	for i in range(len(linha_interface_ev)-1, -1, -1):
+		remover_trocador_ev("oi", linha_interface_ev[i], i, linha_interface_ev)
 	for i in range(len(utilidades)-1, -1, -1):
 		remover_utilidade_ev(utilidades[i][0], i, "aquecedor")
 	for i in range(len(utilidades_abaixo)-1, -1, -1):
@@ -826,18 +826,3 @@ def calcular_recomendado_violacao(dlg, trocador):
 				break
 	dlg.calor_path.clear()
 	dlg.calor_path.setPlaceholderText("ΔT > 0: " + x[0] + ", ΔT > ΔTmin: " + x[1])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#oi

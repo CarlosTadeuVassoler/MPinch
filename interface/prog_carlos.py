@@ -513,9 +513,12 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								tempdif_terminal_frio = Thin[i][si][j][sj][sk][k] - Tcin[i][si][j][sj][sk][k]
 
 								if tempdif < 0 or tempdif_terminal_frio < 0:
-									QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-									Q[i][si][j][sj][sk][k] = 0
-									return True, "termo"
+									if acao:
+										QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
+										Q[i][si][j][sj][sk][k] = 0
+										return True, "termo"
+									else:
+										QMessageBox.about(dlg, "Warning!", "Removing this Heat Exchanger resulted in a Thermodynamics Violation (E{})".format(sk+1))
 								else:
 									if dividida_quente[i]:
 										temperatura_atual_quente[i][si] = Thout[i][si][j][sj][sk][k]
@@ -663,7 +666,7 @@ def ler_dados(dlg, subestagio_trocador):
 
 	return [i, j, si, sj, sk, k, q]
 
-def inserir_trocador(dlg, vetor):
+def inserir_trocador(dlg, vetor, verificar_termo=True):
 	cont = 0
 
 	chot = vetor[0]
@@ -675,7 +678,7 @@ def inserir_trocador(dlg, vetor):
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] != 0:
 		QMessageBox.about(dlg,"Error!","There is already a heat exchanger in this position!")
-		return
+		return linha_interface, False
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = vetor[6]
 
@@ -687,21 +690,21 @@ def inserir_trocador(dlg, vetor):
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
 		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
-		return
+		return linha_interface, False
 
 	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] < 0:
 		QMessageBox.about(dlg,"Error!","It is not possible to change a negative amount of heat.")
 		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
-		return
+		return linha_interface, False
 
 	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] == 0:
 		QMessageBox.about(dlg,"Error!","The inputed heat must be greater than 0.")
-		return
+		return linha_interface, False
 
 	# CÁLCULO DE TODA A SUPERESTRUTURA
-	violou, trocador_violado = calcular_superestrutura(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	violou, trocador_violado = calcular_superestrutura(dlg, verificar_termo, chot, ccold, sbhot, sbcold, sestagio, estagio)
 	if violou and trocador_violado == "termo":
-		return
+		return linha_interface, False
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
@@ -740,7 +743,7 @@ def inserir_trocador(dlg, vetor):
 		trocador[7] = Thskf[trocador[0]-1][trocador[2]-1][trocador[4]-1][trocador[5]-1]
 		trocador[8] = Tcskf[trocador[1]-1][trocador[3]-1][trocador[4]-1][trocador[5]-1]
 
-	return linha_interface
+	return linha_interface, True
 
 def remover_trocador(dlg, vetor, indice, linha_interface):
 	chot = vetor[0]
@@ -826,10 +829,10 @@ def caixa_de_temperatura(dlg, sk):
 	sestagio = sk + 1
 
 	if dlg.TempLoadAbove.radioButton_2.isChecked():
-		inlethot = float(dlg.TempLoadAbove.lineEdit_2.text())
+		inlethot = float(dlg.TempLoadAbove.lineEdit_2.text().replace(",", "."))
 		q = round(CPh[chot-1] * (inlethot - Thski[chot-1][sbhot-1][sestagio-1][estagio-1]), 2)
 	if dlg.TempLoadAbove.radioButton.isChecked():
-		outletcold = float(dlg.TempLoadAbove.lineEdit.text())
+		outletcold = float(dlg.TempLoadAbove.lineEdit.text().replace(",", "."))
 		q = round(CPc[ccold-1] * (outletcold - Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1]), 2)
 
 	if ((Qtotalh0[chot-1][sbhot-1][estagio-1]) > (Qtotalc0[ccold-1][sbcold-1][estagio-1])):
