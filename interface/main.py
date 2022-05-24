@@ -1333,13 +1333,10 @@ def pinch_teste():
 					Tcf_abaixo.append(pinchf)
 					corrente_fria_presente_acima.append(True)
 
-		global unidades_usadas
+		global unidades_usadas, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 		calor = dlg.cp_unidade.currentText().split("/")
 		unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
 
-		print(e_utilidade)
-		print(e_utilidade_fria)
-		print(e_utilidade_quente)
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
 		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
@@ -1350,6 +1347,7 @@ def pinch_teste():
 		testar_correntes_abaixo(dlg)
 		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+		desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
 		#libera botões e coisas
 		dlg.tabWidget.setTabEnabled(1,True)
@@ -1379,13 +1377,13 @@ def correntesnoscombos(nhot,ncold):
 			dlg.comboBox_2.addItem(str(i+1) + " (utility)")
 	for i in range(ncold):
 		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
-		dlg.comboBox_36.addItem(str(i+1)) #abaixo add heat ex
+		dlg.comboBox_5.addItem(str(i+1)) #acima add heat ex
 		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
 		dlg.comboBox_50.addItem(str(i+1)) #n max de sub quentes é o nomero de correntes frias
 		dlg.comboBox_53.addItem(str(i+1))
 		dlg.corrente_acima.addItem("Cold " + str(i+1))
 		if not e_utilidade_fria[i]:
-			dlg.comboBox_5.addItem(str(i+1))
+			dlg.comboBox_36.addItem(str(i+1))
 			dlg.comboutil.addItem("Cold " + str(i+1))
 		else:
 			dlg.comboBox_36.addItem(str(i+1) + " (utility)")
@@ -4502,10 +4500,10 @@ for i in range(5):
 
 
 
-openfile_teste(False)
-done_teste(True)
-pinch_teste()
-suprir_9_correntes()
+# openfile_teste(False)
+# done_teste(True)
+# pinch_teste()
+# suprir_9_correntes()
 
 
 
