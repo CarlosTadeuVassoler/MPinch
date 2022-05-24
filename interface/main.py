@@ -2777,20 +2777,26 @@ def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 
 
 	def above(dados_do_trocador):
-		global subestagio_trocador
+		global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
 		indice = len(matriz_armazenada) - 1
 		remover_trocador(dlg, dados_do_trocador, indice, matriz_armazenada)
 		printar()
 		checaresgotadosacima()
+		desenho_em_dia = False
+		desenho_em_dia_ambas = False
+		atualizar_desenho("acima")
 		dlg.dtmin.close()
 		subestagio_trocador = indice
 
 	def below(dados_do_trocacdor):
-		global subestagio_trocador_abaixo
+		global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas
 		indice = len(matriz_trocadores_abaixo) - 1
 		remover_trocador_abaixo(dlg, dados_do_trocador, indice, matriz_trocadores_abaixo)
 		printar_abaixo()
 		checaresgotadosabaixo()
+		desenho_em_dia_abaixo = False
+		desenho_em_dia_ambas = False
+		atualizar_desenho("abaixo")
 		dlg.dtmin.close()
 		subestagio_trocador_abaixo = indice
 
@@ -2916,12 +2922,7 @@ def dividir_corrente(divisao, onde):
 
 		printar()
 		printar_abaixo()
-		if onde == "above":
-			if dlg.tab_acima.currentIndex() == 0:
-				desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
-		if onde == "below":
-			if dlg.tab_abaixo.currentIndex() == 0:
-				desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+		atualizar_desenho(onde)
 
 	dlg.DivisaoQuente.pushButton.clicked.connect(lambda: confirm())
 	dlg.DivisaoQuente.pushButton_3.clicked.connect(lambda: split(onde))
@@ -2996,8 +2997,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 		checaresgotadosacima()
 		desenho_em_dia = False
 		desenho_em_dia_ambas = False
-		if dlg.tab_acima.currentIndex() == 0:
-			desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+		atualizar_desenho("acima")
 
 	def remover_abaixo(indice_remover, tudo=True):
 		global subestagio_trocador_abaixo, matriz_trocadores_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas
@@ -3063,8 +3063,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 		checaresgotadosabaixo()
 		desenho_em_dia_abaixo = False
 		desenho_em_dia_ambas = False
-		if dlg.tab_abaixo.currentIndex() == 0:
-			desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+		atualizar_desenho("abaixo")
 
 	def sim(onde, indice_remover):
 		global perguntar, remover_todos
@@ -3106,6 +3105,29 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 			sim(onde, indice_remover)
 		else:
 			nao(onde, indice_remover)
+
+def atualizar_desenho(onde, botao=False):
+	if botao:
+		if onde == "acima" or onde == "above":
+			dlg.tab_acima.setCurrentIndex(0)
+		elif onde == "abaixo" or onde == "below":
+			dlg.tab_abaixo.setCurrentIndex(0)
+	if onde == "acima" or onde == "above":
+		if dlg.tab_acima.currentIndex() == 0:
+			desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+			dlg.emdia_acima.setText("Up to date drawing.")
+			dlg.emdia_acima.setStyleSheet("QLabel {color: green}")
+		else:
+			dlg.emdia_acima.setText("Drawing requires update.")
+			dlg.emdia_acima.setStyleSheet("QLabel {color: red}")
+	elif onde == "abaixo" or onde == "below":
+		if dlg.tab_abaixo.currentIndex() == 0:
+			desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+			dlg.emdia_abaixo.setText("Up to date drawing.")
+			dlg.emdia_abaixo.setStyleSheet("QLabel {color: green}")
+		else:
+			dlg.emdia_abaixo.setText("Drawing requires update.")
+			dlg.emdia_abaixo.setStyleSheet("QLabel {color: red}")
 
 
 
@@ -3948,8 +3970,7 @@ def inserir_teste():
 	dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
 	desenho_em_dia = False
 	desenho_em_dia_ambas = False
-	if dlg.tab_acima.currentIndex() == 0:
-		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+	atualizar_desenho("acima")
 
 def remover_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
@@ -4198,11 +4219,10 @@ def inserir_teste_abaixo():
 	dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
-	if dlg.tab_abaixo.currentIndex() == 0:
-		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	atualizar_desenho("abaixo")
 
 def remover_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas
+	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
 	indice_remover = dlg.tableWidget_14.currentRow()
 	if indice_remover == -1:
 		indice_remover = dlg.trocador_abaixo.currentIndex()
@@ -4447,7 +4467,7 @@ dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.addutil_acima.clicked.connect(utilidade_teste_acima)
-dlg.pushButton_16.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "acima", True))
+dlg.pushButton_16.clicked.connect(lambda: atualizar_desenho("acima", True))
 
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
@@ -4464,7 +4484,7 @@ dlg.pushButton_15.clicked.connect(remover_teste_abaixo) #remove heat exchanger
 dlg.pushButton_17.clicked.connect(calcular_calor_abaixo) #choose stream temperature to calculate heat
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.addutil_abaixo.clicked.connect(utilidade_teste_abaixo)
-dlg.pushButton_19.clicked.connect(lambda: desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True))
+dlg.pushButton_19.clicked.connect(lambda: atualizar_desenho("abaixo", True))
 
 #custos
 dlg.otimizabotao.clicked.connect(lambda: otimizafun())
