@@ -2448,11 +2448,11 @@ QToolButton:focus{
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_26">
                     <item>
-                     <widget class="QScrollArea" name="scrollArea">
+                     <widget class="QScrollArea" name="scroll_acima">
                       <property name="widgetResizable">
                        <bool>true</bool>
                       </property>
-                      <widget class="QWidget" name="scrollAreaWidgetContents">
+                      <widget class="QWidget" name="aaaaa">
                        <property name="geometry">
                         <rect>
                          <x>0</x>
@@ -3856,11 +3856,11 @@ QToolButton:focus{
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_30">
                     <item>
-                     <widget class="QScrollArea" name="scrollArea_2">
+                     <widget class="QScrollArea" name="scroll_abaixo">
                       <property name="widgetResizable">
                        <bool>true</bool>
                       </property>
-                      <widget class="QWidget" name="scrollAreaWidgetContents_2">
+                      <widget class="QWidget" name="bbbb">
                        <property name="geometry">
                         <rect>
                          <x>0</x>

@@ -1515,6 +1515,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.sety(y_acima - h_string + ramo_y)
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
 						temp.write("Streams CP ({})".format(unidades_usadas[1]), align="center", font=("Arial", fonte_carga, "bold"))
+						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+						temp.write("Strems Duty ({})".format(unidades_usadas[2]), align="center", font=("Arial", fonte_carga, "bold"))
 						ja_cp = True
 					temp.sety(y_acima - h_string)
 					temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Th0[i], 2))))*tamanho_string)
@@ -1525,16 +1527,16 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 					if not dividida_quente[i]:
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
 						temp.write(str('{:.2f}'.format(round(CPh[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-						# temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente[i], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_quente[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					else:
 						correntes_desenho_sub_acima[i] = [0] * (quantidade_quente[i] - 1)
 						for j in range(quantidade_quente[i]-1):
 							temp.sety(y_acima - h_string)
 							temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
 							temp.write(str('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-							temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-							# temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_sub[i][j], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+							temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+							temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 							if e_utilidade_quente[i]:
 								correntes_desenho_sub_acima[i][j].color("orange")
@@ -1561,8 +1563,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.sety(y_acima - h_string)
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
 						temp.write(str('{:.2f}'.format(round(CPh[i]*fracoes_quentes[i][quantidade_quente[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-						# temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_sub[i][quantidade_quente[i]-1], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub[i][quantidade_quente[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					if Thf_acima[i] == pinchq:
 						correntes_desenho[i].forward(distancia_x)
 					else:
@@ -1574,6 +1576,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.sety(y_abaixo - h_string + ramo_y)
 						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
 						temp.write("Streams CP ({})".format(unidades_usadas[1]), align="center", font=("Arial", fonte_carga, "bold"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+						temp.write("Streams Duty ({})".format(unidades_usadas[2]), align="center", font=("Arial", fonte_carga, "bold"))
 						ja_cp = True
 					temp.sety(y_abaixo - h_string)
 					temp.setx(distancia_x/2 + 6)
@@ -1584,16 +1588,16 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 					if not dividida_quente_abaixo[i]:
 						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
 						temp.write(str('{:.2f}'.format(round(CPh[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-						temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_abaixo[i], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_quente_abaixo[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					else:
 						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_quente_abaixo[i] - 1)
 						for j in range(quantidade_quente_abaixo[i]-1):
 							temp.sety(y_abaixo - h_string)
 							temp.setx(distancia_x/2 + distancia_cp + maior_cp)
 							temp.write(str('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-							temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-							temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][j], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+							temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+							temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 							correntes_desenho_sub_abaixo[i][j].color("red")
 							correntes_desenho_sub_abaixo[i][j].pensize(grossura_corrente)
@@ -1634,8 +1638,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.sety(y_abaixo - h_string)
 						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
 						temp.write(str('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
-						temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][quantidade_quente_abaixo[i-1]], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][quantidade_quente_abaixo[i-1]], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					if Th0_abaixo[i] == pinchq:
 						correntes_desenho[i].setx(-distancia_x/2)
 						correntes_desenho[i].pendown()
@@ -1664,9 +1668,14 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				correntes_desenho[i].setx(-distancia_x/2)
 				correntes_desenho[i].sety(y_acima)
 				correntes_desenho[i].pendown()
+				if not ja_cp:
+					temp.sety(y_acima - h_string + ramo_y)
+					temp.setx(-distancia_x/2 - distancia_cp - maior_duty)
+					temp.write("Streams Duty ({})".format(unidades_usadas[2]), align="center", font=("Arial", fonte_carga, "bold"))
+					ja_cp = True
 				temp.sety(y_acima - h_string)
 				temp.setx(-distancia_x/2 - distancia_cp - maior_duty)
-				temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_quente_ev[i], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+				temp.write(str('{:.2f}'.format(round(calor_atual_quente_ev[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 				temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Th0[i], 2))))*tamanho_string)
 				temp.write(str('{:.2f}'.format(round(Th0[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 				temp.setx(distancia_x/2 + 6)
@@ -1780,17 +1789,17 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.write(str('{:.2f}'.format(round(Tc0_acima[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 					if not dividida_fria[i]:
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
-						temp.write("CP = " + str('{:.2f}'.format(round(CPc[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio[i], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.write(str('{:.2f}'.format(round(CPc[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_frio[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					else:
 						correntes_desenho_sub_acima[i] = [0] * (quantidade_fria[i] - 1)
 						for j in range(quantidade_fria[i] - 1):
 							temp.sety(y_acima - h_string)
 							temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
-							temp.write("CP = " + str('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][j], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-							temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-							temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_sub[i][j], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+							temp.write(str('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+							temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+							temp.write(str('{:.2f}'.format(round(calor_atual_frio_sub[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 							correntes_desenho_sub_acima[i][j] = turtle.Turtle()
 							correntes_desenho_sub_acima[i][j].color("blue")
 							correntes_desenho_sub_acima[i][j].pensize(grossura_corrente)
@@ -1830,9 +1839,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							y_acima -= ramo_y
 						temp.sety(y_acima - h_string)
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
-						temp.write("CP = " + str('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-						temp.setx(-distancia_x/2 - distancia_cp - maior_cp - maior_duty)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_sub[i][quantidade_fria[i]-1], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.write(str('{:.2f}'.format(round(CPc[i]*fracoes_frias[i][quantidade_fria[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_frio_sub[i][quantidade_fria[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					if Tc0_acima[i] == pinchf:
 						correntes_desenho[i].setx(distancia_x/2)
 						correntes_desenho[i].pendown()
@@ -1853,18 +1862,18 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.setx(-distancia_x/2 + nao_toca_pinch - len(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))))*tamanho_string)
 						temp.write(str('{:.2f}'.format(round(Tcf_abaixo[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 					if not dividida_fria_abaixo[i]:
-						temp.setx(distancia_x/2 + distancia_cp)
-						temp.write("CP = " + str('{:.2f}'.format(round(CPc[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-						temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_abaixo[i], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
+						temp.write(str('{:.2f}'.format(round(CPc[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_frio_abaixo[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					else:
 						correntes_desenho_sub_abaixo[i] = [0] * (quantidade_fria_abaixo[i] - 1)
 						for j in range(quantidade_fria_abaixo[i]-1):
 							temp.sety(y_abaixo - h_string)
-							temp.setx(distancia_x/2 + distancia_cp)
-							temp.write("CP = " + str('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][j], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-							temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-							temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_sub_abaixo[i][j], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+							temp.setx(distancia_x/2 + distancia_cp + maior_cp)
+							temp.write(str('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+							temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+							temp.write(str('{:.2f}'.format(round(calor_atual_frio_sub_abaixo[i][j], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 							correntes_desenho_sub_abaixo[i][j] = turtle.Turtle()
 							if e_utilidade_fria[i]:
 								correntes_desenho_sub_abaixo[i][j].color("#7FFFD4")
@@ -1889,10 +1898,10 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 							correntes_desenho_sub_abaixo[i][j].forward(ramo_x)
 							y_abaixo -= ramo_y
 						temp.sety(y_abaixo - h_string)
-						temp.setx(distancia_x/2 + distancia_cp)
-						temp.write("CP = " + str('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][quantidade_fria_abaixo[i]-1], 2))), align="left", font=("Arial", fonte_carga, "normal"))
-						temp.setx(distancia_x/2 + distancia_cp + maior_cp + 20)
-						temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_sub_abaixo[i][quantidade_fria_abaixo[i]-1], 2))), align="left", font=("Arial", fonte_carga, "bold"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
+						temp.write(str('{:.2f}'.format(round(CPc[i]*fracoes_frias_abaixo[i][quantidade_fria_abaixo[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
+						temp.write(str('{:.2f}'.format(round(calor_atual_frio_sub_abaixo[i][quantidade_fria_abaixo[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					if Tcf_abaixo[i] == pinchf:
 						correntes_desenho[i].forward(distancia_x)
 					else:
@@ -1918,7 +1927,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				correntes_desenho[i].left(180)
 				temp.sety(y_acima - h_string)
 				temp.setx(-distancia_x/2 - distancia_cp - maior_duty)
-				temp.write("Duty = " + str('{:.2f}'.format(round(calor_atual_frio_ev[i]))), align="left", font=("Arial", fonte_carga, "bold"))
+				temp.write(str('{:.2f}'.format(round(calor_atual_frio_ev[i]))), align="center", font=("Arial", fonte_carga, "normal"))
 				temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Tcf[i], 2))))*tamanho_string)
 				temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 				temp.setx(distancia_x/2 + 6)
@@ -2466,15 +2475,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		temps = Th0 + Thf + Tc0 + Tcf
 		for i in range(len(temps)):
 			tamanhos.append(len(str('{:.2f}'.format(round(temps[i], 2))))*tamanho_string)
-		tamanhos1 = []
-		tamanhos_duty = []
 		cps = CPh + CPc
-		for i in range(len(cps)):
-			# tamanhos1.append(len("CP = " + str('{:.2f}'.format(round(cps[i], 2))))*tamanho_string)
-			if i+1 <= len(CPh):
-				tamanhos_duty.append(len("Duty = " + str('{:.2f}'.format(round(cps[i] * (Th0[i] - Thf[i]), 2))))*tamanho_string)
-			else:
-				tamanhos_duty.append(len("Duty = " + str('{:.2f}'.format(round(cps[i] * (Tcf[i-len(CPh)-1] - Tc0[i-len(CPh)-1]), 2))))*tamanho_string)
 
 		#strings
 		h_string = 2
@@ -2497,9 +2498,8 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		espaco_utilidades = espaco_trocadores/2
 		nao_toca_pinch = max(tamanhos) + 5
 		distancia_cp = nao_toca_pinch + 20
-		# maior_cp = max(tamanhos1)
 		maior_cp = len("Streams CP ({})".format(unidades_usadas[1]))*tamanho_string/2
-		maior_duty = max(tamanhos_duty)
+		maior_duty = len("Streams Duty ({})".format(unidades_usadas[2]))*tamanho_string/2
 
 
 		x = 150
@@ -2525,9 +2525,9 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 
 		#tamanho da janela
 		if subrede == "ambas":
-			w = distancia_x + distancia_cp + maior_duty + len("Cold 99 (utility)")*tamanho_string + borda
+			w = distancia_x + distancia_cp + maior_duty*2 + len("Cold 99 (utility)")*tamanho_string + borda
 		else:
-			w = distancia_x + 1.5*distancia_cp + maior_cp + maior_duty + borda + len("Cold 99 (utility)")*tamanho_string
+			w = distancia_x + 1.5*distancia_cp + maior_cp*2 + maior_duty*2 + borda + len("Cold 99 (utility)")*tamanho_string
 
 		h = 0
 		h_acima = 0
@@ -2824,9 +2824,11 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 		if onde == "acima":
 			dlg.lay_acima.setContentsMargins(0, 0, 0, 0)
 			dlg.hen_acima.setPixmap(QtGui.QPixmap(onde + ".png"))
+			dlg.scroll_acima.ensureVisible(0, int(tamanho[1]/2), 0, 0)
 		if onde == "abaixo":
 			dlg.lay_abaixo.setContentsMargins(0, 0, 0, 0)
 			dlg.hen_abaixo.setPixmap(QtGui.QPixmap(onde + ".png"))
+			dlg.scroll_abaixo.ensureVisible(int(tamanho[0]), int(tamanho[1]/2), 0, 0)
 
 
 
@@ -3579,56 +3581,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			ramo_frio = matriz_completa[trocadores_laco[trocador_removido]-1][3]
 			estagio = matriz_completa[trocadores_laco[trocador_removido]-1][5]
 
-			ainda_tem_quente = False
-			ainda_tem_frio = False
-			for trocador in matriz_completa:
-				if matriz_completa.index(trocador) != trocadores_laco[trocador_removido]-1 and trocador[5] == estagio:
-					if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
-						ainda_tem_quente = True
-					if ramo_frio == trocador[3] and corrente_fria == trocador[1]:
-						ainda_tem_frio = True
-
-			remover_todos_ev()
-
-			novas_divisoes = nao_sacrificar_matriz(divisoes)
-
-			if not ainda_tem_quente:
-				for divisao in divisoes:
-					if divisao[0] == "Q" and divisao[1] == estagio and divisao[2] == corrente_quente:
-						total = 0
-						for ramo in range(divisao[3]):
-							if ramo+1 != ramo_quente:
-								total += divisao[4][ramo]
-						fracao = []
-						for ramo in range(divisao[3]):
-							if ramo+1 != ramo_quente:
-								proporcao = divisao[4][ramo] / total
-								fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_quente-1])
-								if ramo+1 > ramo_quente:
-									for trocador in matriz_completa:
-										if trocador[0] == corrente_quente and trocador[2] == ramo+1 and trocador[5] == estagio:
-											trocador[2] -= 1
-						divisao_de_correntes_ev("Q", estagio, corrente_quente, len(fracao), fracao)
-						novas_divisoes[divisoes.index(divisao)] = ["Q", estagio, corrente_fria, len(fracao), fracao]
-
-			if not ainda_tem_frio:
-				for divisao in divisoes:
-					if divisao[0] == "F" and divisao[1] == estagio and divisao[2] == corrente_fria:
-						total = 0
-						for ramo in range(divisao[3]):
-							if ramo+1 != ramo_frio:
-								total += divisao[4][ramo]
-						fracao = []
-						for ramo in range(divisao[3]):
-							if ramo+1 != ramo_frio:
-								proporcao = divisao[4][ramo] / total
-								fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_frio-1])
-								if ramo+1 > ramo_frio:
-									for trocador in matriz_completa:
-										if trocador[1] == corrente_fria and trocador[3] == ramo+1 and trocador[5] == estagio:
-											trocador[3] -= 1
-						divisao_de_correntes_ev("F", estagio, corrente_fria, len(fracao), fracao)
-						novas_divisoes[divisoes.index(divisao)] = ["F", estagio, corrente_fria, len(fracao), fracao]
+			novas_divisoes = remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=(trocadores_laco[trocador_removido]-1))
 
 			for i in range(len(trocadores_laco)):
 				matriz_completa[trocadores_laco[i]-1][6] = valores[i]
@@ -3738,9 +3691,9 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda, divisoes))
 
 			def done(matriz_completa_done, novas_divisoes):
-				global matriz_evolucao, desenho_em_dia_ambas, divisoes
+				global matriz_evolucao, desenho_em_dia_ambas, divisoes_ev
 				matriz_evolucao = nao_sacrificar_matriz(matriz_completa_done)
-				divisoes = nao_sacrificar_matriz(novas_divisoes)
+				divisoes_ev = nao_sacrificar_matriz(novas_divisoes)
 				dlg.dividir_calor.close()
 				desenho_em_dia_ambas = False
 				desenhar_rede(correntes_quentes, correntes_frias, "ambas")
@@ -3752,12 +3705,12 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 					evolucao([], [], nivel)
 
 			def undone(matriz_completa_undone, novas_divisoes):
-				global matriz_evolucao, divisoes
+				global matriz_evolucao, divisoes_ev
 				remover_todos_ev()
 				for trocador in matriz_completa_undone:
 					matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
 				matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
-				divisoes = nao_sacrificar_matriz(novas_divisoes)
+				divisoes_ev = nao_sacrificar_matriz(novas_divisoes)
 				dlg.dividir_calor.close()
 
 		def liberar_bloquear(valor_trocador, acao, trocador_removido, placeholders):
@@ -3779,7 +3732,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 						valor_trocador[0][i].setPlaceholderText("")
 						valor_trocador[1][i].setPlaceholderText("")
 
-	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
+	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas, divisoes_ev
 
 	if jogar_evolucao:
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
@@ -3788,6 +3741,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
 		desenho_em_dia_ambas = False
+		divisoes_ev = nao_sacrificar_matriz(divisoes)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 		if dlg.trocador_editar.count() > 0:
 			dlg.trocador_editar.clear()
@@ -3827,9 +3781,16 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			evolucao([], [], nivel+1)
 
 def editar_calor(matriz_naomuda, trocador, calor, path=False):
-	global desenho_em_dia_ambas, matriz_evolucao, n_quentes, n_frias
+	global desenho_em_dia_ambas, matriz_evolucao, n_quentes, n_frias, divisoes_ev
 	matriz = nao_sacrificar_matriz(matriz_naomuda)
 	remover_todos_ev()
+	if (calor == 0 and not path) or ((matriz_naomuda[trocador][6] - calor == 0) and path):
+		corrente_quente = matriz_naomuda[trocador][0]
+		corrente_fria = matriz_naomuda[trocador][1]
+		ramo_quente = matriz_naomuda[trocador][2]
+		ramo_frio = matriz_naomuda[trocador][3]
+		estagio = matriz_naomuda[trocador][5]
+		divisoes_ev = remover_ramo(matriz, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=trocador)
 	desenho_em_dia_ambas = False
 	if not path:
 		if calor == 0:
@@ -3838,15 +3799,19 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 					matriz[i][4] -= 1
 			matriz.pop(trocador)
 			dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
+			dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
 		else:
 			matriz[trocador][6] = calor
 		for trocadorr in matriz:
 			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
-		matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
-		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 	else:
 		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True))
-		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+		for i in reversed(range(2)):
+			dlg.trocador_path.addItem("E" + str(len(matriz_evolucao)-i))
+			dlg.trocador_editar.addItem("E" + str(len(matriz_evolucao)-i))
+
+	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 def utilidade(matriz_naomuda, dados, path=False):
 	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
@@ -3859,6 +3824,10 @@ def utilidade(matriz_naomuda, dados, path=False):
 		sub_quente = matriz_naomuda[trocador][2]
 		sub_fria = matriz_naomuda[trocador][3]
 		matriz[trocador][6] = matriz_naomuda[trocador][6] - calor
+		if round(matriz[trocador][6], 2) == 0:
+			matriz.pop(trocador)
+		dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
+		dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
 		tipo = ""
 		dlg.calor_path.clear()
 	else:
@@ -3871,12 +3840,12 @@ def utilidade(matriz_naomuda, dados, path=False):
 			tipo = "Hot"
 			calor = calor_atual_frio_ev[corrente-1]
 	if tipo == "Hot" or path:
-		for trocador in matriz:
-			if trocador[5] == 2:
-				parar = matriz.index(trocador)
+		for trocadorr in matriz:
+			if trocadorr[5] == 2:
+				parar = matriz.index(trocadorr)
 				break
 			else:
-				trocador[4] += 1
+				trocadorr[4] += 1
 		matriz_reserva = nao_sacrificar_matriz(matriz[parar:])
 		for i in range(parar, len(matriz)):
 			matriz.pop(-1)
@@ -3887,7 +3856,7 @@ def utilidade(matriz_naomuda, dados, path=False):
 		for reserva in matriz_reserva:
 			matriz.append(reserva)
 	else:
-		matriz.append([corrente, n_frias, 1, 1, matriz_naomuda[-1][4]+1, 2, calor])
+		matriz.append([corrente, n_frias, 1, 1, matriz[-1][4]+1, 2, calor])
 	if path:
 		matriz.append([corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor])
 	else:
@@ -3901,6 +3870,60 @@ def utilidade(matriz_naomuda, dados, path=False):
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
+def remover_ramo(matriz_naomuda, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=-1):
+	ainda_tem_quente = False
+	ainda_tem_frio = False
+	matriz_completa = matriz_naomuda
+	for trocador in matriz_completa:
+		if matriz_completa.index(trocador) != excecao and trocador[5] == estagio:
+			if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
+				ainda_tem_quente = True
+			if ramo_frio == trocador[3] and corrente_fria == trocador[1]:
+				ainda_tem_frio = True
+
+	remover_todos_ev()
+
+	novas_divisoes = nao_sacrificar_matriz(divisoes_ev)
+
+	if not ainda_tem_quente:
+		for divisao in novas_divisoes:
+			if divisao[0] == "Q" and divisao[1] == estagio and divisao[2] == corrente_quente:
+				total = 0
+				for ramo in range(divisao[3]):
+					if ramo+1 != ramo_quente:
+						total += divisao[4][ramo]
+				fracao = []
+				for ramo in range(divisao[3]):
+					if ramo+1 != ramo_quente:
+						proporcao = divisao[4][ramo] / total
+						fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_quente-1])
+						if ramo+1 > ramo_quente:
+							for trocador in matriz_completa:
+								if trocador[0] == corrente_quente and trocador[2] == ramo+1 and trocador[5] == estagio:
+									trocador[2] -= 1
+				divisao_de_correntes_ev("Q", estagio, corrente_quente, len(fracao), fracao)
+				divisao = ["Q", estagio, corrente_fria, len(fracao), fracao]
+
+	if not ainda_tem_frio:
+		for divisao in novas_divisoes:
+			if divisao[0] == "F" and divisao[1] == estagio and divisao[2] == corrente_fria:
+				total = 0
+				for ramo in range(divisao[3]):
+					if ramo+1 != ramo_frio:
+						total += divisao[4][ramo]
+				fracao = []
+				for ramo in range(divisao[3]):
+					if ramo+1 != ramo_frio:
+						proporcao = divisao[4][ramo] / total
+						fracao.append(divisao[4][ramo] + proporcao * divisao[4][ramo_frio-1])
+						if ramo+1 > ramo_frio:
+							for trocador in matriz_completa:
+								if trocador[1] == corrente_fria and trocador[3] == ramo+1 and trocador[5] == estagio:
+									trocador[3] -= 1
+				divisao_de_correntes_ev("F", estagio, corrente_fria, len(fracao), fracao)
+				divisao = ["F", estagio, corrente_fria, len(fracao), fracao]
+
+	return novas_divisoes
 
 
 #above
@@ -4402,6 +4425,7 @@ def checaresgotadosabaixo():
 
 #inutilidades porem depende
 def suprir_9_correntes():
+	global matriz_armazenada, matriz_trocadores_abaixo
 
 	if nhot == 2 and ncold == 2:
 		acima = [[1, 1, 1, 1, 1, 1, 150], [1, 1, 2, 2, 2, 1, 150], [2, 2, 2, 2, 4, 1, 60], [2, 2, 1, 1, 3, 1, 60], [1], [2]]
@@ -4460,7 +4484,7 @@ def suprir_9_correntes():
 	printar_abaixo()
 	testar_correntes(dlg)
 	testar_correntes_abaixo(dlg)
-	global desenho_em_dia, desenho_emwebweb_dia_abaixo, desenho_em_dia_ambas
+	global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 	desenho_em_dia = False
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
