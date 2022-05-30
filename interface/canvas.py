@@ -39,8 +39,8 @@ def Gc2(n,dlg,Tdecre,menor,cascat2,unidadeusada):
 	    ax.plot([cascat3[i] , cascat3[i]], [0, Tdecre[i]], color = 'gray', linestyle = '--')"""
 	"""ax.set_yticks(Tdecre)
 	ax.set_xticks(cascat3)"""
-	ax.set_xlabel(unidadeusada[1])
-	ax.set_ylabel(unidadeusada[0])
+	ax.set_xlabel("Enthalpy ({})".format(unidadeusada[2]))
+	ax.set_ylabel("Temperature ({})".format(unidadeusada[0]))
 	ax.grid(axis="x", color="gray", linewidth=1, linestyle="--")
 	ax.grid(axis="y", color="gray", linewidth=1, linestyle="--")
 	plt.title('Grand Composite Curve')
@@ -67,9 +67,8 @@ def Gc1(n,dlg,Tdecre,menor,cascat2,unidadeusada):
 
 	ax.grid(axis="x", color="gray", linewidth=1, linestyle="--")
 	ax.grid(axis="y", color="gray", linewidth=1, linestyle="--")
-	ax.set_xlabel(unidadeusada[1])
-	ax.set_ylabel(unidadeusada[0])
+	ax.set_xlabel("Enthalpy ({})".format(unidadeusada[2]))
+	ax.set_ylabel("Temperature ({})".format(unidadeusada[0]))
 	plt.title('Grand Composite Curve')
 	fig.savefig("Gc1.png", bbox_inches="tight", pad_inches=0.5)
 	dlg.graficodt1.setPixmap(QtGui.QPixmap("Gc1.png"))
-
