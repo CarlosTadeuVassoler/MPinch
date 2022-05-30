@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1288,7 +1288,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -2084,7 +2084,7 @@ QToolButton:focus{
         <item row="0" column="0">
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ABOVEEABA">
            <attribute name="title">
@@ -2440,7 +2440,7 @@ QToolButton:focus{
                    <enum>QTabWidget::West</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_2">
                    <attribute name="title">
@@ -2642,7 +2642,7 @@ QToolButton:focus{
                        <set>QAbstractItemView::NoEditTriggers</set>
                       </property>
                       <property name="selectionMode">
-                       <enum>QAbstractItemView::ExtendedSelection</enum>
+                       <enum>QAbstractItemView::NoSelection</enum>
                       </property>
                       <property name="selectionBehavior">
                        <enum>QAbstractItemView::SelectItems</enum>
@@ -2916,14 +2916,6 @@ QToolButton:focus{
                            <property name="text">
                             <string>Intermediate Temp.</string>
                            </property>
-                           <property name="font">
-                            <font>
-                             <family>MS Shell Dlg 2</family>
-                             <pointsize>8</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                           </column>
                           <column>
                            <property name="text">
@@ -3112,14 +3104,6 @@ QToolButton:focus{
                           <column>
                            <property name="text">
                             <string>Intermediate Temp.</string>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>MS Shell Dlg 2</family>
-                             <pointsize>8</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
                            </property>
                           </column>
                           <column>
@@ -3854,7 +3838,7 @@ QToolButton:focus{
                    <enum>QTabWidget::West</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_3">
                    <attribute name="title">
@@ -4070,6 +4054,12 @@ QToolButton:focus{
                       <property name="editTriggers">
                        <set>QAbstractItemView::NoEditTriggers</set>
                       </property>
+                      <property name="tabKeyNavigation">
+                       <bool>true</bool>
+                      </property>
+                      <property name="selectionMode">
+                       <enum>QAbstractItemView::NoSelection</enum>
+                      </property>
                       <property name="showGrid">
                        <bool>false</bool>
                       </property>
@@ -4122,7 +4112,7 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Heat Exchanged </string>
+                        <string>Heat Exchanged</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4133,20 +4123,7 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Inlet Hot Temp. </string>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>MS Shell Dlg 2</family>
-                         <pointsize>8</pointsize>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                      </column>
-                      <column>
-                       <property name="text">
-                        <string> Outlet Cold Temp. </string>
+                        <string>Inlet Hot Temp.</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4159,7 +4136,20 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Outlet Hot Temp. </string>
+                        <string>Outlet Cold Temp.</string>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>8</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                      </column>
+                      <column>
+                       <property name="text">
+                        <string>Outlet Hot Temp.</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4170,7 +4160,7 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Inlet Cold Temp. </string>
+                        <string>Inlet Cold Temp.</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4181,7 +4171,7 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Hot Fraction </string>
+                        <string>Hot Fraction</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4192,7 +4182,7 @@ QToolButton:focus{
                       </column>
                       <column>
                        <property name="text">
-                        <string> Cold Fraction </string>
+                        <string>Cold Fraction</string>
                        </property>
                        <property name="font">
                         <font>
@@ -4330,13 +4320,8 @@ QToolButton:focus{
                            <property name="text">
                             <string>Intermediate Temp.</string>
                            </property>
-                           <property name="font">
-                            <font>
-                             <family>MS Shell Dlg 2</family>
-                             <pointsize>8</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
+                           <property name="textAlignment">
+                            <set>AlignLeading|AlignVCenter</set>
                            </property>
                           </column>
                           <column>
@@ -4502,14 +4487,6 @@ QToolButton:focus{
                           <column>
                            <property name="text">
                             <string>Intermediate Temp.</string>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>MS Shell Dlg 2</family>
-                             <pointsize>8</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
                            </property>
                           </column>
                           <column>

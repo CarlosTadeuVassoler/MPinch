@@ -1337,14 +1337,7 @@ def pinch_teste():
 		calor = dlg.cp_unidade.currentText().split("/")
 		unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
 
-		header = dlg.tableWidget_2.horizontalHeader()
-		header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-		for i in range(11):
-			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-		header = dlg.tableWidget_14.horizontalHeader()
-		header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-		for i in range(5):
-			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+		unidades(pinch=True)
 
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
@@ -1400,7 +1393,7 @@ def correntesnoscombos(nhot,ncold):
 	for i in range(1, min(nhot, ncold)):
 		dlg.nivel.addItem(str(i+1))
 
-def unidades(header=True, corrente=True):
+def unidades(header=True, corrente=True, pinch=False):
 	if not header:
 		if dlg.sistema_unidades.currentIndex() != 2:
 			dlg.temp_unidade.setCurrentIndex(dlg.sistema_unidades.currentIndex())
@@ -1436,6 +1429,53 @@ def unidades(header=True, corrente=True):
 				"Utility Type",
 				"h ({})".format(dlg.pelicula_unidade_util.currentText())]
 	dlg.tableWidget_5.setHorizontalHeaderLabels(headerrr)
+
+	if pinch:
+		headerrr = ["Hot Stream",
+					"Cold Stream",
+					"Sub Hot Stream",
+					"Sub Cold Stream",
+					" Heat Exchanged ({}) ".format(str(unidades_usadas[2])),
+					" Inlet Hot Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Outlet Cold Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Outlet Hot Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Inlet Cold Temp. ({}) ".format(str(unidades_usadas[0])),
+					"Hot Fraction",
+					"Cold Fraction"]
+		dlg.tableWidget_2.setHorizontalHeaderLabels(headerrr)
+		dlg.tableWidget_14.setHorizontalHeaderLabels(headerrr)
+		headerrr = ["Stream",
+					" Supply Temp. ({}) (Goal) ".format(str(unidades_usadas[0])),
+					" Intermediate Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Outlet Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Heat Duty ({}) ".format(str(unidades_usadas[2]))]
+		dlg.tableWidget_3.setHorizontalHeaderLabels(headerrr)
+		headerrr = ["Stream",
+					" Outlet Temp. ({}) (Goal) ".format(str(unidades_usadas[0])),
+					" Intermediate Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Inlet Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Heat Duty ({}) ".format(str(unidades_usadas[2]))]
+		dlg.tableWidget_4.setHorizontalHeaderLabels(headerrr)
+		headerrr = ["Stream",
+					" Inlet Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Intermediate Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Outlet Temp. ({}) (Goal) ".format(str(unidades_usadas[0])),
+					" Heat Duty ({}) ".format(str(unidades_usadas[2]))]
+		dlg.tableWidget_15.setHorizontalHeaderLabels(headerrr)
+		headerrr = ["Stream",
+					" Outlet Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Intermediate Temp. ({}) ".format(str(unidades_usadas[0])),
+					" Supply Temp. ({}) (Goal) ".format(str(unidades_usadas[0])),
+					" Heat Duty ({}) ".format(str(unidades_usadas[2]))]
+		dlg.tableWidget_17.setHorizontalHeaderLabels(headerrr)
+		for i in range(4, 9):
+			dlg.tableWidget_2.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+			dlg.tableWidget_14.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+		for i in range(5):
+			dlg.tableWidget_3.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+			dlg.tableWidget_4.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+			dlg.tableWidget_15.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+			dlg.tableWidget_17.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
 def unidades_compativeis(unidade_temp, unidade_cp, unidade_pelicula, cp_printar):
 	#0:si
