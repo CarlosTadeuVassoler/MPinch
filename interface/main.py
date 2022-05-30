@@ -1035,7 +1035,7 @@ def openfile_teste(pergunta=True):
 	for i in range(n):
 		for j in range(5):
 			item = dlg.tableWidget.item(i, j)
-			item.setTextAlignment(Qt.AlignHCenter)
+			item.setTextAlignment(Qt.AlignCenter)
 
 def apertaradd() :
 	global n, ncold, nhot, correntes
@@ -1072,7 +1072,7 @@ def apertaradd() :
 
 	for i in range(5):
 		item = dlg.tableWidget.item(n-1, i)
-		item.setTextAlignment(Qt.AlignHCenter)
+		item.setTextAlignment(Qt.AlignCenter)
 
 	correntes.append(dados_da_corrente)
 	e_utilidade.append(False)
@@ -1123,7 +1123,7 @@ def add_utilidade():
 
 	for i in range(5):
 		item = dlg.tableWidget_5.item(n_util-1, i)
-		item.setTextAlignment(Qt.AlignHCenter)
+		item.setTextAlignment(Qt.AlignCenter)
 
 	correntes_util.append(dados_da_corrente)
 	e_utilidade.append(True)
@@ -1145,7 +1145,7 @@ def editar_corrente(correntes, tip, tabela):
 		if coluna == 3 and dado != "Hot" and dado != "Cold":
 			QMessageBox.about(dlg, "Error!", "Not allowed to change this column. Change the temperatures instead.")
 			tabela.setItem(linha, coluna, QTableWidgetItem(correntes[linha][coluna]))
-			tabela.currentItem().setTextAlignment(Qt.AlignHCenter)
+			tabela.currentItem().setTextAlignment(Qt.AlignCenter)
 			return
 		elif coluna != 3:
 			correntes[linha][coluna_comp] = float(dado.replace(",", "."))
@@ -1158,7 +1158,7 @@ def editar_corrente(correntes, tip, tabela):
 			else:
 				correntes[linha][3] = "Cold"
 				tabela.setItem(linha, 3, tipo)
-			tabela.item(linha, 3).setTextAlignment(Qt.AlignHCenter)
+			tabela.item(linha, 3).setTextAlignment(Qt.AlignCenter)
 
 		if correntes_util[0][3] != correntes_util[1][3]:
 			dlg.pinchbutton.setEnabled(True)
@@ -1336,6 +1336,15 @@ def pinch_teste():
 		global unidades_usadas, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 		calor = dlg.cp_unidade.currentText().split("/")
 		unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
+
+		header = dlg.tableWidget_2.horizontalHeader()
+		header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+		for i in range(11):
+			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+		header = dlg.tableWidget_14.horizontalHeader()
+		header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+		for i in range(5):
+			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 
 		#manda tudo pro backend
 		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
@@ -1516,7 +1525,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp)
 						temp.write("Streams CP ({})".format(unidades_usadas[1]), align="center", font=("Arial", fonte_carga, "bold"))
 						temp.setx(-distancia_x/2 - distancia_cp - maior_cp*2 -  maior_duty)
-						temp.write("Strems Duty ({})".format(unidades_usadas[2]), align="center", font=("Arial", fonte_carga, "bold"))
+						temp.write("Streams Duty ({})".format(unidades_usadas[2]), align="center", font=("Arial", fonte_carga, "bold"))
 						ja_cp = True
 					temp.sety(y_acima - h_string)
 					temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Th0[i], 2))))*tamanho_string)
@@ -2443,7 +2452,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		texto.write("UNITS:   Temperature: {};   CP = {}".format(unidades[0], unidades[1]), align="center", font=("Arial", fonte_carga, "bold"))
 
 	global y_acima, y_abaixo, tamanho_acima, tamanho_abaixo, distancia_x, ramo_x, ramo_y, nao_toca_pinch, espaco_trocadores, comecar_pinch, raio_trocador, espaco_utilidades, distancia_cp, maior_cp
-	global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
+	global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas, tamanho_antigo, tamanho_antigo_acima, tamanho_antigo_abaixo
 
 	desenha = False
 	if subrede == "acima" and not desenho_em_dia and not desenha:
@@ -2565,6 +2574,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		comecar_pinch = y_acima + ramo_y
 
 		if subrede == "acima":
+			tamanho_antigo_acima = [w, h]
 			quentes("above", correntes_quentes, corrente_quente_presente_acima)
 			frias("above", correntes_frias, corrente_fria_presente_acima)
 			pinch(y_acima, "acima")
@@ -2624,6 +2634,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 
 
 		elif subrede == "abaixo":
+			tamanho_antigo_abaixo = [w, h]
 			quentes("below", correntes_quentes, corrente_quente_presente_abaixo)
 			frias("below", correntes_frias, corrente_fria_presente_abaixo)
 			pinch(y_abaixo, "abaixo")
@@ -2681,6 +2692,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						primeiro += 1
 						util += 1
 		elif subrede == "ambas":
+			tamanho_antigo = [w, h]
 			quentes("ambas", correntes_quentes, corrente_quente_presente_acima)
 			frias("ambas", correntes_frias, corrente_fria_presente_acima)
 
@@ -2776,14 +2788,18 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 						inserir_trocador_desenho("ambas/abaixo", correntes_quentes[trocadorr[0]-1], correntes_frias[trocadorr[1]-1], subestagio_abaixo, trocadorr, trocador_atual, distancia_x, [duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, termo_quente, termo_frio], [viola_anterior_quente, viola_anterior_fria, termo_quente_anterior, termo_fria_anterior])
 					trocador_atual += 1
 
-
-	if not desenha:
-		w = h = 1280
-
-	if teste:
-		salvar_rede(teste, subrede, desenha, [w, h])
 	else:
-		salvar_rede(teste, subrede, desenha, [w, h])
+		if subrede == "acima":
+			w = tamanho_antigo_acima[0]
+			h = tamanho_antigo_acima[1]
+		elif subrede == "abaixo":
+			w = tamanho_antigo_abaixo[0]
+			h = tamanho_antigo_abaixo[1]
+		else:
+			w = tamanho_antigo[0]
+			h = tamanho_antigo[1]
+
+	salvar_rede(teste, subrede, desenha, [w, h])
 
 def salvar_rede(so_ver, onde, salva, tamanho):
 	global primeira_vez
@@ -2809,8 +2825,12 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 		new_size = (int(pic.size[0] * ratio), int(pic.size[1] * ratio))
 		tamanho = [int(pic.size[0]*ratio), int(pic.size[1]*ratio)]
 		pic = pic.resize(new_size, Image.ANTIALIAS)
-		# imagem = pic.crop((0, 0, pic.size[0], 150))
-		imagem = pic
+		if onde == "acima":
+			imagem = pic.crop((0, 0, pic.size[0] - 200, pic.size[1]))
+		elif onde == "abaixo":
+			imagem = pic.crop((200, 0, pic.size[0], pic.size[1]))
+		else:
+			imagem = pic
 		imagem.save(onde + ".png")
 
 	dlg.rede = QPixmap(onde + ".png")
@@ -2824,11 +2844,11 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 		if onde == "acima":
 			dlg.lay_acima.setContentsMargins(0, 0, 0, 0)
 			dlg.hen_acima.setPixmap(QtGui.QPixmap(onde + ".png"))
-			dlg.scroll_acima.ensureVisible(0, int(tamanho[1]/2), 0, 0)
+			dlg.scroll_acima.ensureVisible(0, int(tamanho[1]/2), 1, 1)
 		if onde == "abaixo":
 			dlg.lay_abaixo.setContentsMargins(0, 0, 0, 0)
 			dlg.hen_abaixo.setPixmap(QtGui.QPixmap(onde + ".png"))
-			dlg.scroll_abaixo.ensureVisible(int(tamanho[0]), int(tamanho[1]/2), 0, 0)
+			dlg.scroll_abaixo.ensureVisible(int(tamanho[1])+100, int(tamanho[1]/2), 1, 1)
 
 
 
@@ -2836,8 +2856,8 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 	dlg.dtmin = uic.loadUi("dtmin.ui")
 	dlg.dtmin.show()
-	text = "ΔT = " + str(float('{:.1f}'.format(trocador_violado[6])))
-	textfrio = "ΔT = " + str(float('{:.1f}'.format(trocador_violado[7])))
+	text = "ΔT = " + str('{:.2f}'.format(round(trocador_violado[6], 2)))
+	textfrio = "ΔT = " + str('{:.2f}'.format(round(trocador_violado[7], 2)))
 
 	if onde == "above":
 		dlg.dtmin.label_7.setText(str(len(matriz_armazenada)))
@@ -3782,15 +3802,21 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 def editar_calor(matriz_naomuda, trocador, calor, path=False):
 	global desenho_em_dia_ambas, matriz_evolucao, n_quentes, n_frias, divisoes_ev
+	if calor == 0 and path:
+		QMessageBox.about(dlg, "Error!", "You must Specify a Heat Load greater than 0")
+		return
 	matriz = nao_sacrificar_matriz(matriz_naomuda)
 	remover_todos_ev()
+	ramo = [False, False]
 	if (calor == 0 and not path) or ((matriz_naomuda[trocador][6] - calor == 0) and path):
 		corrente_quente = matriz_naomuda[trocador][0]
 		corrente_fria = matriz_naomuda[trocador][1]
 		ramo_quente = matriz_naomuda[trocador][2]
 		ramo_frio = matriz_naomuda[trocador][3]
 		estagio = matriz_naomuda[trocador][5]
-		divisoes_ev = remover_ramo(matriz, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=trocador)
+		dlg.trocadores_loop.setText("Requires new search")
+		dlg.remover.setEnabled(False)
+		divisoes_ev, ramo = remover_ramo(matriz, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=trocador)
 	desenho_em_dia_ambas = False
 	if not path:
 		if calor == 0:
@@ -3806,14 +3832,14 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 	else:
-		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True))
-		for i in reversed(range(2)):
-			dlg.trocador_path.addItem("E" + str(len(matriz_evolucao)-i))
-			dlg.trocador_editar.addItem("E" + str(len(matriz_evolucao)-i))
+		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True, ramo=ramo))
+		for i in range(2):
+			dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
+			dlg.trocador_editar.addItem("E" + str(dlg.trocador_editar.count()+1))
 
 	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
-def utilidade(matriz_naomuda, dados, path=False):
+def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
 	matriz = nao_sacrificar_matriz(matriz_naomuda)
 	if path:
@@ -3821,15 +3847,22 @@ def utilidade(matriz_naomuda, dados, path=False):
 		calor = dados[1]
 		corrente_quente = matriz_naomuda[trocador][0]
 		corrente_fria = matriz_naomuda[trocador][1]
-		sub_quente = matriz_naomuda[trocador][2]
-		sub_fria = matriz_naomuda[trocador][3]
+		if ramo[0]:
+			sub_quente = 1
+		else:
+			sub_quente = matriz_naomuda[trocador][2]
+		if ramo[1]:
+			sub_fria = 1
+		else:
+			sub_fria = matriz_naomuda[trocador][3]
 		matriz[trocador][6] = matriz_naomuda[trocador][6] - calor
 		if round(matriz[trocador][6], 2) == 0:
 			matriz.pop(trocador)
-		dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
-		dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
+			dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
+			dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
 		tipo = ""
 		dlg.calor_path.clear()
+		dlg.calor_path.setPlaceholderText("-")
 	else:
 		oi = dlg.comboutil.currentText().split(" ")
 		corrente = int(oi[1])
@@ -3870,16 +3903,18 @@ def utilidade(matriz_naomuda, dados, path=False):
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
-def remover_ramo(matriz_naomuda, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=-1):
+def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=-1):
 	ainda_tem_quente = False
 	ainda_tem_frio = False
-	matriz_completa = matriz_naomuda
+	ramoo = [True, True]
 	for trocador in matriz_completa:
 		if matriz_completa.index(trocador) != excecao and trocador[5] == estagio:
 			if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
 				ainda_tem_quente = True
+				ramoo[0] = False
 			if ramo_frio == trocador[3] and corrente_fria == trocador[1]:
 				ainda_tem_frio = True
+				ramoo[1] = False
 
 	remover_todos_ev()
 
@@ -3923,7 +3958,7 @@ def remover_ramo(matriz_naomuda, corrente_quente, corrente_fria, ramo_quente, ra
 				divisao_de_correntes_ev("F", estagio, corrente_fria, len(fracao), fracao)
 				divisao = ["F", estagio, corrente_fria, len(fracao), fracao]
 
-	return novas_divisoes
+	return novas_divisoes, ramoo
 
 
 #above
@@ -3948,11 +3983,11 @@ def printar():
 				for sub in range(quantidade_quente[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0[corrente], 2)))))
 					if corrente_quente_presente_acima[corrente]:
-						dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente[corrente][sub])))))
-						dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
-						dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub[corrente][sub])))))
+						dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente[corrente][sub], 2)))))
+						dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf_acima[corrente], 2)))))
+						dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente_sub[corrente][sub], 2)))))
 					else:
 						dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem("-"))
@@ -3961,11 +3996,11 @@ def printar():
 					linha += 1
 			else:
 				dlg.tableWidget_3.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+				dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0[corrente], 2)))))
 				if corrente_quente_presente_acima[corrente]:
-					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
-					dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente_mesclada[corrente], 2)))))
+					dlg.tableWidget_3.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf_acima[corrente], 2)))))
+					dlg.tableWidget_3.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente[corrente], 2)))))
 				else:
 					dlg.tableWidget_3.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_3.setItem(linha, 2, QTableWidgetItem("-"))
@@ -3976,16 +4011,24 @@ def printar():
 		dlg.tableWidget_3.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_3.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0[corrente])))))
+			dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0[corrente], 2)))))
 			if corrente_quente_presente_acima[corrente]:
-				dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada[corrente])))))
-				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf_acima[corrente])))))
-				dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente[corrente])))))
+				dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente_mesclada[corrente], 2)))))
+				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf_acima[corrente], 2)))))
+				dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente[corrente], 2)))))
 			else:
 				dlg.tableWidget_3.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_3.setItem(corrente, 4, QTableWidgetItem("-"))
+
+	try:
+		for corrente in range(nhot*ncold):
+			for j in range(5):
+				item = dlg.tableWidget_3.item(corrente, j)
+				item.setTextAlignment(Qt.AlignCenter)
+	except:
+		pass
 
 	if dlg.checkBox_2.isChecked():
 		linha = 0
@@ -3998,11 +4041,11 @@ def printar():
 				for sub in range(quantidade_fria[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf[corrente], 2)))))
 					if corrente_fria_presente_acima[corrente]:
-						dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria[corrente][sub])))))
-						dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
-						dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub[corrente][sub])))))
+						dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria[corrente][sub], 2)))))
+						dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0_acima[corrente], 2)))))
+						dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio_sub[corrente][sub], 2)))))
 					else:
 						dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4011,11 +4054,11 @@ def printar():
 					linha += 1
 			else:
 				dlg.tableWidget_4.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+				dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf[corrente], 2)))))
 				if corrente_fria_presente_acima[corrente]:
-					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
-					dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria_mesclada[corrente], 2)))))
+					dlg.tableWidget_4.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0_acima[corrente], 2)))))
+					dlg.tableWidget_4.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio[corrente], 2)))))
 				else:
 					dlg.tableWidget_4.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_4.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4026,17 +4069,24 @@ def printar():
 		dlg.tableWidget_4.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_4.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf[corrente])))))
+			dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf[corrente], 2)))))
 			if corrente_fria_presente_acima[corrente]:
-				dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada[corrente])))))
-				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0_acima[corrente])))))
-				dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio[corrente])))))
+				dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria_mesclada[corrente], 2)))))
+				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0_acima[corrente], 2)))))
+				dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio[corrente], 2)))))
 			else:
 				dlg.tableWidget_4.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_4.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_4.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_4.setItem(corrente, 4, QTableWidgetItem("-"))
 
+	try:
+		for corrente in range(nhot*ncold):
+			for j in range(5):
+				item = dlg.tableWidget_4.item(corrente, j)
+				item.setTextAlignment(Qt.AlignCenter)
+	except:
+		pass
 
 	dlg.tableWidget_2.setRowCount(len(matriz_armazenada))
 	if len(matriz_armazenada) > 0:
@@ -4045,20 +4095,27 @@ def printar():
 			dlg.tableWidget_2.setItem(trocador, 1, QTableWidgetItem(str(matriz_armazenada[trocador][1]))) #ccold
 			dlg.tableWidget_2.setItem(trocador, 2, QTableWidgetItem(str(matriz_armazenada[trocador][2]))) #sbhot
 			dlg.tableWidget_2.setItem(trocador, 3, QTableWidgetItem(str(matriz_armazenada[trocador][3]))) #sbcold
-			dlg.tableWidget_2.setItem(trocador, 4, QTableWidgetItem(str(matriz_armazenada[trocador][4]))) #sk
-			dlg.tableWidget_2.setItem(trocador, 5, QTableWidgetItem(str(matriz_armazenada[trocador][5]))) #k
-			dlg.tableWidget_2.setItem(trocador, 6, QTableWidgetItem(str(float('{:.1f}'.format(matriz_armazenada[trocador][6]))))) # calor trocado
-			dlg.tableWidget_2.setItem(trocador, 7, QTableWidgetItem(str(float('{:.1f}'.format(matriz_armazenada[trocador][7]))))) #Thin
-			dlg.tableWidget_2.setItem(trocador, 8, QTableWidgetItem(str(float('{:.1f}'.format(matriz_armazenada[trocador][8]))))) #Tcout
-			dlg.tableWidget_2.setItem(trocador, 9, QTableWidgetItem(str(matriz_armazenada[trocador][11]))) #fração hot
-			dlg.tableWidget_2.setItem(trocador, 10, QTableWidgetItem(str(matriz_armazenada[trocador][12]))) #fraçao cold
+			dlg.tableWidget_2.setItem(trocador, 4, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][6], 2))))) #calor trocador
+			dlg.tableWidget_2.setItem(trocador, 5, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][7], 2))))) #thin
+			dlg.tableWidget_2.setItem(trocador, 6, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][8], 2))))) #tcout
+			dlg.tableWidget_2.setItem(trocador, 7, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][9], 2))))) #Thout
+			dlg.tableWidget_2.setItem(trocador, 8, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][10], 2))))) #Tcin
+			dlg.tableWidget_2.setItem(trocador, 9, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][11], 2))))) #fração hot
+			dlg.tableWidget_2.setItem(trocador, 10, QTableWidgetItem(str('{:.2f}'.format(round(matriz_armazenada[trocador][12], 2))))) #fraçao cold
+			for j in range(11):
+				item = dlg.tableWidget_2.item(trocador, j)
+				item.setTextAlignment(Qt.AlignCenter)
 
 	if len(utilidades) > 0:
 		dlg.tableWidget_2.setRowCount(len(matriz_armazenada) + len(utilidades))
 		for utilidade in range(0, len(utilidades)):
 			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 0, QTableWidgetItem(str("Hot Utility")))
 			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 1, QTableWidgetItem(str(utilidades[utilidade][0])))
-			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades[utilidade][1])))))
+			dlg.tableWidget_2.setItem(len(matriz_armazenada) + utilidade, 4, QTableWidgetItem(str('{:.2f}'.format(round(utilidades[utilidade][1], 2)))))
+			for j in range(11):
+				if j == 0 or j == 1 or j == 4:
+					item = dlg.tableWidget_2.item(utilidade + len(matriz_armazenada), j)
+					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas, violados_acima, matriz_armazenada
@@ -4195,11 +4252,11 @@ def printar_abaixo():
 				for sub in range(quantidade_quente_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0_abaixo[corrente], 2)))))
 					if corrente_quente_presente_abaixo[corrente]:
-						dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_abaixo[corrente][sub])))))
-						dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-						dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_sub_abaixo[corrente][sub])))))
+						dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente_abaixo[corrente][sub], 2)))))
+						dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf[corrente], 2)))))
+						dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[corrente][sub], 2)))))
 					else:
 						dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4208,11 +4265,11 @@ def printar_abaixo():
 					linha += 1
 			else:
 				dlg.tableWidget_15.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+				dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0_abaixo[corrente], 2)))))
 				if corrente_quente_presente_abaixo[corrente]:
-					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
-					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-					dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente_mesclada_abaixo[corrente], 2)))))
+					dlg.tableWidget_15.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf[corrente], 2)))))
+					dlg.tableWidget_15.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente_abaixo[corrente], 2)))))
 				else:
 					dlg.tableWidget_15.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_15.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4224,16 +4281,24 @@ def printar_abaixo():
 		dlg.tableWidget_15.setRowCount(nhot)
 		for corrente in range(nhot):
 			dlg.tableWidget_15.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Th0_abaixo[corrente])))))
+			dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem(str('{:.2f}'.format(round(Th0_abaixo[corrente], 2)))))
 			if corrente_quente_presente_abaixo[corrente]:
-				dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_quente_mesclada_abaixo[corrente])))))
-				dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Thf[corrente])))))
-				dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_quente_abaixo[corrente])))))
+				dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_quente_mesclada_abaixo[corrente], 2)))))
+				dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem(str('{:.2f}'.format(round(Thf[corrente], 2)))))
+				dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_quente_abaixo[corrente], 2)))))
 			else:
 				dlg.tableWidget_15.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_15.setItem(corrente, 4, QTableWidgetItem("-"))
+
+	try:
+		for corrente in range(nhot*ncold):
+			for j in range(5):
+				item = dlg.tableWidget_15.item(corrente, j)
+				item.setTextAlignment(Qt.AlignCenter)
+	except:
+		pass
 
 	if dlg.checkBox_10.isChecked():
 		linha = 0
@@ -4246,11 +4311,11 @@ def printar_abaixo():
 				for sub in range(quantidade_fria_abaixo[corrente]):
 					text = str(corrente+1) + "." + str(sub+1)
 					dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(text))
-					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
+					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf_abaixo[corrente], 2)))))
 					if corrente_fria_presente_abaixo[corrente]:
-						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_abaixo[corrente][sub])))))
-						dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-						dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_sub_abaixo[corrente][sub])))))
+						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria_abaixo[corrente][sub], 2)))))
+						dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0[corrente], 2)))))
+						dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio_sub_abaixo[corrente][sub], 2)))))
 					else:
 						dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem("-"))
 						dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4259,11 +4324,11 @@ def printar_abaixo():
 					linha += 1
 			else:
 				dlg.tableWidget_17.setItem(linha, 0, QTableWidgetItem(str(corrente+1)))
-				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
+				dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf_abaixo[corrente], 2)))))
 				if corrente_fria_presente_abaixo[corrente]:
-					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
-					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria_mesclada_abaixo[corrente], 2)))))
+					dlg.tableWidget_17.setItem(linha, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0[corrente], 2)))))
+					dlg.tableWidget_17.setItem(linha, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio_abaixo[corrente], 2)))))
 				else:
 					dlg.tableWidget_17.setItem(linha, 1, QTableWidgetItem("-"))
 					dlg.tableWidget_17.setItem(linha, 2, QTableWidgetItem("-"))
@@ -4274,17 +4339,24 @@ def printar_abaixo():
 		dlg.tableWidget_17.setRowCount(ncold)
 		for corrente in range(ncold):
 			dlg.tableWidget_17.setItem(corrente, 0, QTableWidgetItem(str(corrente+1)))
-			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str(float('{:.1f}'.format(Tcf_abaixo[corrente])))))
+			dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem(str('{:.2f}'.format(round(Tcf_abaixo[corrente], 2)))))
 			if corrente_fria_presente_abaixo[corrente]:
-				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str(float('{:.1f}'.format(temperatura_atual_fria_mesclada_abaixo[corrente])))))
-				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str(float('{:.1f}'.format(Tc0[corrente])))))
-				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem(str(float('{:.1f}'.format(calor_atual_frio_abaixo[corrente])))))
+				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem(str('{:.2f}'.format(round(temperatura_atual_fria_mesclada_abaixo[corrente], 2)))))
+				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem(str('{:.2f}'.format(round(Tc0[corrente], 2)))))
+				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem(str('{:.2f}'.format(round(calor_atual_frio_abaixo[corrente], 2)))))
 			else:
 				dlg.tableWidget_17.setItem(corrente, 1, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 2, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 3, QTableWidgetItem("-"))
 				dlg.tableWidget_17.setItem(corrente, 4, QTableWidgetItem("-"))
 
+	try:
+		for corrente in range(nhot*ncold):
+			for j in range(5):
+				item = dlg.tableWidget_17.item(corrente, j)
+				item.setTextAlignment(Qt.AlignCenter)
+	except:
+		pass
 
 	dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo))
 	if len(matriz_trocadores_abaixo) > 0:
@@ -4293,20 +4365,27 @@ def printar_abaixo():
 			dlg.tableWidget_14.setItem(trocador, 1, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][1]))) #ccold
 			dlg.tableWidget_14.setItem(trocador, 2, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][2]))) #sbhot
 			dlg.tableWidget_14.setItem(trocador, 3, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][3]))) #sbcold
-			dlg.tableWidget_14.setItem(trocador, 4, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][4]))) #sk
-			dlg.tableWidget_14.setItem(trocador, 5, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][5]))) #k
-			dlg.tableWidget_14.setItem(trocador, 6, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][6]))))) # calor trocado
-			dlg.tableWidget_14.setItem(trocador, 7, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][7]))))) #Thin
-			dlg.tableWidget_14.setItem(trocador, 8, QTableWidgetItem(str(float('{:.1f}'.format(matriz_trocadores_abaixo[trocador][8]))))) #Tcout
-			dlg.tableWidget_14.setItem(trocador, 9, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][11]))) #fração hot
-			dlg.tableWidget_14.setItem(trocador, 10, QTableWidgetItem(str(matriz_trocadores_abaixo[trocador][12]))) #fraçao cold
+			dlg.tableWidget_14.setItem(trocador, 4, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][6], 2))))) # calor trocado
+			dlg.tableWidget_14.setItem(trocador, 5, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][9], 2))))) #Thin
+			dlg.tableWidget_14.setItem(trocador, 6, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][10], 2))))) #Tcout
+			dlg.tableWidget_14.setItem(trocador, 7, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][7], 2))))) #Thout
+			dlg.tableWidget_14.setItem(trocador, 8, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][8], 2))))) #Tcin
+			dlg.tableWidget_14.setItem(trocador, 9, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][11], 2))))) #fração hot
+			dlg.tableWidget_14.setItem(trocador, 10, QTableWidgetItem(str('{:.2f}'.format(round(matriz_trocadores_abaixo[trocador][12], 2))))) #fraçao cold
+			for j in range(11):
+				item = dlg.tableWidget_14.item(trocador, j)
+				item.setTextAlignment(Qt.AlignCenter)
 
 	if len(utilidades_abaixo) > 0:
 		dlg.tableWidget_14.setRowCount(len(matriz_trocadores_abaixo) + len(utilidades_abaixo))
 		for utilidade in range(0, len(utilidades_abaixo)):
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 0, QTableWidgetItem(str("Cold Utility")))
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 1, QTableWidgetItem(str(utilidades_abaixo[utilidade][0])))
-			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 6, QTableWidgetItem(str(float('{:.1f}'.format(utilidades_abaixo[utilidade][1])))))
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 1, QTableWidgetItem(str("Cold Utility")))
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 0, QTableWidgetItem(str(utilidades_abaixo[utilidade][0])))
+			dlg.tableWidget_14.setItem(len(matriz_trocadores_abaixo) + utilidade, 4, QTableWidgetItem(str('{:.2f}'.format(round(utilidades_abaixo[utilidade][1], 2)))))
+			for j in range(11):
+				if j == 0 or j == 1 or j == 4:
+					item = dlg.tableWidget_14.item(utilidade + len(matriz_trocadores_abaixo), j)
+					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste_abaixo():
 	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, violados_abaixo, matriz_trocadores_abaixo
@@ -4595,6 +4674,7 @@ dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 #evolução
+dlg.trocador_path.currentIndexChanged.connect(lambda: dlg.calor_path.setPlaceholderText("-"))
 dlg.botao_evolucao.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True))
 dlg.identificar_laco.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, int(dlg.nivel.currentText()), jogar_evolucao=False))
 dlg.identificar_todos.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, "todos", todos=True))

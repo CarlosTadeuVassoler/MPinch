@@ -648,8 +648,8 @@ def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 			quantidade_fria_abaixo[corrente-1] = qsj
 
 def ler_dados_abaixo(dlg, subestagio_trocador_abaixo):
-	i = int(dlg.comboBox_35.currentText())
-	j = int(dlg.comboBox_36.currentText())
+	i = int(dlg.comboBox_35.currentIndex()+1)
+	j = int(dlg.comboBox_36.currentIndex()+1)
 	si = int(dlg.comboBox_53.currentText())
 	sj = int(dlg.comboBox_54.currentText())
 	k = 1

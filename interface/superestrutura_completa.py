@@ -809,7 +809,9 @@ def calcular_recomendado_violacao(dlg, trocador):
 	tfin = trocador[10]
 	calor = original = trocador[6]
 	x = ["None", "None"]
-	if tqin - tfout < 0 or tqout - tfin < 0:
+	if tqin - tfout < dTmin or tqout - tfin < dTmin:
+		if tqin - tfout >= 0 and tqout - tfin >= 0:
+			x[0] = str(0.00)
 		while calor > 0:
 			calor -= 1
 			tqout = -calor / cpquente + tqin
