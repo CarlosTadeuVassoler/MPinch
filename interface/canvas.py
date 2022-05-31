@@ -72,3 +72,4 @@ def Gc1(n,dlg,Tdecre,menor,cascat2,unidadeusada):
 	plt.title('Grand Composite Curve')
 	fig.savefig("Gc1.png", bbox_inches="tight", pad_inches=0.5)
 	dlg.graficodt1.setPixmap(QtGui.QPixmap("Gc1.png"))
+	return fig

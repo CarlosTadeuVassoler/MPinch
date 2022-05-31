@@ -95,6 +95,7 @@ def plotgrafcurva(corrente,dtmin,pinchf,pinchq,tf,tq):
     ax.legend()
 
     fig.savefig("curvadt1.png",bbox_inches="tight", pad_inches=0.5)
+    return fig
 
 def plotgrafcurva2(corrente,dtmin,pinchf,pinchq,tf,tq):
     plt.close("all")
@@ -184,12 +185,3 @@ def plotgrafcurva2(corrente,dtmin,pinchf,pinchq,tf,tq):
     ax.legend()
 
     fig.savefig("curvadt2.png",bbox_inches="tight", pad_inches=0.5)
-
-
-
-
-
-
-
-
-

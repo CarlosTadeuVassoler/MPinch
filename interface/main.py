@@ -431,11 +431,11 @@ def OPTA():
 
 kct=uic.loadUi("Select.ui")
 dlg.TABELA.setColumnWidth(3,150)
-#custos
 
+
+#custos
 dlg.otimizabotao.clicked.connect(eq)
 kct.otimizarun.clicked.connect(otimizafun)
-
 dlg.CUSTO.clicked.connect(mostra3)
 dlg.UT.clicked.connect(mostra2)
 dlg.OPTA.clicked.connect(OPTA)
@@ -661,24 +661,21 @@ def done_teste(libera=False):
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
-	dlg.done.show()
+	dlg.done.showMaximized()
 	dlg.done.hot_temp.setText("Hot: " + str(pinchq) + " " + dlg.temp_unidade.currentText())
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
 	dlg.done.precisa_quente.setText("Hot Utility Demand: " + str(util_quente) + " " + "kW")
 	dlg.done.precisa_fria.setText("Cold Utility Demand: " + str(util_fria) + " " + "kW")
 	done = True
-	grafico = QPixmap("diagrama_th.png")
-	x = QtWidgets.QLabel(dlg)
-	x.setPixmap(grafico)
-	x.setAlignment(QtCore.Qt.AlignCenter)
-	x.setScaledContents(True)
-	dlg.done.diagrama_th.addWidget(x)
-	grafico = QPixmap("grande_composta.png")
-	x = QtWidgets.QLabel(dlg)
-	x.setPixmap(grafico)
-	x.setAlignment(QtCore.Qt.AlignCenter)
-	x.setScaledContents(True)
-	dlg.done.grande_composta.addWidget(x)
+
+	calor = dlg.cp_unidade.currentText().split("/")
+	unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
+	curva_composta = plotgrafcurva(correntes, float(dlg.lineEdit_2.text().replace(",", ".")), util_fria, util_quente, pinchf, pinchq)
+	curva_composta.savefig("curva_composta.png",bbox_inches="tight", pad_inches=0.5)
+	grande_curva = Gc1(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas)
+	grande_curva.savefig("grande_curva.png", bbox_inches="tight", pad_inches=0.5)
+	dlg.done.curva_composta.setPixmap(QtGui.QPixmap("curva_composta.png"))
+	dlg.done.grande_curva.setPixmap(QtGui.QPixmap("grande_curva.png"))
 
 	def cancelar():
 		global done
@@ -817,7 +814,7 @@ def pinch_teste():
 		dlg.tabWidget.setTabEnabled(2,True)
 		dlg.tabWidget.setTabEnabled(3,True)
 		dlg.tabWidget.setTabEnabled(4,True)
-		dlg.tabWidget.setCurrentIndex(1)
+		dlg.tabWidget.setCurrentIndex(2)
 		dlg.pinchbutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
 		dlg.botao_addutility.setEnabled(False)
@@ -4453,9 +4450,9 @@ for i in range(5):
 
 
 
-openfile_teste(False)
-done_teste(True)
-pinch_teste()
+# openfile_teste(False)
+# done_teste(True)
+# pinch_teste()
 # suprir_9_correntes()
 
 
