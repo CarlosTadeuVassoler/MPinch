@@ -1,96 +1,71 @@
-from PyQt5 import QtWidgets , uic, QtCore, QtGui
-from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
-from PyQt5.QtGui import QIcon, QPixmap
-import numpy as np
-import funchpinchcerto as fp2
-from funcPPinch import pontopinch
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
-import pylab as P
-import xlsxwriter
-from tkinter.filedialog import askopenfilename
-import xlrd
-import re
-import sys
-import random
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from pyqtgraph import PlotWidget, plot
-import pyqtgraph as pg
-from prog_carlos import *
-from prog_carlos_abaixo import *
-from superestrutura_completa import *
-from converter_unidades import *
-from matplotlib.figure import Figure
-from PIL import Image
-import turtle
-from exportaa import export
-from svg_turtle import SvgTurtle
-import os
-from custos import *
-from tkinter import Tk
-from graficos import *
+import sys #usa pra fazer new file
+import os #usa pra fazer new file
 
-workbook = xlsxwriter.Workbook('testevv.xlsx')
-worksheet = workbook.add_worksheet()
+import xlrd #lidar com excel
+import xlsxwriter #criar excel
+from tkinter.filedialog import askopenfilename #abrir arquivo (excel)
 
-app=QtWidgets.QApplication([])
-dlg=uic.loadUi("MPinch.ui")
+from PyQt5.QtWidgets import * #widgets em geral
+from PyQt5.QtGui import * #pixmaps
+from PyQt5.QtCore import * #alinhamentos
 
+import funchpinchcerto as fp2 #pinch victor
+from funcPPinch import pontopinch #pinch meninos
 
-matriz = []
-matriz_armazenada = []
-matriz_trocadores_abaixo = []
-matriz_evolucao = []
-utilidades = []
-utilidades_abaixo = []
-dTmin = 10
-donee=0
-done = False
-cascat=[]
-nstages=1
-subestagio_trocador = 0
-subestagio_trocador_abaixo = 0
-alreadypinched=0
-plotou=0
-corrente_quente_presente_acima = []
-corrente_fria_presente_acima = []
-corrente_quente_presente_abaixo = []
-corrente_fria_presente_abaixo = []
-correntes_quentes = []
-correntes_frias = []
-n = nhot = ncold = n_util = 0
-correntes = []
-e_utilidade = []
-e_utilidade_quente = []
-e_utilidade_fria = []
-correntes_util = []
-correntes=[]
-primeira_vez = True
-divisoes = []
-primeiro_laco = True
-desenho_em_dia = False
-desenho_em_dia_abaixo = False
-desenho_em_dia_ambas = False
-violados_acima = []
-violados_abaixo = []
-ja_mostrou = False
-perguntar = True
-remover_todos = False
+from prog_carlos import * #superestrutura acima
+from prog_carlos_abaixo import * #superestrutura abaixo
+from superestrutura_completa import * #superestrutura ambas (evolucao)
+
+from PIL import Image #usa pra manipular/salvar imagens
+import turtle #usa pra criar os desenhos de rede
+
+import numpy as np #facilita a lidar com numeros
+from converter_unidades import * #nao ta usando ainda
+
+from custos import * #calculos/graficos da aba dtmin optimization
+from graficos import * #graficos da aba diagrams comparison
+from exportaa import export #coisas savefile
 
 
 
-def savefile():
-	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
+#matrizes que armazenam os trocadores inseridos
+matriz_armazenada = [] #acima
+matriz_trocadores_abaixo = [] #abaixo
+matriz_evolucao = [] #ambas (evolucao)
+subestagio_trocador = 0 #usada pra determinar qual subestagio vai inserir o trocador acima
+subestagio_trocador_abaixo = 0 #usada pra determinar qual subestagio vai inserir o trocador abaixo
+
+#quando nao sao especificadas as utilidades, armazena nessas
+utilidades = [] #acima
+utilidades_abaixo = [] #abaixo
+
+#variaveis de corrente
+correntes = [] #após o pinch, armazena correntes + utilidades quando especificadas
+correntes_util = [] #armazena somente as utilidades
+correntes_quentes = [] #utilizada para desenhar correntes quentes
+correntes_frias = [] #utilizada para desenhar correntes frias
+corrente_quente_presente_acima = [] #ve se a corrente ta presente na subrede
+corrente_quente_presente_abaixo = [] #ve se a corrente ta presente na subrede
+corrente_fria_presente_acima = [] #ve se a corrente ta presente na subrede
+corrente_fria_presente_abaixo = [] #ve se a corrente ta presente na subrede
+e_utilidade = [] #diferencia corrente de utilidade na matriz "correntes"
+e_utilidade_quente = [] #usa pra preencher combobox e pra criar desenho
+e_utilidade_fria = [] #usa pra preencher combobox e pra criar desenho
+n = nhot = ncold = n_util = 0 #numero de correntes fornecidas
+divisoes = [] #salva as divisoes feitas nas subredes pra quando for criar a rede completa
 
 
-	akt, _, ajustado, cpf, cpq, areak, deltalmnk = CUSTO(correntes, len(correntes))
+#verificam se precisa desenhar dnv a rede ou o usuário nao fez alteações
+desenho_em_dia = False #acima
+desenho_em_dia_abaixo = False #abaixo
+desenho_em_dia_ambas = False #ambas (evolução)
 
-	export(correntes, util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
 
-dlg.actionSave_File.triggered.connect(savefile)
+#remover_trocadores
+perguntar = True #continuar perguntando se quer remover todos os trocadores anteriores
+remover_todos = False #se perguntar = False, ele armazena a decisão do usuário sobre remover
+
+
 
 
 
@@ -100,7 +75,7 @@ def openfile_teste(pergunta=True):
 
 	#le o excel
 	dlg.tableWidget.blockSignals(True)
-	Tk().withdraw()
+	# Tk().withdraw()
 	if pergunta:
 		filename = askopenfilename()
 		workbook = xlrd.open_workbook(filename)
@@ -246,7 +221,7 @@ def add_utilidade():
 		dlg.pinchbutton.setEnabled(True)
 
 def editar_corrente(correntes, tip, tabela):
-	global nhot, ncold, ja_mostrou
+	global nhot, ncold
 
 	try:
 		linha = tabela.currentItem().row()
@@ -319,7 +294,6 @@ def done_teste(libera=False):
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
 	dlg.done.precisa_quente.setText("Hot Utility Demand: " + str(util_quente) + " " + "kW")
 	dlg.done.precisa_fria.setText("Cold Utility Demand: " + str(util_fria) + " " + "kW")
-	done = True
 
 	calor = dlg.cp_unidade.currentText().split("/")
 	unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
@@ -332,11 +306,6 @@ def done_teste(libera=False):
 	grande_curva = grande_curva_composta(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas)
 	arrumar_tamanho(grande_curva, "grande_curva", tamanho, dlg.done.grande_curva, dlg.done.scroll_grande)
 
-
-	def cancelar():
-		global done
-		done = False
-		dlg.done.close()
 
 	def liberar_utilidades(libera):
 		dlg.botao_addutility.setEnabled(True)
@@ -352,10 +321,10 @@ def done_teste(libera=False):
 		if libera:
 			correntes_util.append([300, 299, 1, "Hot", 0.5])
 			correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# e_utilidade.append(True)
-			# e_utilidade.append(True)
+			correntes_util.append([10, 20, 1, "Cold", 0.5])
+			correntes_util.append([10, 20, 1, "Cold", 0.5])
+			e_utilidade.append(True)
+			e_utilidade.append(True)
 			e_utilidade.append(True)
 			e_utilidade.append(True)
 
@@ -365,118 +334,118 @@ def done_teste(libera=False):
 
 	if libera:
 		liberar_utilidades(libera)
-	dlg.done.cancelar.clicked.connect(cancelar)
+
+	dlg.done.cancelar.clicked.connect(lambda: dlg.done.close())
 	dlg.done.escolher_utilidades.clicked.connect(liberar_utilidades)
 	dlg.done.pinch_sem_utilidades.clicked.connect(pinch_sem_util)
 
 def pinch_teste():
-	global done, Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
+	global Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
-	if done:
-		global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold, util_temporaria, correntes_temporaria
+	global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold, util_temporaria, correntes_temporaria
 
-		if len(correntes_util) != 0:
-			if correntes_util[0][3] == correntes_util[1][3]:
-				QMessageBox.about(dlg, "Error!", "You won't be able to sinthetize the Heat Exchange Network with two " + correntes_util[0][3] + " utilities. Edit any of these to make sure you have the both types.")
-				dlg.pinchbutton.setEnabled(False)
-				return
+	if len(correntes_util) != 0:
+		if correntes_util[0][3] == correntes_util[1][3]:
+			QMessageBox.about(dlg, "Error!", "You won't be able to sinthetize the Heat Exchange Network with two " + correntes_util[0][3] + " utilities. Edit any of these to make sure you have the both types.")
+			dlg.pinchbutton.setEnabled(False)
+			return
+		else:
+			dlg.pinchbutton.setEnabled(True)
+
+	util_temporaria = nao_sacrificar_matriz(correntes_util)
+	pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
+	for util in correntes_util:
+		if util[3] == "Hot":
+			util[2] = util_quente/(util[0] - util[1])
+			nhot += 1
+		else:
+			util[2] = util_fria/(util[1] - util[0])
+			ncold += 1
+	if len(correntes_util) == 4:
+		correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
+		correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
+		correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
+
+	util_temporaria = nao_sacrificar_matriz(correntes_util)
+	correntes_temporaria = nao_sacrificar_matriz(correntes)
+	correntes += correntes_util
+	n += len(correntes_util)
+	#arruma as temperaturas baseado no pinch
+	for i in range (n): #correção das temperaturas
+		if correntes[i][3] == "Hot":
+			correntes_quentes.append(1)
+			if e_utilidade[i]:
+				e_utilidade_quente.append(True)
 			else:
-				dlg.pinchbutton.setEnabled(True)
-
-		util_temporaria = nao_sacrificar_matriz(correntes_util)
-		pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
-		for util in correntes_util:
-			if util[3] == "Hot":
-				util[2] = util_quente/(util[0] - util[1])
-				nhot += 1
+				e_utilidade_quente.append(False)
+			Th0.append(correntes[i][0])
+			Thf.append(correntes[i][1])
+			CPh.append(correntes[i][2])
+			if correntes[i][1] >= pinchq: #corrente quente nao bate no pinch acima
+				Thf_acima.append(correntes[i][1])
+				corrente_quente_presente_abaixo.append(False)
 			else:
-				util[2] = util_fria/(util[1] - util[0])
-				ncold += 1
-		if len(correntes_util) == 4:
-			correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
-			correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
-			correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
+				Thf_acima.append(pinchq)
+				corrente_quente_presente_abaixo.append(True)
+			if correntes[i][0] <= pinchq: #corrente quente não bate no pinch abaixo
+				Th0_abaixo.append(correntes[i][0])
+				corrente_quente_presente_acima.append(False)
+			else:
+				Th0_abaixo.append(pinchq)
+				corrente_quente_presente_acima.append(True)
 
-		util_temporaria = nao_sacrificar_matriz(correntes_util)
-		correntes_temporaria = nao_sacrificar_matriz(correntes)
-		correntes += correntes_util
-		n += len(correntes_util)
-		#arruma as temperaturas baseado no pinch
-		for i in range (n): #correção das temperaturas
-			if correntes[i][3] == "Hot":
-				correntes_quentes.append(1)
-				if e_utilidade[i]:
-					e_utilidade_quente.append(True)
-				else:
-					e_utilidade_quente.append(False)
-				Th0.append(correntes[i][0])
-				Thf.append(correntes[i][1])
-				CPh.append(correntes[i][2])
-				if correntes[i][1] >= pinchq: #corrente quente nao bate no pinch acima
-					Thf_acima.append(correntes[i][1])
-					corrente_quente_presente_abaixo.append(False)
-				else:
-					Thf_acima.append(pinchq)
-					corrente_quente_presente_abaixo.append(True)
-				if correntes[i][0] <= pinchq: #corrente quente não bate no pinch abaixo
-					Th0_abaixo.append(correntes[i][0])
-					corrente_quente_presente_acima.append(False)
-				else:
-					Th0_abaixo.append(pinchq)
-					corrente_quente_presente_acima.append(True)
+		if correntes[i][3] == "Cold":
+			correntes_frias.append(1)
+			if e_utilidade[i]:
+				e_utilidade_fria.append(True)
+			else:
+				e_utilidade_fria.append(False)
+			Tc0.append(correntes[i][0])
+			Tcf.append(correntes[i][1])
+			CPc.append(correntes[i][2])
+			if correntes[i][0] >= pinchf: #corrente fria não bate no pinch acima
+				Tc0_acima.append(correntes[i][0])
+				corrente_fria_presente_abaixo.append(False)
+			else:
+				Tc0_acima.append(pinchf)
+				corrente_fria_presente_abaixo.append(True)
+			if correntes[i][1] <= pinchf: #corrente fria não bate no pinch abaixo
+				Tcf_abaixo.append(correntes[i][1])
+				corrente_fria_presente_acima.append(False)
+			else:
+				Tcf_abaixo.append(pinchf)
+				corrente_fria_presente_acima.append(True)
 
-			if correntes[i][3] == "Cold":
-				correntes_frias.append(1)
-				if e_utilidade[i]:
-					e_utilidade_fria.append(True)
-				else:
-					e_utilidade_fria.append(False)
-				Tc0.append(correntes[i][0])
-				Tcf.append(correntes[i][1])
-				CPc.append(correntes[i][2])
-				if correntes[i][0] >= pinchf: #corrente fria não bate no pinch acima
-					Tc0_acima.append(correntes[i][0])
-					corrente_fria_presente_abaixo.append(False)
-				else:
-					Tc0_acima.append(pinchf)
-					corrente_fria_presente_abaixo.append(True)
-				if correntes[i][1] <= pinchf: #corrente fria não bate no pinch abaixo
-					Tcf_abaixo.append(correntes[i][1])
-					corrente_fria_presente_acima.append(False)
-				else:
-					Tcf_abaixo.append(pinchf)
-					corrente_fria_presente_acima.append(True)
+	global unidades_usadas, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
+	calor = dlg.cp_unidade.currentText().split("/")
+	unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
 
-		global unidades_usadas, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
-		calor = dlg.cp_unidade.currentText().split("/")
-		unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
+	unidades(pinch=True)
 
-		unidades(pinch=True)
+	#manda tudo pro backend
+	receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
+	receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
+	printar()
+	printar_abaixo()
+	correntesnoscombos(nhot,ncold)
+	testar_correntes(dlg, True)
+	testar_correntes_abaixo(dlg)
+	desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
-		#manda tudo pro backend
-		receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
-		receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
-		printar()
-		printar_abaixo()
-		correntesnoscombos(nhot,ncold)
-		testar_correntes(dlg, True)
-		testar_correntes_abaixo(dlg)
-		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
-		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
-		desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
-
-		#libera botões e coisas
-		dlg.tabWidget.setTabEnabled(1,True)
-		dlg.tabWidget.setTabEnabled(2,True)
-		dlg.tabWidget.setTabEnabled(3,True)
-		dlg.tabWidget.setTabEnabled(4,True)
-		dlg.tabWidget.setCurrentIndex(2)
-		dlg.pinchbutton.setEnabled(False)
-		dlg.botao_addstream.setEnabled(False)
-		dlg.botao_addutility.setEnabled(False)
-		dlg.remover_utilidade.setEnabled(False)
-		dlg.remover_corrente.setEnabled(False)
-		dlg.donebutton.setEnabled(False)
+	#libera botões e coisas
+	dlg.tabWidget.setTabEnabled(1,True)
+	dlg.tabWidget.setTabEnabled(2,True)
+	dlg.tabWidget.setTabEnabled(3,True)
+	dlg.tabWidget.setTabEnabled(4,True)
+	dlg.tabWidget.setCurrentIndex(2)
+	dlg.pinchbutton.setEnabled(False)
+	dlg.botao_addstream.setEnabled(False)
+	dlg.botao_addutility.setEnabled(False)
+	dlg.remover_utilidade.setEnabled(False)
+	dlg.remover_corrente.setEnabled(False)
+	dlg.donebutton.setEnabled(False)
 
 def correntesnoscombos(nhot,ncold):
 	for i in range(nhot):
@@ -2184,8 +2153,6 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 	salvar_rede(teste, subrede, desenha, [w, h])
 
 def salvar_rede(so_ver, onde, salva, tamanho):
-	global primeira_vez
-
 	if salva:
 		turtle.getscreen()
 		turtle.getcanvas().postscript(file = (onde + ".eps"))
@@ -2235,6 +2202,11 @@ def salvar_rede(so_ver, onde, salva, tamanho):
 
 
 #outros
+def savefile():
+	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
+	akt, _, ajustado, cpf, cpq, areak, deltalmnk = CUSTO(correntes, len(correntes))
+	export(correntes, util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
+
 def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 	dlg.dtmin = uic.loadUi("dtmin.ui")
 	dlg.dtmin.show()
@@ -3500,7 +3472,7 @@ def printar():
 					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste():
-	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas, violados_acima, matriz_armazenada
+	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas,  matriz_armazenada
 	subestagio_trocador += 1
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 	matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador)
@@ -3510,7 +3482,6 @@ def inserir_teste():
 			trocador_violado.append(matriz_armazenada[-1][7] - matriz_armazenada[-1][8])
 			trocador_violado.append(matriz_armazenada[-1][9] - matriz_armazenada[-1][10])
 			violou_dtmin(trocador_violado, "above", dados_do_trocador)
-			violados_acima.append(subestagio_trocador)
 		printar()
 		checaresgotadosacima()
 		dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
@@ -3770,7 +3741,7 @@ def printar_abaixo():
 					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, violados_abaixo, matriz_trocadores_abaixo
+	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
 	subestagio_trocador_abaixo += 1
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 	matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador)
@@ -3780,7 +3751,6 @@ def inserir_teste_abaixo():
 			trocador_violado.append(matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8])
 			trocador_violado.append(matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10])
 			violou_dtmin(trocador_violado, "below", dados_do_trocador)
-			violados_abaixo.append(subestagio_trocador_abaixo)
 		printar_abaixo()
 		checaresgotadosabaixo()
 		dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
@@ -4114,8 +4084,6 @@ def suprir_9_correntes():
 			if trocador[6] == "max":
 				trocador[6] = min(calor_atual_frio_sub[trocador[1]-1][trocador[3]-1], calor_atual_quente_sub[trocador[0]-1][trocador[2]-1])
 			matriz_armazenada, oi = inserir_trocador(dlg, trocador)
-			if matriz_armazenada[-1][7] - matriz_armazenada[-1][8] < dTmin or matriz_armazenada[-1][9] - matriz_armazenada[-1][10] < dTmin:
-				violados_acima.append(len(matriz_armazenada))
 		else:
 			utilidadee = adicionar_utilidade(dlg, trocador[0])
 			utilidades.append(utilidadee[-1])
@@ -4126,8 +4094,6 @@ def suprir_9_correntes():
 			if trocador[6] == "max":
 				trocador[6] = min(calor_atual_quente_sub_abaixo[trocador[0]-1][trocador[2]-1], calor_atual_frio_sub_abaixo[trocador[1]-1][trocador[3]-1])
 			matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador)
-			if matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8] < dTmin or matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10] < dTmin:
-				violados_abaixo.append(len(matriz_trocadores_abaixo))
 		else:
 			utilidadee = adicionar_utilidade_abaixo(dlg, trocador[0])
 			utilidades_abaixo.append(utilidadee[-1])
@@ -4155,6 +4121,10 @@ def centralizar_combobox_teste(x):
 
 
 
+app = QtWidgets.QApplication([])
+dlg = uic.loadUi("MPinch.ui")
+
+
 #streams
 dlg.tableWidget.itemChanged.connect(lambda: editar_corrente(correntes, 0, dlg.tableWidget))
 dlg.tableWidget_5.itemChanged.connect(lambda: editar_corrente(correntes_util, 1, dlg.tableWidget_5))
@@ -4164,6 +4134,7 @@ dlg.remover_corrente.clicked.connect(lambda: remover_corrente(dlg.tableWidget.cu
 dlg.remover_utilidade.clicked.connect(lambda: remover_corrente(dlg.tableWidget_5.currentRow(), dlg.tableWidget_5, "utilidade"))
 dlg.actionOpen.triggered.connect(lambda: os.execl(sys.executable, os.path.abspath(__file__), *sys.argv))
 dlg.actionOpen_2.triggered.connect(lambda: openfile_teste(True)) #file > open
+dlg.actionSave_File.triggered.connect(savefile)
 dlg.donebutton.clicked.connect(lambda: done_teste(False)) #done
 dlg.pinchbutton.clicked.connect(pinch_teste) #pinch
 dlg.sistema_unidades.currentIndexChanged.connect(lambda: unidades(False))
@@ -4264,10 +4235,9 @@ for i in range(5):
 openfile_teste(False)
 done_teste(True)
 pinch_teste()
-# suprir_9_correntes()
+suprir_9_correntes()
 
 
 
-dlg.show()
 dlg.showMaximized()
 app.exec()
