@@ -26,6 +26,7 @@ import pyqtgraph as pg
 from CORRENTEGRAPH import cascata,cascata2
 from prog_carlos import *
 from prog_carlos_abaixo import *
+from superestrutura_completa import *
 from converter_unidades import *
 from matplotlib.figure import Figure
 from PIL import Image
@@ -34,8 +35,8 @@ from exportaa import export
 from svg_turtle import SvgTurtle
 import os
 from custo2 import varia
-from superestrutura_completa import *
 from tkinter import Tk
+from graficos import *
 
 workbook = xlsxwriter.Workbook('testevv.xlsx')
 worksheet = workbook.add_worksheet()
@@ -86,79 +87,26 @@ remover_todos = False
 
 
 #######################
-def formatando(valor,index):
-	if valor>=1_000_000:
-		fomatador = '{:1.1f}M'.format(valor*0.000_001)
-	else:
-		fomatador = '{:1.0f}k'.format(valor * 0.001)
-	return fomatador
-
 def eq():
-	start=float(dlg.dtstart.text())
-	step=float(dlg.dtstep.text())
-	asch=dlg.dtstep.text()
-	asch = asch.split(".")
-	try:
-		if len(asch[1])>4:
-			msg = QMessageBox()
-			msg.setIcon(QMessageBox.Warning)
-			msg.setStyleSheet("font-weight: bold")
-			msg.setStyleSheet("text-align:center")
-			msg.setText("The limit is 4 digits after the separator.\nChange the step value and try again.")
-			msg.setWindowTitle("Error")
-			msg.setStandardButtons(QMessageBox.Ok)
-			msg.exec_()
-			return 0
-	except:
-		pass
 
-	bsch=dlg.dtstart.text()
-	bsch = bsch.split(".")
+	if verificar_digitos(dlg.dtstep):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the step value and try again.")
+		return
+	if verificar_digitos(dlg.dtstart):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the start value and try again.")
+		return
+	if verificar_digitos(dlg.dtstop):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the stop value and try again.")
+		return
 
-	try:
-		if len(bsch[1])>4:
-			msg = QMessageBox()
-			msg.setIcon(QMessageBox.Warning)
-			msg.setStyleSheet("font-weight: bold")
-			msg.setStyleSheet("text-align:center")
-			msg.setText("The limit is 4 digits after the separator.\nChange the start value and try again.")
-			msg.setWindowTitle("Error")
-			msg.setStandardButtons(QMessageBox.Ok)
-			msg.exec_()
-			return 0
-	except:
-		pass
+	start = float(dlg.dtstart.text().replace(",", "."))
+	step = float(dlg.dtstep.text().replace(",", "."))
+	stop = float(dlg.dtstop.text().replace(",", "."))
 
 
-
-	stop=float(dlg.dtstop.text())
-	csch=dlg.dtstop.text()
-	csch = csch.split(".")
-
-	try:
-		if len(csch[1])>4:
-			msg = QMessageBox()
-			msg.setIcon(QMessageBox.Warning)
-			msg.setStyleSheet("font-weight: bold")
-			msg.setStyleSheet("text-align:center")
-			msg.setText("The limit is 4 digits after the separator.\nChange the stop value and try again.")
-			msg.setWindowTitle("Error")
-			msg.setStandardButtons(QMessageBox.Ok)
-			msg.exec_()
-			return 0
-	except:
-		pass
-
-	if stop<start:
-		msg = QMessageBox()
-		msg.setIcon(QMessageBox.Warning)
-		msg.setStyleSheet("font-weight: bold")
-		msg.setStyleSheet("text-align:center")
-		msg.setText("The stop value needs to be higher than start value.\nChange the start or stop value and try again.")
-		msg.setWindowTitle("Error")
-		msg.setStandardButtons(QMessageBox.Ok)
-		msg.exec_()
-		return 0
+	if stop < start:
+		mensagem_erro("The stop value needs to be higher than the start value.\nChange one of them and try again.")
+		return
 
 	if len(np.arange(start, stop + step, step))>500:
 		msgBox = QMessageBox()
@@ -176,14 +124,14 @@ def eq():
 	dlg.equation.show()
 
 	def z3():
-		if (dlg.equation.nareas.isChecked() == True):
-			nnn=-1
+		if dlg.equation.nareas.isChecked():
+			nnn = -1
 			otimizafun(nnn)
-		elif(dlg.equation.us1.isChecked() == True):
-			nnn=-2
+		elif dlg.equation.us1.isChecked():
+			nnn = -2
 			otimizafun(nnn)
-		elif(dlg.equation.esp.isChecked() == True):
-			nnn=float(dlg.equation.lineesp.text())
+		elif dlg.equation.esp.isChecked():
+			nnn = float(dlg.equation.lineesp.text())
 			otimizafun(nnn)
 		dlg.equation.close()
 
@@ -191,24 +139,33 @@ def eq():
 	dlg.equation.otimizarun.clicked.connect(lambda: z3())
 
 def otimizafun(nnn):
-	start=float(dlg.dtstart.text())
+	start = float(dlg.dtstart.text().replace(",", "."))
+	step = float(dlg.dtstep.text().replace(",", "."))
+	stop = float(dlg.dtstop.text().replace(",", "."))
 
-	step=float(dlg.dtstep.text())
+	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual, uf, uq, dtopt
 
-	stop=float(dlg.dtstop.text())
+	contador = 0
+	for i in range(len(util_temporaria)):
+		if util_temporaria[i][3] == 'Cold':
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+		else:
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
 
+	uf, uq, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual = varia(start, step, stop, correntes_temporaria, nnn)
 
+	for i in range(contador):
+		correntes_temporaria.pop(-1)
 
-
-	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,dtopt
-	uf,uq,variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual=varia(start,step,stop,correntes,nnn)
-	changedv=[]
-	print(uf,uq)
+	changedv = []
 	changedv.append(variadt[0])
+
 	for i in range(0,len(custocapitalanual)):
 		try:
 			changedv.append(variadt[i+1])
-			if not(custocapitalanual[i]>custocapitalanual[i+1] and custocapitalanual[i+2]<custocapitalanual[i+1]):
+			if not (custocapitalanual[i] > custocapitalanual[i+1] and custocapitalanual[i+2] < custocapitalanual[i+1]):
 				"""changedv.pop()"""
 				"""custocapitalanual[i+1]=((custocapitalanual[i+2]-custocapitalanual[i])*(variadt[i+1]-variadt[i+2])/(variadt[i+2]-variadt[i]))+custocapitalanual[i+2]
 				changedv.append(str(str(round(variadt[i+1],3))+"*"))"""
@@ -219,82 +176,68 @@ def otimizafun(nnn):
 			pass
 
 
-	Custoopotimizado=custoopano[custototanual.index(min(custototanual))]
-	cccapitalanualopt=custocapitalanual[custototanual.index(min(custototanual))]
-	dtopt=variadt[custototanual.index(min(custototanual))]
-	print(dtopt)
-	cccapitalopt=custocapital[custototanual.index(min(custototanual))]
+	Custoopotimizado = custoopano[custototanual.index(min(custototanual))]
+	cccapitalanualopt = custocapitalanual[custototanual.index(min(custototanual))]
+	dtopt = variadt[custototanual.index(min(custototanual))]
+	cccapitalopt = custocapital[custototanual.index(min(custototanual))]
 	areaopt = yplot[custototanual.index(min(custototanual))]
-	custototanualopt=min(custototanual)
+	custototanualopt = min(custototanual)
 
-	dlg.label_46.setText("Operating Cost : "+str(round(Custoopotimizado,2)))
-	dlg.label_46.setFont(QFont('Arial', 10))
-	dlg.label_46.setStyleSheet("font-weight: bold")
+	dlg.operating.setText("Operating Cost : "+str(round(Custoopotimizado,2)))
+	dlg.operating.setFont(QFont('Arial', 10))
+	dlg.operating.setStyleSheet("font-weight: bold")
 	try:
-		dlg.label_45.setText("ΔTmin : "+str(round(dtopt,5))) #preciso prestar atenção nisso quanto ao passo
+		dlg.dtmin_op.setText("ΔTmin : "+str(round(dtopt, 5))) #preciso prestar atenção nisso quanto ao passo
 	except:
-		dlg.label_45.setText("ΔTmin : "+str(dtopt)) #preciso prestar atenção nisso quanto ao passo
+		dlg.dtmin_op.setText("ΔTmin : "+str(dtopt)) #preciso prestar atenção nisso quanto ao passo
 
-	dlg.label_45.setFont(QFont('Arial', 10))
-	dlg.label_45.setStyleSheet("font-weight: bold")
-	dlg.label_50.setText("Capital Cost : "+str(round(cccapitalopt,2)))
-	dlg.label_50.setFont(QFont('Arial', 10))
-	dlg.label_50.setStyleSheet("font-weight: bold")
-	dlg.label_52.setText("Anualized Capital Cost : "+str(round(cccapitalanualopt,2)))
-	dlg.label_52.setFont(QFont('Arial', 10))
-	dlg.label_52.setStyleSheet("font-weight: bold")
-	dlg.label_49.setText("Total Cost: "+str(round(custototanualopt,2)))
-	dlg.label_49.setFont(QFont('Arial', 10))
-	dlg.label_49.setStyleSheet("font-weight: bold")
-	dlg.label_53.setText("Area: "+str(round(areaopt,2)))
-	dlg.label_53.setFont(QFont('Arial', 10))
-	dlg.label_53.setStyleSheet("font-weight: bold")
-
-
+	dlg.dtmin_op.setFont(QFont('Arial', 10))
+	dlg.dtmin_op.setStyleSheet("font-weight: bold")
+	dlg.capital.setText("Capital Cost : " + str(round(cccapitalopt,2)))
+	dlg.capital.setFont(QFont('Arial', 10))
+	dlg.capital.setStyleSheet("font-weight: bold")
+	dlg.capital_anual.setText("Anualized Capital Cost : " + str(round(cccapitalanualopt,2)))
+	dlg.capital_anual.setFont(QFont('Arial', 10))
+	dlg.capital_anual.setStyleSheet("font-weight: bold")
+	dlg.custo_total.setText("Total Cost: " + str(round(custototanualopt,2)))
+	dlg.custo_total.setFont(QFont('Arial', 10))
+	dlg.custo_total.setStyleSheet("font-weight: bold")
+	dlg.area_label.setText("Area: " + str(round(areaopt,2)))
+	dlg.area_label.setFont(QFont('Arial', 10))
+	dlg.area_label.setStyleSheet("font-weight: bold")
 
 	row = 0
+	p = 0
 	valorbonito = np.round(variadt, 5)
 	dlg.TABELA.setRowCount(len(valorbonito))
 
-	p=0
-
-	for data in range(0, len(valorbonito)):
+	for data in range(len(valorbonito)):
 		try:
 			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(changedv[data], 5))))
-
 		except:
 			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(changedv[data])))
 		dlg.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(np.round(yplot[data], 2))))
 		dlg.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(np.round(custoopano[data], 2))))
 		dlg.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(np.round(custocapitalanual[data], 2))))
 		dlg.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(np.round(custototanual[data], 2))))
+		for j in range(5):
+			item = dlg.TABELA.item(row, j)
+			item.setTextAlignment(Qt.AlignCenter)
 		row += 1
 
-	# print(variadt)
-	dlg.sc = myCanvas()
+
 	y=[0]
 	x=[0]
+	dlg.sc = myCanvas()
 	dlg.sc.plot(x, y)
-
 
 	dlg.sc2 = myCanvas2()
 	dlg.sc2.plot(x, y)
 
-
 	dlg.sc3 = myCanvas3()
 	dlg.sc3.plot(x, y)
+
 	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
-
-
-def mostra3():
-	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
-
-def mostra2():
-	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva3.png"))
-
-def mostra1():
-	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva2.png"))
-
 
 class myCanvas(FigureCanvas):
 	def __init__(self):
@@ -332,7 +275,6 @@ class myCanvas2(FigureCanvas):
 		self.ax= self.fig.add_subplot(111)
 		self.ax.yaxis.set_major_formatter(formatando)
 
-		# print(variadt)
 		self.ax.plot(variadt,yplot, label='Area x ΔTmin', color='r')
 		self.ax.set_xlabel('ΔTmin')
 		self.ax.set_ylabel('Area')
@@ -364,37 +306,12 @@ class myCanvas3(FigureCanvas):
 		self.fig.savefig("canva3.png",bbox_inches="tight", pad_inches=0.5)
 ########################
 
-
-def savefile():
-
-	contador = 0
-	correntes = correntes
-	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
-
-	for i in range(0, len(util_temporaria)):
-		if util_temporaria[i][3] == 'Cold':
-			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-		else:
-			util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
-			correntes_temporaria.append(util_temporaria[i])
-
-			contador += 1
-
-	akt, _, ajustado, cpf, cpq, areak, deltalmnk = tt.CUSTO(correntes, len(correntes))
-	for i in range(0, contador):
-		correntes.pop()
-	export(correntes,util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
-
 def OPTA():
 	contador = 0
-	correntes = correntes
-	uf1, uq1,_,_ = fp2.pontopinch(correntes, len(correntes), float(dtopt))
+	uf1, uq1,_,_ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dtopt))
 	for i in range(0, len(util_temporaria)):
 		if util_temporaria[i][3] == 'Cold':
 			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
-
 			correntes_temporaria.append(util_temporaria[i])
 			contador += 1
 		else:
@@ -402,7 +319,7 @@ def OPTA():
 			correntes_temporaria.append(util_temporaria[i])
 			contador += 1
 
-	akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntes, len(correntes))
+	akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
 
 	dlg.area = uic.loadUi("Area.ui")
 	dlg.area.show()
@@ -427,7 +344,33 @@ def OPTA():
 
 		##################acaba aq
 	for i in range(0, contador):
+		correntes_temporaria.pop()
+
+
+
+def savefile():
+
+	contador = 0
+	correntes = correntes
+	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
+
+	for i in range(0, len(util_temporaria)):
+		if util_temporaria[i][3] == 'Cold':
+			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+		else:
+			util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
+			correntes_temporaria.append(util_temporaria[i])
+
+			contador += 1
+
+	akt, _, ajustado, cpf, cpq, areak, deltalmnk = tt.CUSTO(correntes, len(correntes))
+	for i in range(0, contador):
 		correntes.pop()
+	export(correntes,util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
+
+
 
 kct=uic.loadUi("Select.ui")
 dlg.TABELA.setColumnWidth(3,150)
@@ -436,10 +379,10 @@ dlg.TABELA.setColumnWidth(3,150)
 #custos
 dlg.otimizabotao.clicked.connect(eq)
 kct.otimizarun.clicked.connect(otimizafun)
-dlg.CUSTO.clicked.connect(mostra3)
-dlg.UT.clicked.connect(mostra2)
+dlg.CUSTO.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png")))
+dlg.UT.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva3.png")))
+dlg.AREA.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva2.png")))
 dlg.OPTA.clicked.connect(OPTA)
-dlg.AREA.clicked.connect(mostra1)
 dlg.actionSave_File.triggered.connect(savefile)
 ########################
 
@@ -481,7 +424,10 @@ def openfile_teste(pergunta=True):
 		else:
 			dados_da_corrente.append("Cold")
 			ncold += 1
-		dados_da_corrente.append(0.5)
+		try:
+			dados_da_corrente.append(worksheet.cell(i+1, 5).value)
+		except:
+			dados_da_corrente.append(0.5)
 		correntes.append(dados_da_corrente)
 		e_utilidade.append(False)
 
@@ -661,7 +607,8 @@ def done_teste(libera=False):
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
-	dlg.done.showMaximized()
+	# dlg.done.showMaximized()
+	dlg.done.show()
 	dlg.done.hot_temp.setText("Hot: " + str(pinchq) + " " + dlg.temp_unidade.currentText())
 	dlg.done.cold_temp.setText("Cold: " + str(pinchf) + " " + dlg.temp_unidade.currentText())
 	dlg.done.precisa_quente.setText("Hot Utility Demand: " + str(util_quente) + " " + "kW")
@@ -670,12 +617,15 @@ def done_teste(libera=False):
 
 	calor = dlg.cp_unidade.currentText().split("/")
 	unidades_usadas = [dlg.temp_unidade.currentText(), dlg.cp_unidade.currentText(), calor[0]]
-	curva_composta = plotgrafcurva(correntes, float(dlg.lineEdit_2.text().replace(",", ".")), util_fria, util_quente, pinchf, pinchq)
-	curva_composta.savefig("curva_composta.png",bbox_inches="tight", pad_inches=0.5)
-	grande_curva = Gc1(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas)
-	grande_curva.savefig("grande_curva.png", bbox_inches="tight", pad_inches=0.5)
-	dlg.done.curva_composta.setPixmap(QtGui.QPixmap("curva_composta.png"))
-	dlg.done.grande_curva.setPixmap(QtGui.QPixmap("grande_curva.png"))
+
+	tamanho = 400
+
+	curva_composta = plotgrafcurva(correntes, float(dlg.lineEdit_2.text().replace(",", ".")), util_fria, util_quente, pinchf, pinchq, unidades_usadas)
+	arrumar_tamanho(curva_composta, "curva_composta", tamanho, dlg.done.curva_composta, dlg.done.scroll_composta)
+
+	grande_curva = Gc1(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas, plot=False)
+	arrumar_tamanho(grande_curva, "grande_curva", tamanho, dlg.done.grande_curva, dlg.done.scroll_grande)
+
 
 	def cancelar():
 		global done
@@ -977,36 +927,57 @@ def mensagem_erro(texto):
 	msg.exec_()
 	return
 
-def verificar_digitos(linha, grafico, qual_dt):
-	asch = linha.text().split(".")
+def verificar_digitos(linha, grafico=None, qual_dt=None):
+	asch = linha.text().replace(",", ".").split(".")
 	if len(asch) == 2:
 		if len(asch[1]) > 4:
-			grafico.setText('Waiting for ΔTmin' + qual_dt +' data...')
-			if qual_dt == "1":
-				mensagem_erro("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
-			else:
-				mensagem_erro("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
+			if qual_dt == "1" or qual_dt == "2":
+				grafico.setText('Waiting for ΔTmin' + qual_dt +' data...')
+				if qual_dt == "1":
+					mensagem_erro("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT ONE} value and try again.")
+				elif qual_dt == "2":
+					mensagem_erro("The limit is 4 digits after the separator.\nChange the ΔTmin\N{SUBSCRIPT TWO} value and try again.")
 			return True
 	return False
 
-def plotgraficocurva():
+def arrumar_tamanho(fig, nome, tamanho, onde_botar, scroll, casca=False):
+	tamanho -= 20
+	fig.savefig(nome + ".png", bbox_inches="tight", pad_inches=0.5)
+	pic = Image.open(nome + ".png")
+	if not casca:
+		razao = min(tamanho/pic.size[0], tamanho/pic.size[1])
+	else:
+		razao = tamanho/pic.size[1]
+	novo_tamanho = (int(razao*pic.size[0]), int(razao*pic.size[1]))
+	pic = pic.resize(novo_tamanho, Image.ANTIALIAS)
+	pic.save(nome + ".png", quality=100)
+	onde_botar.setPixmap(QtGui.QPixmap(nome + ".png"))
+
+def GC():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
-	if not dlg.DTMIN1.text() and not dlg.DTMIN2.text():
+	if not dlg.DTMIN1.text().replace(",", ".") and not dlg.DTMIN2.text().replace(",", "."):
 		mensagem_erro("Please input any ΔTmin data")
 
-	if dlg.DTMIN1.text():
-		pinchf1, pinchq1, uq1, uf1, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text()))
-		plotgrafcurva(correntes_temporaria, float(dlg.DTMIN1.text()), uf1, uq1, pinchf1, pinchq1)
-		dlg.graficodt1.setPixmap(QtGui.QPixmap("curvadt1.png"))
+	if dlg.DTMIN1.text().replace(",", "."):
+		_, _, _, _, coisas_graficos1 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
+		fig = Gc1(len(correntes_temporaria), dlg, coisas_graficos1[0], coisas_graficos1[7], coisas_graficos1[5], unidades_usadas, plot=False)
+		tamanho = dlg.graficodt1.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "Gc1", tamanho, dlg.graficodt1, dlg.scroll_dt1)
 	else:
 		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
 
-	if dlg.DTMIN2.text():
-		pinchf2, pinchq2, uq2, uf2,_ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text()))
-		plotgrafcurva2(correntes_temporaria, float(dlg.DTMIN2.text()), uf2, uq2, pinchf2, pinchq2)
-		dlg.graficodt2.setPixmap(QtGui.QPixmap("curvadt2.png"))
+	if dlg.DTMIN2.text().replace(",", "."):
+		_, _, _, _, coisas_graficos2 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
+		Gc2(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas, plot=True)
+		fig = Gc2(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas, plot=False)
+		tamanho = dlg.graficodt2.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "Gc2", tamanho, dlg.graficodt2, dlg.scroll_dt2)
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
@@ -1014,13 +985,13 @@ def plotgraficocurvacomp():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
-	if not dlg.DTMIN1.text() and not dlg.DTMIN2.text():
+	if not dlg.DTMIN1.text().replace(",", ".") and not dlg.DTMIN2.text().replace(",", "."):
 		mensagem_erro("Please input any ΔTmin data")
 
-	if dlg.DTMIN1.text():
+	if dlg.DTMIN1.text().replace(",", "."):
 		contador = 0
-		tf1, tq1, uq1, uf1, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text()))
-		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text()))
+		tf1, tq1, uq1, uf1, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
+		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
 
 		for i in range(0, len(util_temporaria)):
 			if util_temporaria[i][3] == 'Cold':
@@ -1033,18 +1004,21 @@ def plotgraficocurvacomp():
 				contador += 1
 
 		_,_,datagraph,_,_,_,_ = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
-		cc1(datagraph, float(dlg.DTMIN1.text()), round(tf1, 6), round(tq1, 6))
-		dlg.graficodt1.setPixmap(QtGui.QPixmap("cc1.png"))
+		fig = cc1(datagraph, float(dlg.DTMIN1.text().replace(",", ".")), round(tf1, 6), round(tq1, 6), unidades_usadas)
+		tamanho = dlg.graficodt1.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "cc1", tamanho, dlg.graficodt1, dlg.scroll_dt1)
 
 		for i in range(contador):
 			correntes_temporaria.pop(-1)
 	else:
 		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
 
-	if dlg.DTMIN2.text():
+	if dlg.DTMIN2.text().replace(",", "."):
 		contador = 0
-		tf2, tq2, uq2, uf2, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text()))
-		uf2, uq2, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text()))
+		tf2, tq2, uq2, uf2, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
+		uf2, uq2, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
 
 		for i in range(len(util_temporaria)):
 			if util_temporaria[i][3] == 'Cold':
@@ -1058,30 +1032,42 @@ def plotgraficocurvacomp():
 
 		_,_,datagraph,_,_,_,_  = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
 
-		cc2(datagraph, float(dlg.DTMIN2.text()), round(tf2, 6), round(tq2, 6))
-		dlg.graficodt2.setPixmap(QtGui.QPixmap("cc2.png"))
+		fig = cc2(datagraph, float(dlg.DTMIN2.text().replace(",", ".")), round(tf2, 6), round(tq2, 6), unidades_usadas)
+		tamanho = dlg.graficodt2.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "cc2", tamanho, dlg.graficodt2, dlg.scroll_dt2)
 
 		for i in range(contador):
 			correntes_temporaria.pop(-1)
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
-def GC():
+def plotgraficocurva():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
-	if not dlg.DTMIN1.text() and not dlg.DTMIN2.text():
+	if not dlg.DTMIN1.text().replace(",", ".") and not dlg.DTMIN2.text().replace(",", "."):
 		mensagem_erro("Please input any ΔTmin data")
 
-	if dlg.DTMIN1.text():
-		_, _, _, _, coisas_graficos1 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text()))
-		Gc1(len(correntes_temporaria), dlg, coisas_graficos1[0], coisas_graficos1[7], coisas_graficos1[5], unidades_usadas)
+	if dlg.DTMIN1.text().replace(",", "."):
+		pinchf1, pinchq1, uq1, uf1, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
+		fig = plotgrafcurva(correntes_temporaria, float(dlg.DTMIN1.text().replace(",", ".")), uf1, uq1, pinchf1, pinchq1, unidades_usadas)
+		tamanho = dlg.graficodt1.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "curvadt1", tamanho, dlg.graficodt1, dlg.scroll_dt1)
 	else:
 		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
 
-	if dlg.DTMIN2.text():
-		_, _, _, _, coisas_graficos2 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text()))
-		Gc2(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas)
+	if dlg.DTMIN2.text().replace(",", "."):
+		pinchf2, pinchq2, uq2, uf2,_ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
+		fig = plotgrafcurva2(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), uf2, uq2, pinchf2, pinchq2, unidades_usadas)
+		tamanho = dlg.graficodt2.frameGeometry().height()
+		if tamanho < 550:
+			tamanho = 550
+		arrumar_tamanho(fig, "curvadt2", tamanho, dlg.graficodt2, dlg.scroll_dt2)
+		dlg.graficodt2.setPixmap(QtGui.QPixmap("curvadt2.png"))
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
@@ -1089,19 +1075,21 @@ def CASCA():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
-	if not dlg.DTMIN1.text() and not dlg.DTMIN2.text():
+	if not dlg.DTMIN1.text().replace(",", ".") and not dlg.DTMIN2.text().replace(",", "."):
 		mensagem_erro("Please input any ΔTmin data")
 
-	if dlg.DTMIN1.text():
-		cascata(correntes_temporaria, float(dlg.DTMIN1.text()))
-		dlg.graficodt1.setPixmap(QtGui.QPixmap("EC.png"))
+	if dlg.DTMIN1.text().replace(",", "."):
+		fig = cascata(correntes_temporaria, float(dlg.DTMIN1.text().replace(",", ".")), unidades_usadas)
+		tamanho = dlg.graficodt1.frameGeometry().height()
+		arrumar_tamanho(fig, "EC", tamanho, dlg.graficodt1, dlg.scroll_dt1, casca=True)
 	else:
 		dlg.graficodt1.setText('Waiting for ΔTmin1 data...')
 
 
-	if dlg.DTMIN2.text():
-		cascata2(correntes_temporaria, float(dlg.DTMIN2.text()))
-		dlg.graficodt2.setPixmap(QtGui.QPixmap("EC2.png"))
+	if dlg.DTMIN2.text().replace(",", "."):
+		fig = cascata2(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), unidades_usadas)
+		tamanho = dlg.graficodt2.frameGeometry().height()
+		arrumar_tamanho(fig, "EC2", tamanho, dlg.graficodt2, dlg.scroll_dt2, casca=True)
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
@@ -1113,8 +1101,8 @@ def caxa():
 		mensagem_erro("Please input utility data in 'Streams' tab")
 		return
 
-	if dlg.DTMIN1.text():
-		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text()))
+	if dlg.DTMIN1.text().replace(",", "."):
+		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
 
 		contador = 0
 		for i in range(len(util_temporaria)):
@@ -1134,7 +1122,7 @@ def caxa():
 
 		dlg.area = uic.loadUi("Area.ui")
 		dlg.area.show()
-		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT ONE} :  " + str(round(float(dlg.DTMIN1.text()), 5)))
+		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT ONE} :  " + str(round(float(dlg.DTMIN1.text().replace(",", ".")), 5)))
 		dlg.area.label.setFont(QFont('Arial', 14))
 		dlg.area.label.setStyleSheet("font-weight: bold")
 		row = 0
@@ -1162,9 +1150,10 @@ def caxa2():
 
 	if len(util_temporaria) == 0:
 		mensagem_erro("Please input utility data in 'Streams' tab")
+		return
 
-	if dlg.DTMIN2.text():
-		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text()))
+	if dlg.DTMIN2.text().replace(",", "."):
+		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
 
 		contador = 0
 		for i in range(0, len(util_temporaria)):
@@ -1184,7 +1173,7 @@ def caxa2():
 
 		dlg.area = uic.loadUi("Area.ui")
 		dlg.area.show()
-		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT TWO} :  "+str(round(float(dlg.DTMIN2.text()), 5)))
+		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT TWO} :  "+str(round(float(dlg.DTMIN2.text().replace(",", ".")), 5)))
 		dlg.area.label.setFont(QFont('Arial', 14))
 		dlg.area.label.setStyleSheet("font-weight: bold")
 		row = 0
@@ -4415,8 +4404,6 @@ dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.addutil_abaixo.clicked.connect(utilidade_teste_abaixo)
 dlg.pushButton_19.clicked.connect(lambda: atualizar_desenho("abaixo", True))
 
-#custos
-dlg.otimizabotao.clicked.connect(lambda: otimizafun())
 
 
 
@@ -4439,20 +4426,21 @@ dlg.util_inlet.setPlaceholderText(" Ex: 273.15")
 dlg.util_outlet.setPlaceholderText(" Ex: 273.15")
 dlg.stream_cp.setPlaceholderText(" Ex: 200.20")
 
-header = dlg.tableWidget.horizontalHeader()
-header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+dlg.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+dlg.tableWidget_5.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+dlg.TABELA.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 for i in range(5):
-	header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-header = dlg.tableWidget_5.horizontalHeader()
-header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-for i in range(5):
-	header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+	dlg.tableWidget.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+	dlg.tableWidget_5.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+	dlg.TABELA.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+	if i == 3:
+		dlg.TABELA.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
 
 
-# openfile_teste(False)
-# done_teste(True)
-# pinch_teste()
+openfile_teste(False)
+done_teste(True)
+pinch_teste()
 # suprir_9_correntes()
 
 

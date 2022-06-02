@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>420</height>
+    <width>912</width>
+    <height>590</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,40 +90,47 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="precisa_quente">
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>necessidade de utilidades quentes</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="precisa_fria">
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>necessidade de utilidades frias</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="precisa_quente">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>necessidade de utilidades quentes</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="precisa_fria">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-color: orange;</string>
+         </property>
+         <property name="text">
+          <string>necessidade de utilidades frias</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="Line" name="line_3">
@@ -135,7 +142,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QScrollArea" name="scrollArea">
+        <widget class="QScrollArea" name="scroll_composta">
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -144,8 +151,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>274</width>
-            <height>210</height>
+            <width>440</width>
+            <height>389</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -168,7 +175,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QScrollArea" name="scrollArea_2">
+        <widget class="QScrollArea" name="scroll_grande">
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -177,8 +184,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>273</width>
-            <height>210</height>
+            <width>440</width>
+            <height>389</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -208,6 +215,8 @@
         <widget class="QPushButton" name="escolher_utilidades">
          <property name="font">
           <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -221,6 +230,8 @@
         <widget class="QPushButton" name="cancelar">
          <property name="font">
           <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -237,11 +248,13 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>30</height>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
         <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
