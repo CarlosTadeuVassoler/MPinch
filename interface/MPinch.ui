@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1651,8 +1651,8 @@ QToolButton:focus{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>148</width>
-                   <height>33</height>
+                   <width>751</width>
+                   <height>460</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -1700,8 +1700,8 @@ QToolButton:focus{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>148</width>
-                   <height>33</height>
+                   <width>751</width>
+                   <height>460</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_35">
@@ -3901,8 +3901,8 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>33</height>
+                         <width>1471</width>
+                         <height>416</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_32">
@@ -5769,7 +5769,7 @@ QToolButton:focus{
                </widget>
               </item>
               <item>
-               <widget class="QScrollArea" name="scrollArea_3">
+               <widget class="QScrollArea" name="scroll_custo">
                 <property name="widgetResizable">
                  <bool>true</bool>
                 </property>
@@ -6370,8 +6370,8 @@ QToolButton:focus{
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>347</width>
-               <height>62</height>
+               <width>1541</width>
+               <height>444</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">

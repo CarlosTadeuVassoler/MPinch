@@ -8,11 +8,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import pylab as P
-from Graficocurva import plotgrafcurva,plotgrafcurva2
-from Graficocurvabalanceada import cc1,cc2
-import testesoriginal as tt
 import xlsxwriter
-from canvas import Gc1,Gc2
 from tkinter.filedialog import askopenfilename
 import xlrd
 import re
@@ -23,7 +19,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
-from CORRENTEGRAPH import cascata,cascata2
 from prog_carlos import *
 from prog_carlos_abaixo import *
 from superestrutura_completa import *
@@ -34,7 +29,7 @@ import turtle
 from exportaa import export
 from svg_turtle import SvgTurtle
 import os
-from custo2 import varia
+from custos import *
 from tkinter import Tk
 from graficos import *
 
@@ -86,305 +81,16 @@ perguntar = True
 remover_todos = False
 
 
-#######################
-def eq():
-
-	if verificar_digitos(dlg.dtstep):
-		mensagem_erro("The limit is 4 digits after the separator.\nChange the step value and try again.")
-		return
-	if verificar_digitos(dlg.dtstart):
-		mensagem_erro("The limit is 4 digits after the separator.\nChange the start value and try again.")
-		return
-	if verificar_digitos(dlg.dtstop):
-		mensagem_erro("The limit is 4 digits after the separator.\nChange the stop value and try again.")
-		return
-
-	start = float(dlg.dtstart.text().replace(",", "."))
-	step = float(dlg.dtstep.text().replace(",", "."))
-	stop = float(dlg.dtstop.text().replace(",", "."))
-
-
-	if stop < start:
-		mensagem_erro("The stop value needs to be higher than the start value.\nChange one of them and try again.")
-		return
-
-	if len(np.arange(start, stop + step, step))>500:
-		msgBox = QMessageBox()
-		msgBox.setIcon(QMessageBox.Information)
-		msgBox.setWindowTitle("This may take some time")
-		msgBox.setText("You will run about "+ str(len(np.arange(start, stop + step, step))) +" iteractions\nDo you want to proceed?")
-		msgBox.setStyleSheet("font-weight: bold")
-		msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-
-		returnValue = msgBox.exec()
-		if returnValue == QMessageBox.Cancel:
-			return 0
-
-	dlg.equation = uic.loadUi("Select.ui")
-	dlg.equation.show()
-
-	def z3():
-		if dlg.equation.nareas.isChecked():
-			nnn = -1
-			otimizafun(nnn)
-		elif dlg.equation.us1.isChecked():
-			nnn = -2
-			otimizafun(nnn)
-		elif dlg.equation.esp.isChecked():
-			nnn = float(dlg.equation.lineesp.text())
-			otimizafun(nnn)
-		dlg.equation.close()
-
-
-	dlg.equation.otimizarun.clicked.connect(lambda: z3())
-
-def otimizafun(nnn):
-	start = float(dlg.dtstart.text().replace(",", "."))
-	step = float(dlg.dtstep.text().replace(",", "."))
-	stop = float(dlg.dtstop.text().replace(",", "."))
-
-	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual, uf, uq, dtopt
-
-	contador = 0
-	for i in range(len(util_temporaria)):
-		if util_temporaria[i][3] == 'Cold':
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-		else:
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-
-	uf, uq, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual = varia(start, step, stop, correntes_temporaria, nnn)
-
-	for i in range(contador):
-		correntes_temporaria.pop(-1)
-
-	changedv = []
-	changedv.append(variadt[0])
-
-	for i in range(0,len(custocapitalanual)):
-		try:
-			changedv.append(variadt[i+1])
-			if not (custocapitalanual[i] > custocapitalanual[i+1] and custocapitalanual[i+2] < custocapitalanual[i+1]):
-				"""changedv.pop()"""
-				"""custocapitalanual[i+1]=((custocapitalanual[i+2]-custocapitalanual[i])*(variadt[i+1]-variadt[i+2])/(variadt[i+2]-variadt[i]))+custocapitalanual[i+2]
-				changedv.append(str(str(round(variadt[i+1],3))+"*"))"""
-				"""custototanual[i+1]=custoopano[i+1]+custocapitalanual[i+1]"""
-			else:
-				pass
-		except:
-			pass
-
-
-	Custoopotimizado = custoopano[custototanual.index(min(custototanual))]
-	cccapitalanualopt = custocapitalanual[custototanual.index(min(custototanual))]
-	dtopt = variadt[custototanual.index(min(custototanual))]
-	cccapitalopt = custocapital[custototanual.index(min(custototanual))]
-	areaopt = yplot[custototanual.index(min(custototanual))]
-	custototanualopt = min(custototanual)
-
-	dlg.operating.setText("Operating Cost : "+str(round(Custoopotimizado,2)))
-	dlg.operating.setFont(QFont('Arial', 10))
-	dlg.operating.setStyleSheet("font-weight: bold")
-	try:
-		dlg.dtmin_op.setText("ΔTmin : "+str(round(dtopt, 5))) #preciso prestar atenção nisso quanto ao passo
-	except:
-		dlg.dtmin_op.setText("ΔTmin : "+str(dtopt)) #preciso prestar atenção nisso quanto ao passo
-
-	dlg.dtmin_op.setFont(QFont('Arial', 10))
-	dlg.dtmin_op.setStyleSheet("font-weight: bold")
-	dlg.capital.setText("Capital Cost : " + str(round(cccapitalopt,2)))
-	dlg.capital.setFont(QFont('Arial', 10))
-	dlg.capital.setStyleSheet("font-weight: bold")
-	dlg.capital_anual.setText("Anualized Capital Cost : " + str(round(cccapitalanualopt,2)))
-	dlg.capital_anual.setFont(QFont('Arial', 10))
-	dlg.capital_anual.setStyleSheet("font-weight: bold")
-	dlg.custo_total.setText("Total Cost: " + str(round(custototanualopt,2)))
-	dlg.custo_total.setFont(QFont('Arial', 10))
-	dlg.custo_total.setStyleSheet("font-weight: bold")
-	dlg.area_label.setText("Area: " + str(round(areaopt,2)))
-	dlg.area_label.setFont(QFont('Arial', 10))
-	dlg.area_label.setStyleSheet("font-weight: bold")
-
-	row = 0
-	p = 0
-	valorbonito = np.round(variadt, 5)
-	dlg.TABELA.setRowCount(len(valorbonito))
-
-	for data in range(len(valorbonito)):
-		try:
-			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(changedv[data], 5))))
-		except:
-			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(changedv[data])))
-		dlg.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(np.round(yplot[data], 2))))
-		dlg.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(np.round(custoopano[data], 2))))
-		dlg.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(np.round(custocapitalanual[data], 2))))
-		dlg.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(np.round(custototanual[data], 2))))
-		for j in range(5):
-			item = dlg.TABELA.item(row, j)
-			item.setTextAlignment(Qt.AlignCenter)
-		row += 1
-
-
-	y=[0]
-	x=[0]
-	dlg.sc = myCanvas()
-	dlg.sc.plot(x, y)
-
-	dlg.sc2 = myCanvas2()
-	dlg.sc2.plot(x, y)
-
-	dlg.sc3 = myCanvas3()
-	dlg.sc3.plot(x, y)
-
-	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
-
-class myCanvas(FigureCanvas):
-	def __init__(self):
-		self.fig=Figure()
-		FigureCanvas.__init__(self,self.fig)
-
-	def plot(self,x,y):
-		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
-		plt.close("all")
-
-		plt.style.use('bmh')
-		self.ax= self.fig.add_subplot(111)
-		self.ax.yaxis.set_major_formatter(formatando)
-		self.ax.plot(variadt,custoopano, label='Operational Cost x ΔTmin')
-		self.ax.plot(variadt,custocapitalanual, label='Capital Cost x ΔTmin', color='k')
-		self.ax.plot(variadt, custototanual, label='Total Cost x ΔTmin', color='r')
-		self.ax.set_xlabel('ΔTmin')
-		self.ax.set_ylabel('Cost')
-		self.ax.legend()
-		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
-		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
-		self.draw()
-		self.fig.savefig("canva1.png",bbox_inches="tight", pad_inches=0.5)
-
-class myCanvas2(FigureCanvas):
-	def __init__(self):
-		self.fig=Figure()
-		FigureCanvas.__init__(self,self.fig)
-
-	def plot(self,x,y):
-		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
-		plt.close("all")
-		plt.style.use('bmh')
-
-		self.ax= self.fig.add_subplot(111)
-		self.ax.yaxis.set_major_formatter(formatando)
-
-		self.ax.plot(variadt,yplot, label='Area x ΔTmin', color='r')
-		self.ax.set_xlabel('ΔTmin')
-		self.ax.set_ylabel('Area')
-		self.ax.legend()
-		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
-		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
-		self.draw()
-		self.fig.savefig("canva2.png",bbox_inches="tight", pad_inches=0.5)
-
-class myCanvas3(FigureCanvas):
-	def __init__(self):
-		self.fig=Figure()
-		FigureCanvas.__init__(self,self.fig)
-
-	def plot(self,x,y):
-		# PLT.CLOSE("ALL") PRA NÃO COMER TODA A MEMORIA DO SEU PC PELO AMOR DE DEUS NÃO ESQUECE DISSO
-		plt.close("all")
-		plt.style.use('bmh')
-		self.ax= self.fig.add_subplot(111)
-		#self.ax.yaxis.set_major_formatter(formatando)
-		self.ax.plot(variadt,uq, label='Hot utility x ΔTmin', color='r')
-		self.ax.plot(variadt, uf, label='Cold utility x ΔTmin', color='b')
-		self.ax.set_xlabel('ΔTmin')
-		self.ax.set_ylabel('Utility')
-		self.ax.legend()
-		self.ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
-		self.ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
-		self.draw()
-		self.fig.savefig("canva3.png",bbox_inches="tight", pad_inches=0.5)
-########################
-
-def OPTA():
-	contador = 0
-	uf1, uq1,_,_ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dtopt))
-	for i in range(0, len(util_temporaria)):
-		if util_temporaria[i][3] == 'Cold':
-			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-		else:
-			util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-
-	akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
-
-	dlg.area = uic.loadUi("Area.ui")
-	dlg.area.show()
-	dlg.area.label.setText("Optimized ΔTmin:  " + str(round(dtopt,5)))
-	dlg.area.label.setFont(QFont('Arial', 14))
-	dlg.area.label.setStyleSheet("font-weight: bold")
-	row = 0
-	dlg.area.TABELA.setRowCount(len(areak) + 1)
-
-	for data in range(0, len(areak)):
-		dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data],2))))
-		dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data + 1],2))))
-		dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data],2))))
-		dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data + 1],2))))
-		dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data],2))))
-		dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data],2))))
-		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data],2))))
-		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data],2))))
-		row += 1
-	dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
-	dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt),2))))
-
-		##################acaba aq
-	for i in range(0, contador):
-		correntes_temporaria.pop()
-
-
 
 def savefile():
-
-	contador = 0
-	correntes = correntes
 	uf1, uq1, _, _ = fp2.pontopinch(correntes, len(correntes), float(dlg.lineEdit_2.text()))
 
-	for i in range(0, len(util_temporaria)):
-		if util_temporaria[i][3] == 'Cold':
-			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
-			correntes_temporaria.append(util_temporaria[i])
-			contador += 1
-		else:
-			util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
-			correntes_temporaria.append(util_temporaria[i])
 
-			contador += 1
+	akt, _, ajustado, cpf, cpq, areak, deltalmnk = CUSTO(correntes, len(correntes))
 
-	akt, _, ajustado, cpf, cpq, areak, deltalmnk = tt.CUSTO(correntes, len(correntes))
-	for i in range(0, contador):
-		correntes.pop()
-	export(correntes,util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
+	export(correntes, util_temporaria, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,float(dlg.lineEdit_2.text()),akt, ajustado, cpf, cpq, areak, deltalmnk)
 
-
-
-kct=uic.loadUi("Select.ui")
-dlg.TABELA.setColumnWidth(3,150)
-
-
-#custos
-dlg.otimizabotao.clicked.connect(eq)
-kct.otimizarun.clicked.connect(otimizafun)
-dlg.CUSTO.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png")))
-dlg.UT.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva3.png")))
-dlg.AREA.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva2.png")))
-dlg.OPTA.clicked.connect(OPTA)
 dlg.actionSave_File.triggered.connect(savefile)
-########################
 
 
 
@@ -620,10 +326,10 @@ def done_teste(libera=False):
 
 	tamanho = 400
 
-	curva_composta = plotgrafcurva(correntes, float(dlg.lineEdit_2.text().replace(",", ".")), util_fria, util_quente, pinchf, pinchq, unidades_usadas)
-	arrumar_tamanho(curva_composta, "curva_composta", tamanho, dlg.done.curva_composta, dlg.done.scroll_composta)
+	curva_comp = curva_composta(correntes, float(dlg.lineEdit_2.text().replace(",", ".")), util_fria, util_quente, pinchf, pinchq, unidades_usadas)
+	arrumar_tamanho(curva_comp, "curva_composta", tamanho, dlg.done.curva_composta, dlg.done.scroll_composta)
 
-	grande_curva = Gc1(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas, plot=False)
+	grande_curva = grande_curva_composta(len(correntes), dlg, coisas_graficos[0], coisas_graficos[7], coisas_graficos[5], unidades_usadas)
 	arrumar_tamanho(grande_curva, "grande_curva", tamanho, dlg.done.grande_curva, dlg.done.scroll_grande)
 
 
@@ -953,7 +659,7 @@ def arrumar_tamanho(fig, nome, tamanho, onde_botar, scroll, casca=False):
 	pic.save(nome + ".png", quality=100)
 	onde_botar.setPixmap(QtGui.QPixmap(nome + ".png"))
 
-def GC():
+def grande_curva_comp():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
@@ -962,7 +668,7 @@ def GC():
 
 	if dlg.DTMIN1.text().replace(",", "."):
 		_, _, _, _, coisas_graficos1 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
-		fig = Gc1(len(correntes_temporaria), dlg, coisas_graficos1[0], coisas_graficos1[7], coisas_graficos1[5], unidades_usadas, plot=False)
+		fig = grande_curva_composta(len(correntes_temporaria), dlg, coisas_graficos1[0], coisas_graficos1[7], coisas_graficos1[5], unidades_usadas)
 		tamanho = dlg.graficodt1.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -972,8 +678,7 @@ def GC():
 
 	if dlg.DTMIN2.text().replace(",", "."):
 		_, _, _, _, coisas_graficos2 = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
-		Gc2(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas, plot=True)
-		fig = Gc2(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas, plot=False)
+		fig = grande_curva_composta(len(correntes_temporaria), dlg, coisas_graficos2[0], coisas_graficos2[7], coisas_graficos2[5], unidades_usadas)
 		tamanho = dlg.graficodt2.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -981,7 +686,7 @@ def GC():
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
-def plotgraficocurvacomp():
+def curva_comp_balanceada():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
@@ -1003,8 +708,8 @@ def plotgraficocurvacomp():
 				correntes_temporaria.append(util_temporaria[i])
 				contador += 1
 
-		_,_,datagraph,_,_,_,_ = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
-		fig = cc1(datagraph, float(dlg.DTMIN1.text().replace(",", ".")), round(tf1, 6), round(tq1, 6), unidades_usadas)
+		_,_,datagraph,_,_,_,_ = CUSTO(correntes_temporaria, len(correntes_temporaria))
+		fig = curva_composta_balanceada(datagraph, float(dlg.DTMIN1.text().replace(",", ".")), round(tf1, 6), round(tq1, 6), unidades_usadas)
 		tamanho = dlg.graficodt1.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -1030,9 +735,9 @@ def plotgraficocurvacomp():
 				correntes_temporaria.append(util_temporaria[i])
 				contador += 1
 
-		_,_,datagraph,_,_,_,_  = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
+		_,_,datagraph,_,_,_,_  = CUSTO(correntes_temporaria, len(correntes_temporaria))
 
-		fig = cc2(datagraph, float(dlg.DTMIN2.text().replace(",", ".")), round(tf2, 6), round(tq2, 6), unidades_usadas)
+		fig = curva_composta_balanceada(datagraph, float(dlg.DTMIN2.text().replace(",", ".")), round(tf2, 6), round(tq2, 6), unidades_usadas)
 		tamanho = dlg.graficodt2.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -1043,7 +748,7 @@ def plotgraficocurvacomp():
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
-def plotgraficocurva():
+def curva_comp():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
@@ -1052,7 +757,7 @@ def plotgraficocurva():
 
 	if dlg.DTMIN1.text().replace(",", "."):
 		pinchf1, pinchq1, uq1, uf1, _ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
-		fig = plotgrafcurva(correntes_temporaria, float(dlg.DTMIN1.text().replace(",", ".")), uf1, uq1, pinchf1, pinchq1, unidades_usadas)
+		fig = curva_composta(correntes_temporaria, float(dlg.DTMIN1.text().replace(",", ".")), uf1, uq1, pinchf1, pinchq1, unidades_usadas)
 		tamanho = dlg.graficodt1.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -1062,7 +767,7 @@ def plotgraficocurva():
 
 	if dlg.DTMIN2.text().replace(",", "."):
 		pinchf2, pinchq2, uq2, uf2,_ = pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
-		fig = plotgrafcurva2(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), uf2, uq2, pinchf2, pinchq2, unidades_usadas)
+		fig = curva_composta(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), uf2, uq2, pinchf2, pinchq2, unidades_usadas)
 		tamanho = dlg.graficodt2.frameGeometry().height()
 		if tamanho < 550:
 			tamanho = 550
@@ -1071,7 +776,7 @@ def plotgraficocurva():
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
-def CASCA():
+def cascataaa():
 	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1") or verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
 		return
 
@@ -1087,73 +792,22 @@ def CASCA():
 
 
 	if dlg.DTMIN2.text().replace(",", "."):
-		fig = cascata2(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), unidades_usadas)
+		fig = cascata(correntes_temporaria, float(dlg.DTMIN2.text().replace(",", ".")), unidades_usadas)
 		tamanho = dlg.graficodt2.frameGeometry().height()
 		arrumar_tamanho(fig, "EC2", tamanho, dlg.graficodt2, dlg.scroll_dt2, casca=True)
 	else:
 		dlg.graficodt2.setText('Waiting for ΔTmin2 data...')
 
-def caxa():
-	if verificar_digitos(dlg.DTMIN1, dlg.graficodt1, "1"):
+def area_information(dtmin, grafico):
+	if verificar_digitos(dtmin, grafico, "2"):
 		return
 
 	if len(util_temporaria) == 0:
 		mensagem_erro("Please input utility data in 'Streams' tab")
 		return
 
-	if dlg.DTMIN1.text().replace(",", "."):
-		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN1.text().replace(",", ".")))
-
-		contador = 0
-		for i in range(len(util_temporaria)):
-			if util_temporaria[i][3] == 'Cold':
-				util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
-				correntes_temporaria.append(util_temporaria[i])
-				contador += 1
-			else:
-				util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
-				correntes_temporaria.append(util_temporaria[i])
-				contador += 1
-
-		akt, _, ajustado, cpf, cpq, areak, deltalmnk = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
-
-		for i in range(contador):
-			correntes_temporaria.pop(-1)
-
-		dlg.area = uic.loadUi("Area.ui")
-		dlg.area.show()
-		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT ONE} :  " + str(round(float(dlg.DTMIN1.text().replace(",", ".")), 5)))
-		dlg.area.label.setFont(QFont('Arial', 14))
-		dlg.area.label.setStyleSheet("font-weight: bold")
-		row = 0
-		dlg.area.TABELA.setRowCount(len(areak) + 1)
-
-		for data in range(0, len(areak)):
-			dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data], 2))))
-			dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data+1], 2))))
-			dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data], 2))))
-			dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data+1], 2))))
-			dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data], 2))))
-			dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data], 2))))
-			dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data], 2))))
-			dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data], 2))))
-			row += 1
-		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
-		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt), 2))))
-
-	else:
-		mensagem_erro("Please input ΔTmin₁ data")
-
-def caxa2():
-	if verificar_digitos(dlg.DTMIN2, dlg.graficodt2, "2"):
-		return
-
-	if len(util_temporaria) == 0:
-		mensagem_erro("Please input utility data in 'Streams' tab")
-		return
-
-	if dlg.DTMIN2.text().replace(",", "."):
-		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dlg.DTMIN2.text().replace(",", ".")))
+	if dtmin.text().replace(",", "."):
+		uf1, uq1, _, _ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dtmin.text().replace(",", ".")))
 
 		contador = 0
 		for i in range(0, len(util_temporaria)):
@@ -1166,14 +820,14 @@ def caxa2():
 				correntes_temporaria.append(util_temporaria[i])
 				contador += 1
 
-		akt, _, ajustado, cpf, cpq, areak,deltalmnk = tt.CUSTO(correntes_temporaria, len(correntes_temporaria))
+		akt, _, ajustado, cpf, cpq, areak,deltalmnk = CUSTO(correntes_temporaria, len(correntes_temporaria))
 
 		for i in range(contador):
 			correntes_temporaria.pop(-1)
 
 		dlg.area = uic.loadUi("Area.ui")
 		dlg.area.show()
-		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT TWO} :  "+str(round(float(dlg.DTMIN2.text().replace(",", ".")), 5)))
+		dlg.area.label.setText("ΔTmin\N{SUBSCRIPT TWO} :  "+str(round(float(dtmin.text().replace(",", ".")), 5)))
 		dlg.area.label.setFont(QFont('Arial', 14))
 		dlg.area.label.setStyleSheet("font-weight: bold")
 		row = 0
@@ -4230,6 +3884,198 @@ def checaresgotadosabaixo():
 
 
 
+#dtmin optimization
+def eq():
+
+	if verificar_digitos(dlg.dtstep):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the step value and try again.")
+		return
+	if verificar_digitos(dlg.dtstart):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the start value and try again.")
+		return
+	if verificar_digitos(dlg.dtstop):
+		mensagem_erro("The limit is 4 digits after the separator.\nChange the stop value and try again.")
+		return
+
+	start = float(dlg.dtstart.text().replace(",", "."))
+	step = float(dlg.dtstep.text().replace(",", "."))
+	stop = float(dlg.dtstop.text().replace(",", "."))
+
+
+	if stop < start:
+		mensagem_erro("The stop value needs to be higher than the start value.\nChange one of them and try again.")
+		return
+
+	if len(np.arange(start, stop + step, step))>500:
+		msgBox = QMessageBox()
+		msgBox.setIcon(QMessageBox.Information)
+		msgBox.setWindowTitle("This may take some time")
+		msgBox.setText("You will run about "+ str(len(np.arange(start, stop + step, step))) +" iteractions\nDo you want to proceed?")
+		msgBox.setStyleSheet("font-weight: bold")
+		msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+		returnValue = msgBox.exec()
+		if returnValue == QMessageBox.Cancel:
+			return 0
+
+	dlg.equation = uic.loadUi("Select.ui")
+	dlg.equation.show()
+
+	def z3():
+		if dlg.equation.nareas.isChecked():
+			nnn = -1
+			otimizafun(nnn)
+		elif dlg.equation.us1.isChecked():
+			nnn = -2
+			otimizafun(nnn)
+		elif dlg.equation.esp.isChecked():
+			nnn = float(dlg.equation.lineesp.text())
+			otimizafun(nnn)
+		dlg.equation.close()
+
+	dlg.equation.otimizarun.clicked.connect(lambda: z3())
+
+def otimizafun(nnn):
+	start = float(dlg.dtstart.text().replace(",", "."))
+	step = float(dlg.dtstep.text().replace(",", "."))
+	stop = float(dlg.dtstop.text().replace(",", "."))
+
+	global variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual,uf,uq,dtopt
+
+	contador = 0
+	for i in range(len(util_temporaria)):
+		if util_temporaria[i][3] == 'Cold':
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+		else:
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+
+	uf, uq, variadt, yplot, custoopano, custocapital, custocapitalanual, custototanual = varia(start, step, stop, correntes_temporaria, nnn)
+
+	for i in range(contador):
+		correntes_temporaria.pop(-1)
+
+	changedv = []
+	changedv.append(variadt[0])
+
+	for i in range(0,len(custocapitalanual)):
+		try:
+			changedv.append(variadt[i+1])
+		except:
+			pass
+
+	Custoopotimizado = custoopano[custototanual.index(min(custototanual))]
+	cccapitalanualopt = custocapitalanual[custototanual.index(min(custototanual))]
+	dtopt = variadt[custototanual.index(min(custototanual))]
+	cccapitalopt = custocapital[custototanual.index(min(custototanual))]
+	areaopt = yplot[custototanual.index(min(custototanual))]
+	custototanualopt = min(custototanual)
+
+	dlg.operating.setText("Operating Cost : "+str(round(Custoopotimizado,2)))
+	dlg.operating.setFont(QFont('Arial', 10))
+	dlg.operating.setStyleSheet("font-weight: bold")
+
+	try:
+		dlg.dtmin_op.setText("ΔTmin : "+str(round(dtopt, 5))) #preciso prestar atenção nisso quanto ao passo
+	except:
+		dlg.dtmin_op.setText("ΔTmin : "+str(dtopt)) #preciso prestar atenção nisso quanto ao passo
+
+	dlg.dtmin_op.setFont(QFont('Arial', 10))
+	dlg.dtmin_op.setStyleSheet("font-weight: bold")
+	dlg.capital.setText("Capital Cost : " + str(round(cccapitalopt,2)))
+	dlg.capital.setFont(QFont('Arial', 10))
+	dlg.capital.setStyleSheet("font-weight: bold")
+	dlg.capital_anual.setText("Anualized Capital Cost : " + str(round(cccapitalanualopt,2)))
+	dlg.capital_anual.setFont(QFont('Arial', 10))
+	dlg.capital_anual.setStyleSheet("font-weight: bold")
+	dlg.custo_total.setText("Total Cost: " + str(round(custototanualopt,2)))
+	dlg.custo_total.setFont(QFont('Arial', 10))
+	dlg.custo_total.setStyleSheet("font-weight: bold")
+	dlg.area_label.setText("Area: " + str(round(areaopt,2)))
+	dlg.area_label.setFont(QFont('Arial', 10))
+	dlg.area_label.setStyleSheet("font-weight: bold")
+
+	row = 0
+	p = 0
+	valorbonito = np.round(variadt, 5)
+	dlg.TABELA.setRowCount(len(valorbonito))
+
+	for data in range(len(valorbonito)):
+		try:
+			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(np.round(changedv[data], 5))))
+		except:
+			dlg.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(changedv[data])))
+		dlg.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(np.round(yplot[data], 2))))
+		dlg.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(np.round(custoopano[data], 2))))
+		dlg.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(np.round(custocapitalanual[data], 2))))
+		dlg.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(np.round(custototanual[data], 2))))
+		for j in range(5):
+			item = dlg.TABELA.item(row, j)
+			item.setTextAlignment(Qt.AlignCenter)
+		row += 1
+
+
+	y=[0]
+	x=[0]
+	tamanho = dlg.GRAFICO.frameGeometry().height()
+	if tamanho < 550:
+		tamanho = 550
+
+
+	fig = grafico_custo(x, y, variadt, custoopano, custocapitalanual, custototanual)
+	arrumar_tamanho(fig, "canva1", tamanho, dlg.GRAFICO, dlg.scroll_custo)
+
+	fig = grafico_area(x, y, variadt, yplot)
+	arrumar_tamanho(fig, "canva2", tamanho, dlg.GRAFICO, dlg.scroll_custo)
+
+	fig = grafico_utilidade(x, y, variadt, uq, uf)
+	arrumar_tamanho(fig, "canva3", tamanho, dlg.GRAFICO, dlg.scroll_custo)
+
+	dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png"))
+
+def OPTA():
+	contador = 0
+	uf1, uq1,_,_ = fp2.pontopinch(correntes_temporaria, len(correntes_temporaria), float(dtopt))
+	for i in range(0, len(util_temporaria)):
+		if util_temporaria[i][3] == 'Cold':
+			util_temporaria[i][2] = uf1 / (util_temporaria[i][1] - util_temporaria[i][0])
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+		else:
+			util_temporaria[i][2] = uq1 / (util_temporaria[i][0] - util_temporaria[i][1])
+			correntes_temporaria.append(util_temporaria[i])
+			contador += 1
+
+	akt, _, ajustado, cpf, cpq, areak,deltalmnk = CUSTO(correntes_temporaria, len(correntes_temporaria))
+
+	dlg.area = uic.loadUi("Area.ui")
+	dlg.area.show()
+	dlg.area.label.setText("Optimized ΔTmin:  " + str(round(dtopt,5)))
+	dlg.area.label.setFont(QFont('Arial', 14))
+	dlg.area.label.setStyleSheet("font-weight: bold")
+	row = 0
+	dlg.area.TABELA.setRowCount(len(areak) + 1)
+
+	for data in range(0, len(areak)):
+		dlg.area.TABELA.setItem(row, 0, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data],2))))
+		dlg.area.TABELA.setItem(row, 1, QtWidgets.QTableWidgetItem(str(round(ajustado[0][data + 1],2))))
+		dlg.area.TABELA.setItem(row, 2, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data],2))))
+		dlg.area.TABELA.setItem(row, 3, QtWidgets.QTableWidgetItem(str(round(ajustado[1][data + 1],2))))
+		dlg.area.TABELA.setItem(row, 4, QtWidgets.QTableWidgetItem(str(round(cpq[data],2))))
+		dlg.area.TABELA.setItem(row, 5, QtWidgets.QTableWidgetItem(str(round(cpf[data],2))))
+		dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str(round(deltalmnk[data],2))))
+		dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round(areak[data],2))))
+		row += 1
+	dlg.area.TABELA.setItem(row, 6, QtWidgets.QTableWidgetItem(str('Total Area:')))
+	dlg.area.TABELA.setItem(row, 7, QtWidgets.QTableWidgetItem(str(round((akt),2))))
+
+		##################acaba aq
+	for i in range(0, contador):
+		correntes_temporaria.pop()
+
+
+
 #inutilidades porem depende
 def suprir_9_correntes():
 	global matriz_armazenada, matriz_trocadores_abaixo
@@ -4306,42 +4152,7 @@ def centralizar_combobox_teste(x):
 	for i in range(x.count()):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
 
-def jogar_evolucao():
-	acima = [[1, 2, 1, 1, 1, 1, 50], [2, 1, 1, 1, 2, 1, 90], [1, 1, 1, 1, 3, 1, 230], [1, 2, 1, 1, 4, 1, 20], [2, 2, 1, 1, 5, 1, 30]]
-	abaixo = [[2, 2, 1, 1, 1, 1, 20], [1, 2, 1, 1, 2, 1, 1], [2, 2, 1, 1, 3, 1, 19]]
 
-	for trocador in acima:
-		if len(trocador) > 1:
-			nova_matriz = inserir_trocador(dlg, trocador)
-			matriz_armazenada.append(nova_matriz[-1])
-			if nova_matriz[-1][7] - nova_matriz[-1][8] < dTmin or nova_matriz[-1][9] - nova_matriz[-1][10] < dTmin:
-				violados_acima.append(len(matriz_armazenada))
-		else:
-			utilidadee = adicionar_utilidade(dlg, trocador[0])
-			utilidades.append(utilidadee[-1])
-			utilidades.sort()
-
-	for trocador in abaixo:
-		if len(trocador) > 1:
-			nova_matriz = inserir_trocador_abaixo(dlg, trocador)
-			matriz_trocadores_abaixo.append(nova_matriz[-1])
-			if nova_matriz[-1][7] - nova_matriz[-1][8] < dTmin or nova_matriz[-1][9] - nova_matriz[-1][10] < dTmin:
-				violados_abaixo.append(len(matriz_trocadores_abaixo))
-		else:
-			utilidadee = adicionar_utilidade_abaixo(dlg, trocador[0])
-			utilidades_abaixo.append(utilidadee[-1])
-			utilidades_abaixo.sort()
-
-	printar()
-	printar_abaixo()
-	testar_correntes(dlg)
-	testar_correntes_abaixo(dlg)
-	global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
-	desenho_em_dia = False
-	desenho_em_dia_abaixo = False
-	desenho_em_dia_ambas = False
-	evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1)
-	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 
 #streams
@@ -4362,14 +4173,19 @@ dlg.pelicula_unidade.currentIndexChanged.connect(unidades)
 dlg.temp_unidade_util.currentIndexChanged.connect(lambda: unidades(corrente=False))
 dlg.pelicula_unidade_util.currentIndexChanged.connect(lambda: unidades(corrente=False))
 
-#diagrams comparison
-dlg.GC.clicked.connect(GC)
-dlg.botaocurvac.clicked.connect(plotgraficocurvacomp)
-dlg.botaocurva.clicked.connect(plotgraficocurva)
-dlg.CASCA.clicked.connect(CASCA)
-dlg.ESTIMA.clicked.connect(caxa)
-dlg.ESTIMA2.clicked.connect(caxa2)
 
+
+#diagrams comparison
+dlg.GC.clicked.connect(grande_curva_comp)
+dlg.botaocurvac.clicked.connect(curva_comp_balanceada)
+dlg.botaocurva.clicked.connect(curva_comp)
+dlg.CASCA.clicked.connect(cascataaa)
+dlg.ESTIMA.clicked.connect(lambda: area_information(dlg.DTMIN1, dlg.graficodt1))
+dlg.ESTIMA2.clicked.connect(lambda: area_information(dlg.DTMIN2, dlg.graficodt2))
+
+
+
+#Heat Exchanger Network
 #above
 dlg.radioButton.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_4.toggled.connect(lambda: dlg.lineEdit_5.setEnabled(False)) #block o heat load quando max heat ta ativado
@@ -4386,7 +4202,6 @@ dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperatu
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.addutil_acima.clicked.connect(utilidade_teste_acima)
 dlg.pushButton_16.clicked.connect(lambda: atualizar_desenho("acima", True))
-
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_20.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(False)) #block o heat load quando max heat ta ativado
@@ -4404,6 +4219,14 @@ dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.addutil_abaixo.clicked.connect(utilidade_teste_abaixo)
 dlg.pushButton_19.clicked.connect(lambda: atualizar_desenho("abaixo", True))
 
+
+
+#custos
+dlg.otimizabotao.clicked.connect(eq)
+dlg.CUSTO.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva1.png")))
+dlg.AREA.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva2.png")))
+dlg.UT.clicked.connect(lambda: dlg.GRAFICO.setPixmap(QtGui.QPixmap("canva3.png")))
+dlg.OPTA.clicked.connect(OPTA)
 
 
 

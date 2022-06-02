@@ -1,18 +1,18 @@
-
 import numpy as np
 import math
+import funchpinchcerto as fp2
+import matplotlib.pyplot as plt
 
-
-def CUSTO (correntes, n) :
+def CUSTO(correntes, n) :
 	cfria = []
 	cquente = []
 	tfria = []
 	tquente = []
 
-
 	cp=1
 	ncorrentefria=0
 	ncorrentequente = 0
+
 	for i in range(0,n):
 		if correntes[i][3]=="Cold":
 			cfria.append(correntes[i])
@@ -21,13 +21,14 @@ def CUSTO (correntes, n) :
 			cquente.append(correntes[i])
 			ncorrentequente += 1
 
-
 	for n in range(0,ncorrentefria):
 		tfria.append(cfria[n][0])
 		tfria.append(cfria[n][1])
+
 	tfria=sorted(set(tfria))
 	somacp = np.zeros(len(tfria),dtype=float)
 	hentalpia = np.zeros(len(tfria),dtype=float)
+
 	for n in range(0,len(tfria)-1):
 		for i in range(0,len(cfria)):
 				if (cfria[i][0] <= tfria[n] and cfria[i][1] <= tfria[n]):
@@ -49,6 +50,7 @@ def CUSTO (correntes, n) :
 	for n in range(0, ncorrentequente):
 		tquente.append(cquente[n][0])
 		tquente.append(cquente[n][1])
+
 	tquente = sorted(set(tquente))
 	somacpquente = np.zeros(len(tquente), dtype=float)
 	hentalpiaquente = np.zeros(len(tquente), dtype=float)
@@ -62,9 +64,6 @@ def CUSTO (correntes, n) :
 					c = 0
 			else:
 				somacpquente[n] += cquente[i][2]
-
-
-
 
 	cont = int(len(hentalpiaquente))
 	for n in range(cont - 1, 0, -1):
@@ -82,8 +81,6 @@ def CUSTO (correntes, n) :
 	ajuste= np.hstack((ajusteF,ajusteQ))
 	ajuste=np.asarray(ajuste, dtype=np.float64)
 
-
-
 	for i in range(0,len(ajuste[2])):
 		ajuste[2][i]=round(ajuste[2][i],5)
 
@@ -95,8 +92,6 @@ def CUSTO (correntes, n) :
 					ajuste[0][i]=ajuste[0][n]
 				else:
 					ajuste[1][i]=ajuste[1][n]
-
-
 
 	b2=[]
 	b3=[]
@@ -114,12 +109,7 @@ def CUSTO (correntes, n) :
 		ajuste = np.delete(ajuste, b2[n], 1)
 		b2=list(np.asarray(b2) - 1)
 
-
-
-
 	ajuste = sorted(ajuste.T, key=lambda l: l[2])
-
-
 
 	for n in range(0,len(ajuste)):
 		for i in range(0,2):
@@ -141,7 +131,6 @@ def CUSTO (correntes, n) :
 	somador=0
 	c=0
 
-
 	for n in range(0,len(ajuste[0])-1):
 		for i in range(0,len(cquente)):
 			if (cquente[i][0] <= ajuste[0][n] and cquente[i][1] <= ajuste[0][n]):
@@ -153,6 +142,7 @@ def CUSTO (correntes, n) :
 				somador+=(cquente[i][2]/cquente[i][4])
 		cphquente.append((ajuste[0][n+1]-ajuste[0][n])*somador)
 		somador=0
+
 	for n in range(0,len(ajuste[1])-1):
 		for i in range(0,len(cfria)):
 			if (cfria[i][0] <= ajuste[1][n] and cfria[i][1] <= ajuste[1][n]):
@@ -177,3 +167,119 @@ def CUSTO (correntes, n) :
 	p=len(areak)
 	areatotal=sum(areak)
 	return areatotal,p,ajuste,cphfrio,cphquente,areak,deltalmnk
+
+def varia(inicio, passo, fim, corrente, nnn):
+	variadt = np.arange(inicio, fim + passo, passo)
+
+	a = 6600
+	b = 600
+	c = 0.63
+
+	ncorrentes = len(corrente) - 2
+	nut=2 #nutilidades
+	yplot=[]
+	custocapital=[]
+	i=3#taxa de juros/periodo
+	periodo=2#n de periodos
+	Fatoranual= 1#(i*(i+1)**periodo)/(-1+(i+1)**periodo)
+	custocapitalanual=[]
+	precoufano=20
+	precouqano=120
+	custototanual=[]
+	custoopano=[]
+	uflista=[]
+	uqlista=[]
+
+	for n in range(0,len(variadt)):
+		uf,uq,_,_=fp2.pontopinch(corrente,ncorrentes,variadt[n])
+		uflista.append(uf)
+		uqlista.append(uq)
+
+		if corrente[-1][3] == "Hot":
+			corrente[-1][2] = uq / (corrente[-1][0] - corrente[-1][1])
+		else:
+			corrente[-1][2] = uf / (corrente[-1][1] - corrente[-1][0])
+
+		if corrente[-2][3] == "Hot":
+			corrente[-2][2] = uq / (corrente[-2][0] - corrente[-2][1])
+		else:
+			corrente[-2][2] = uf / (corrente[-2][1] - corrente[-2][0])
+
+		areat,nareas,ajuste,_,_,_,_ = CUSTO(corrente, ncorrentes + nut)
+		yplot.append(areat)
+
+		if nnn==-1:
+			custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+			custocapital.append(nareas*(a+b*(areat/nareas)**c))
+			custocapitalanual.append(Fatoranual*nareas*(a+b*(areat/nareas)**c))
+			custototanual.append(custoopano[n]+custocapitalanual[n])
+
+		elif nnn==-2:
+			custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+			custocapital.append((ncorrentes+nut-1)*(a+b*(areat/(ncorrentes+nut-1))**c))
+			custocapitalanual.append(Fatoranual*(ncorrentes+nut-1)*(a+b*(areat/(ncorrentes+nut-1))**c))
+			custototanual.append(custoopano[n]+custocapitalanual[n])
+
+		else:
+			custoopano.append((precoufano*uf*1000)+(precouqano*uq*1000))
+			custocapital.append((nnn)*(a+b*(areat/(nnn))**c))
+			custocapitalanual.append(Fatoranual*(nnn)*(a+b*(areat/(nnn))**c))
+			custototanual.append(custoopano[n]+custocapitalanual[n])
+
+	return uflista,uqlista,variadt,yplot,custoopano,custocapital,custocapitalanual,custototanual
+
+def formatando(valor,index):
+    if valor>=1_000_000:
+        fomatador = '{:1.1f}M'.format(valor*0.000_001)
+    else:
+        fomatador = '{:1.0f}k'.format(valor * 0.001)
+    return fomatador
+
+def grafico_custo(x, y, variadt, custoopano, custocapitalanual, custototanual):
+	plt.close("all")
+	plt.style.use('bmh')
+	fig = plt.figure()
+
+	ax = fig.add_subplot(111)
+	ax.yaxis.set_major_formatter(formatando)
+	ax.plot(variadt,custoopano, label='Operational Cost x ΔTmin')
+	ax.plot(variadt,custocapitalanual, label='Capital Cost x ΔTmin', color='k')
+	ax.plot(variadt, custototanual, label='Total Cost x ΔTmin', color='r')
+	ax.set_xlabel('ΔTmin')
+	ax.set_ylabel('Cost')
+	ax.legend()
+	ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+	ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
+	return fig
+
+def grafico_area(x, y, variadt, yplot):
+	plt.close("all")
+	plt.style.use('bmh')
+	fig = plt.figure()
+
+	ax= fig.add_subplot(111)
+	ax.yaxis.set_major_formatter(formatando)
+
+	ax.plot(variadt,yplot, label='Area x ΔTmin', color='r')
+	ax.set_xlabel('ΔTmin')
+	ax.set_ylabel('Area')
+	ax.legend()
+	ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+	ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
+	return fig
+
+def grafico_utilidade(x, y, variadt, uq, uf):
+	plt.close("all")
+	plt.style.use('bmh')
+	fig = plt.figure()
+
+	ax = fig.add_subplot(111)
+	#self.ax.yaxis.set_major_formatter(formatando)
+	ax.plot(variadt,uq, label='Hot utility x ΔTmin', color='r')
+	ax.plot(variadt, uf, label='Cold utility x ΔTmin', color='b')
+	ax.set_xlabel('ΔTmin')
+	ax.set_ylabel('Utility')
+	ax.legend()
+	ax.grid(axis="x", color="black", alpha=.3, linewidth=2, linestyle=":")
+	ax.grid(axis="y", color="black", alpha=.5, linewidth=.5)
+	return fig

@@ -64,7 +64,6 @@ def export(corrente,cutil, variadt, yplot, custoop, custocapital, custocapitalan
     Data5=custocapital
     Data6=custotot
     Data7=custocapitalanual
-    print(Data7)
     worksheet.write_column('H2', Data3,format2)
     worksheet.write_column('I2', Data33,format2)
     worksheet.write_column('J2', Data4,format2)

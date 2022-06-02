@@ -120,7 +120,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">font-color: orange;</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>necessidade de utilidades frias</string>
