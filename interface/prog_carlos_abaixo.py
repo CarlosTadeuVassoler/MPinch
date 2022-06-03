@@ -666,7 +666,7 @@ def ler_dados_abaixo(dlg, subestagio_trocador_abaixo):
 
 	return [i, j, si, sj, sk, k, q]
 
-def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True):
+def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False):
 	cont = 0
 
 	chot = vetor[0]
@@ -687,13 +687,11 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True):
 	else:
 		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
-	print()
-	print(Qmax)
-
-	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
-		QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
-		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
-		return linha_interface_abaixo, False
+	if not ignora:
+		if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
+			QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
+			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
+			return linha_interface_abaixo, False
 
 	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] < 0:
 		QMessageBox.about(dlg,"Error!","It is not possible to change a negative amount of heat.")

@@ -2606,39 +2606,73 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 		global matriz_armazenada, matriz_trocadores_abaixo, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 		if tipo == "quente": #acima
 			trocadores = []
+			matriz_reserva = nao_sacrificar_matriz(matriz_armazenada)
+			matriz_reserva.append(dados_do_trocador)
+
 			for i in range(len(matriz_armazenada)):
 				if matriz_armazenada[i][0] == corrente:
 					trocadores.append(matriz_armazenada[i])
-			quantidade = len(trocadores)
+					matriz_reserva[i][2] = len(trocadores)
+
 			soma = 0
 			fracoes = []
-			for i in range(quantidade):
+
+			for i in range(len(trocadores)-1):
 				fracoes.append(trocadores[i][6] / util_quente)
 				soma += fracoes[-1]
 			fracoes.append(1-soma)
-			print(fracoes)
-			# divisao_de_correntes("Q", 1, corrente, len(fracoes), fracoes)
-			# divisoes.append(["Q", 1, corrente, len(fracoes), fracoes])
+
+			if dados_do_trocador == 0:
+				matriz_reserva[-1][6] = calor_atual_frio_sub[matriz_reserva[-1][1]-1][matriz_reserva[-1][3]-1]
+
+			remover_todos_acima()
+			divisao_de_correntes("Q", 1, corrente, len(fracoes), fracoes)
+			divisoes.append(["Q", 1, corrente, len(fracoes), fracoes])
+
+			for trocador in matriz_reserva:
+				if dlg.radioButton.isChecked():
+					matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7]
+				else:
+					matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True)
+
+			printar()
+			checaresgotadosacima()
+			dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
+			dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
+			desenho_em_dia = False
+			desenho_em_dia_ambas = False
+			atualizar_desenho("acima")
+
 		elif tipo == "fria":
 			trocadores = []
 			matriz_reserva = nao_sacrificar_matriz(matriz_trocadores_abaixo)
 			matriz_reserva.append(dados_do_trocador)
+
 			for i in range(len(matriz_reserva)):
 				if matriz_reserva[i][1] == corrente:
 					trocadores.append(matriz_reserva[i])
 					matriz_reserva[i][3] = len(trocadores)
-			quantidade = len(trocadores)
+
 			soma = 0
 			fracoes = []
-			for i in range(quantidade-1):
+
+			for i in range(len(trocadores)-1):
 				fracoes.append(trocadores[i][6] / util_fria)
 				soma += fracoes[-1]
-			fracoes.append(1-soma)
+			fracoes.append(1 - soma)
+
+			if dados_do_trocador == 0:
+				matriz_reserva[-1][6] = calor_atual_quente_sub_abaixo[matriz_reserva[-1][0]-1][matriz_reserva[-1][2]-1]
+
 			remover_todos_abaixo()
 			divisao_de_correntes_abaixo("F", 1, corrente, len(fracoes), fracoes)
 			divisoes.append(["F", 2, corrente, len(fracoes), fracoes])
+
 			for trocador in matriz_reserva:
-				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
+				if dlg.radioButton_17.isChecked():
+					matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
+				else:
+					matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7], ignora=True)
 
 			printar_abaixo()
 			checaresgotadosabaixo()
@@ -2647,7 +2681,8 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			desenho_em_dia_abaixo = False
 			desenho_em_dia_ambas = False
 			atualizar_desenho("abaixo")
-			dlg.perguntar_util.close()
+
+		dlg.perguntar_util.close()
 
 	def naoo(tipo, corrente):
 		pass
