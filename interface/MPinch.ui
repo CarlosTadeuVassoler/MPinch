@@ -2130,7 +2130,7 @@ QToolButton:focus{
         <item row="0" column="0">
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ABOVEEABA">
            <attribute name="title">
@@ -2490,7 +2490,7 @@ QToolButton:focus{
                   </property>
                   <widget class="QWidget" name="tab_2">
                    <attribute name="title">
-                    <string>Graphic</string>
+                    <string>Graphic Results</string>
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_26">
                     <item>
@@ -2503,8 +2503,8 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>33</height>
+                         <width>1471</width>
+                         <height>416</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_29">
@@ -2654,7 +2654,7 @@ QToolButton:focus{
                   </widget>
                   <widget class="QWidget" name="tab">
                    <attribute name="title">
-                    <string>Tables</string>
+                    <string>Tabular Results</string>
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_27">
                     <item>
@@ -3888,7 +3888,7 @@ QToolButton:focus{
                   </property>
                   <widget class="QWidget" name="tab_3">
                    <attribute name="title">
-                    <string>Graphic</string>
+                    <string>Graphic Results</string>
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_30">
                     <item>
@@ -4052,7 +4052,7 @@ QToolButton:focus{
                   </widget>
                   <widget class="QWidget" name="tab_4">
                    <attribute name="title">
-                    <string>Tables</string>
+                    <string>Tabular Results</string>
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_28">
                     <item>

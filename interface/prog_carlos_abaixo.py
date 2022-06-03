@@ -687,6 +687,9 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True):
 	else:
 		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
+	print()
+	print(Qmax)
+
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
 		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0

@@ -3,10 +3,11 @@ import os #usa pra fazer new file
 
 import xlrd #lidar com excel
 import xlsxwriter #criar excel
+from tkinter import Tk #usa pra nao mostrar a aba tk
 from tkinter.filedialog import askopenfilename #abrir arquivo (excel)
 
 from PyQt5.QtWidgets import * #widgets em geral
-from PyQt5.QtGui import * #pixmaps
+from PyQt5.QtGui import * #pixmaps p inserir imagem em label
 from PyQt5.QtCore import * #alinhamentos
 
 import funchpinchcerto as fp2 #pinch victor
@@ -65,6 +66,11 @@ desenho_em_dia_ambas = False #ambas (evolução)
 perguntar = True #continuar perguntando se quer remover todos os trocadores anteriores
 remover_todos = False #se perguntar = False, ele armazena a decisão do usuário sobre remover
 
+#divisao de utilidades
+dividir_padrao = False
+nao_perguntar = False
+primeira_util = True
+primeira_util_fria = True
 
 
 
@@ -75,7 +81,7 @@ def openfile_teste(pergunta=True):
 
 	#le o excel
 	dlg.tableWidget.blockSignals(True)
-	# Tk().withdraw()
+	Tk().withdraw()
 	if pergunta:
 		filename = askopenfilename()
 		workbook = xlrd.open_workbook(filename)
@@ -321,10 +327,10 @@ def done_teste(libera=False):
 		if libera:
 			correntes_util.append([300, 299, 1, "Hot", 0.5])
 			correntes_util.append([10, 20, 1, "Cold", 0.5])
-			correntes_util.append([10, 20, 1, "Cold", 0.5])
-			correntes_util.append([10, 20, 1, "Cold", 0.5])
-			e_utilidade.append(True)
-			e_utilidade.append(True)
+			# correntes_util.append([10, 20, 1, "Cold", 0.5])
+			# correntes_util.append([10, 20, 1, "Cold", 0.5])
+			# e_utilidade.append(True)
+			# e_utilidade.append(True)
 			e_utilidade.append(True)
 			e_utilidade.append(True)
 
@@ -354,6 +360,7 @@ def pinch_teste():
 
 	util_temporaria = nao_sacrificar_matriz(correntes_util)
 	pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
+
 	for util in correntes_util:
 		if util[3] == "Hot":
 			util[2] = util_quente/(util[0] - util[1])
@@ -361,10 +368,7 @@ def pinch_teste():
 		else:
 			util[2] = util_fria/(util[1] - util[0])
 			ncold += 1
-	if len(correntes_util) == 4:
-		correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
-		correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
-		correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
+
 
 	util_temporaria = nao_sacrificar_matriz(correntes_util)
 	correntes_temporaria = nao_sacrificar_matriz(correntes)
@@ -415,6 +419,8 @@ def pinch_teste():
 			else:
 				Tcf_abaixo.append(pinchf)
 				corrente_fria_presente_acima.append(True)
+
+
 
 	global unidades_usadas, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 	calor = dlg.cp_unidade.currentText().split("/")
@@ -2594,7 +2600,68 @@ def atualizar_desenho(onde, botao=False):
 			dlg.emdia_abaixo.setText("Drawing requires update.")
 			dlg.emdia_abaixo.setStyleSheet("QLabel {color: red}")
 
+def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 
+	def simm(tipo, corrente, dados_do_trocador):
+		global matriz_armazenada, matriz_trocadores_abaixo, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
+		if tipo == "quente": #acima
+			trocadores = []
+			for i in range(len(matriz_armazenada)):
+				if matriz_armazenada[i][0] == corrente:
+					trocadores.append(matriz_armazenada[i])
+			quantidade = len(trocadores)
+			soma = 0
+			fracoes = []
+			for i in range(quantidade):
+				fracoes.append(trocadores[i][6] / util_quente)
+				soma += fracoes[-1]
+			fracoes.append(1-soma)
+			print(fracoes)
+			# divisao_de_correntes("Q", 1, corrente, len(fracoes), fracoes)
+			# divisoes.append(["Q", 1, corrente, len(fracoes), fracoes])
+		elif tipo == "fria":
+			trocadores = []
+			matriz_reserva = nao_sacrificar_matriz(matriz_trocadores_abaixo)
+			matriz_reserva.append(dados_do_trocador)
+			for i in range(len(matriz_reserva)):
+				if matriz_reserva[i][1] == corrente:
+					trocadores.append(matriz_reserva[i])
+					matriz_reserva[i][3] = len(trocadores)
+			quantidade = len(trocadores)
+			soma = 0
+			fracoes = []
+			for i in range(quantidade-1):
+				fracoes.append(trocadores[i][6] / util_fria)
+				soma += fracoes[-1]
+			fracoes.append(1-soma)
+			remover_todos_abaixo()
+			divisao_de_correntes_abaixo("F", 1, corrente, len(fracoes), fracoes)
+			divisoes.append(["F", 2, corrente, len(fracoes), fracoes])
+			for trocador in matriz_reserva:
+				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
+
+			printar_abaixo()
+			checaresgotadosabaixo()
+			dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
+			dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
+			desenho_em_dia_abaixo = False
+			desenho_em_dia_ambas = False
+			atualizar_desenho("abaixo")
+			dlg.perguntar_util.close()
+
+	def naoo(tipo, corrente):
+		pass
+
+	if not nao_perguntar:
+		dlg.perguntar_util = uic.loadUi("dividir_util.ui")
+		dlg.perguntar_util.show()
+		dlg.perguntar_util.sim.clicked.connect(lambda: simm(tipo, corrente, dados_do_trocador))
+		dlg.perguntar_util.nao.clicked.connect(lambda: naoo(tipo, corrente))
+	else:
+		if dividir_padrao:
+			simm(tipo, corrente)
+		else:
+			naoo(tipo, corrente)
 
 #evolução
 def nao_sacrificar_matriz(matriz_naomuda):
@@ -3475,29 +3542,30 @@ def inserir_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas,  matriz_armazenada
 	subestagio_trocador += 1
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
-	matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador)
-	if inseriu:
-		if (matriz_armazenada[-1][7] - matriz_armazenada[-1][8]) < dTmin or (matriz_armazenada[-1][9] - matriz_armazenada[-1][10]) < dTmin:
-			trocador_violado = matriz_armazenada[-1][:6]
-			trocador_violado.append(matriz_armazenada[-1][7] - matriz_armazenada[-1][8])
-			trocador_violado.append(matriz_armazenada[-1][9] - matriz_armazenada[-1][10])
-			violou_dtmin(trocador_violado, "above", dados_do_trocador)
-		printar()
-		checaresgotadosacima()
-		dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
-		dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
-		desenho_em_dia = False
-		desenho_em_dia_ambas = False
-		atualizar_desenho("acima")
+	if e_utilidade_quente[dados_do_trocador[0]-1] and not nao_perguntar and not primeira_util:
+		divisao_de_utilidades("quente", dados_do_trocador[0])
 	else:
-		subestagio_trocador -= 1
-		return
+		matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador)
+		if inseriu:
+			if (matriz_armazenada[-1][7] - matriz_armazenada[-1][8]) < dTmin or (matriz_armazenada[-1][9] - matriz_armazenada[-1][10]) < dTmin:
+				trocador_violado = matriz_armazenada[-1][:6]
+				trocador_violado.append(matriz_armazenada[-1][7] - matriz_armazenada[-1][8])
+				trocador_violado.append(matriz_armazenada[-1][9] - matriz_armazenada[-1][10])
+				violou_dtmin(trocador_violado, "above", dados_do_trocador)
+			printar()
+			checaresgotadosacima()
+			dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
+			dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
+			desenho_em_dia = False
+			desenho_em_dia_ambas = False
+			atualizar_desenho("acima")
+		else:
+			subestagio_trocador -= 1
+			return
 
 def remover_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
-	indice_remover = dlg.tableWidget_2.currentRow()
-	if indice_remover == -1:
-		indice_remover = dlg.trocador_acima.currentIndex()
+	indice_remover = dlg.trocador_acima.currentIndex()
 	if indice_remover >= len(matriz_armazenada) - 1:
 		remover_anteriores("acima", indice_remover, True)
 	else:
@@ -3582,6 +3650,20 @@ def checaresgotadosacima():
 		dlg.pushButton_8.setEnabled(False)
 		dlg.corrente_acima.setEnabled(False)
 		dlg.addutil_acima.setEnabled(False)
+
+def botao_remover(indice, botao, onde):
+	global matriz_armazenada, utilidades, matriz_trocadores_abaixo, utilidades_abaixo
+	if onde == "acima":
+		if indice > len(matriz_armazenada):
+			botao.setText("Remove H" + str(indice - len(matriz_armazenada)))
+		else:
+			botao.setText("Remove E" + str(indice))
+	elif onde == "abaixo":
+		if indice > len(matriz_trocadores_abaixo):
+			botao.setText("Remove C" + str(indice - len(matriz_trocadores_abaixo)))
+		else:
+			botao.setText("Remove E" + str(indice))
+
 
 #below
 def printar_abaixo():
@@ -3741,32 +3823,38 @@ def printar_abaixo():
 					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
+	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo, primeira_util_fria
 	subestagio_trocador_abaixo += 1
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
-	matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador)
-	if inseriu:
-		if (matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8]) < dTmin or (matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10]) < dTmin:
-			trocador_violado = matriz_trocadores_abaixo[-1][:6]
-			trocador_violado.append(matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8])
-			trocador_violado.append(matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10])
-			violou_dtmin(trocador_violado, "below", dados_do_trocador)
-		printar_abaixo()
-		checaresgotadosabaixo()
-		dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
-		dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
-		desenho_em_dia_abaixo = False
-		desenho_em_dia_ambas = False
-		atualizar_desenho("abaixo")
-	else:
-		subestagio_trocador_abaixo -= 1
-		return
+	insere_sim = True
+	if e_utilidade_fria[dados_do_trocador[1]-1] and not nao_perguntar:
+		if not primeira_util_fria:
+			divisao_de_utilidades("fria", dados_do_trocador[1], dados_do_trocador)
+			insere_sim = False
+		else:
+			primeira_util_fria = False
+	if not e_utilidade_fria[dados_do_trocador[1]-1] or insere_sim:
+		matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador)
+		if inseriu:
+			if (matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8]) < dTmin or (matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10]) < dTmin:
+				trocador_violado = matriz_trocadores_abaixo[-1][:6]
+				trocador_violado.append(matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8])
+				trocador_violado.append(matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10])
+				violou_dtmin(trocador_violado, "below", dados_do_trocador)
+			printar_abaixo()
+			checaresgotadosabaixo()
+			dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
+			dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
+			desenho_em_dia_abaixo = False
+			desenho_em_dia_ambas = False
+			atualizar_desenho("abaixo")
+		else:
+			subestagio_trocador_abaixo -= 1
+			return
 
 def remover_teste_abaixo():
 	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
-	indice_remover = dlg.tableWidget_14.currentRow()
-	if indice_remover == -1:
-		indice_remover = dlg.trocador_abaixo.currentIndex()
+	indice_remover = dlg.trocador_abaixo.currentIndex()
 	if indice_remover >= len(matriz_trocadores_abaixo) - 1:
 		remover_anteriores("abaixo", indice_remover, True)
 	else:
@@ -4048,7 +4136,7 @@ def OPTA():
 
 #inutilidades porem depende
 def suprir_9_correntes():
-	global matriz_armazenada, matriz_trocadores_abaixo
+	global matriz_armazenada, matriz_trocadores_abaixo, subestagio_trocador_abaixo
 
 	if nhot == 2 and ncold == 2:
 		acima = [[1, 1, 1, 1, 1, 1, 150], [1, 1, 2, 2, 2, 1, 150], [2, 2, 2, 2, 4, 1, 60], [2, 2, 1, 1, 3, 1, 60], [1], [2]]
@@ -4074,10 +4162,17 @@ def suprir_9_correntes():
 
 		#sem viola term util
 		acima = [[3, 2, 1, 2, 1, 1, "max"], [2, 2, 1, 1, 2, 1, "max"], [3, 2, 1, 1, 3, 1, "max"], [4, 2, 1, 1, 4, 1, "max"]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"], [1, 3, 1, 1, 5, 1, "max"], [2, 4, 1, 1, 6, 1, "max"], [3, 5, 1, 1, 7, 1, "max"]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]#, [1, 3, 1, 1, 5, 1, "max"], [2, 3, 1, 2, 6, 1, "max"], [3, 3, 1, 3, 7, 1, "max"]]
 
 		divisao_de_correntes("F", 1, 2, 2, [0.72, 0.28])
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
+		# divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
+		# divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
+
+		# if len(correntes_util) == 4:
+		# 	correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
+		# 	correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
+		# 	correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
 
 	for trocador in acima:
 		if len(trocador) > 1:
@@ -4094,6 +4189,7 @@ def suprir_9_correntes():
 			if trocador[6] == "max":
 				trocador[6] = min(calor_atual_quente_sub_abaixo[trocador[0]-1][trocador[2]-1], calor_atual_frio_sub_abaixo[trocador[1]-1][trocador[3]-1])
 			matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador)
+			subestagio_trocador_abaixo += 1
 		else:
 			utilidadee = adicionar_utilidade_abaixo(dlg, trocador[0])
 			utilidades_abaixo.append(utilidadee[-1])
@@ -4169,6 +4265,7 @@ dlg.checkBox.stateChanged.connect(printar) #show splited streams printa tudo dnv
 dlg.checkBox_2.stateChanged.connect(printar) #show splited streams printa tudo dnv
 dlg.pushButton_6.clicked.connect(inserir_teste) #add heat exchanger
 dlg.pushButton_10.clicked.connect(remover_teste) #remove heat exchanger
+dlg.trocador_acima.currentIndexChanged.connect(lambda: botao_remover(dlg.trocador_acima.currentIndex()+1, dlg.pushButton_10, "acima"))
 dlg.pushButton_14.clicked.connect(calcular_calor_teste) #choose stream temperature to calculate heat
 dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.addutil_acima.clicked.connect(utilidade_teste_acima)
@@ -4185,6 +4282,7 @@ dlg.checkBox_9.stateChanged.connect(printar_abaixo) #show splited streams printa
 dlg.checkBox_10.stateChanged.connect(printar_abaixo) #show splited streams printa tudo dnv
 dlg.pushButton_18.clicked.connect(inserir_teste_abaixo) #add heat exchanger
 dlg.pushButton_15.clicked.connect(remover_teste_abaixo) #remove heat exchanger
+dlg.trocador_abaixo.currentIndexChanged.connect(lambda: botao_remover(dlg.trocador_abaixo.currentIndex()+1, dlg.pushButton_15, "abaixo"))
 dlg.pushButton_17.clicked.connect(calcular_calor_abaixo) #choose stream temperature to calculate heat
 dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.addutil_abaixo.clicked.connect(utilidade_teste_abaixo)
