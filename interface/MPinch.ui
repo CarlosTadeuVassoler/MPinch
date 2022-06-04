@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -2295,7 +2295,7 @@ QToolButton:focus{
                       <item>
                        <widget class="QComboBox" name="comboBox_50">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="maximumSize">
                          <size>
@@ -2308,7 +2308,7 @@ QToolButton:focus{
                       <item>
                        <widget class="QComboBox" name="comboBox_51">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="maximumSize">
                          <size>
@@ -3711,7 +3711,7 @@ QToolButton:focus{
                       <item>
                        <widget class="QComboBox" name="comboBox_53">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="maximumSize">
                          <size>
@@ -3724,7 +3724,7 @@ QToolButton:focus{
                       <item>
                        <widget class="QComboBox" name="comboBox_54">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="maximumSize">
                          <size>
