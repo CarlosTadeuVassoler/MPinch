@@ -2630,13 +2630,9 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 			if para:
 				primeira_util_fria = False
 			else:
-				print("para")
 				primeira_util_fria = True
 				if dividir_padrao:
-					print("dividindo")
-					divisao_de_correntes("F", 1, len(e_utilidade_fria), 1, [1.0])
-					print(dividida_fria_abaixo)
-					print(quantidade_fria_abaixo)
+					divisao_de_correntes_abaixo("F", 1, len(e_utilidade_fria), 1, [1.0])
 					# for divisao in divisoes:
 					# 	if divisao[2] == corrente and divisao[1] == 2 and divisoes.index(divisao) != len(divisoes)-1:
 					# 		divisoes.pop(divisoes.index(divisao))
@@ -2759,7 +2755,11 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			pass
 
 		if tipo == "quente": #acima
-			matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador)
+			if dlg.radioButton_4.isChecked():
+				dados_do_trocador[6] = calor_atual_frio_sub[dados_do_trocador[1]-1][dados_do_trocador[3]-1]
+				matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador, ignora=True)
+			else:
+				matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador)
 			if inseriu:
 				if (matriz_armazenada[-1][7] - matriz_armazenada[-1][8]) < dTmin or (matriz_armazenada[-1][9] - matriz_armazenada[-1][10]) < dTmin:
 					trocador_violado = matriz_armazenada[-1][:6]
@@ -2777,7 +2777,11 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 				subestagio_trocador -= 1
 
 		elif tipo == "fria":
-			matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador)
+			if dlg.radioButton_20.isChecked():
+				dados_do_trocador[6] = calor_atual_quente_sub_abaixo[dados_do_trocador[0]-1][dados_do_trocador[2]-1]
+				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador, ignora=True)
+			else:
+				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador)
 			if inseriu:
 				if (matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8]) < dTmin or (matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10]) < dTmin:
 					trocador_violado = matriz_trocadores_abaixo[-1][:6]
