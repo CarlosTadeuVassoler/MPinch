@@ -2672,7 +2672,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			for i in range(len(matriz_reserva)):
 				if matriz_reserva[i][0] == corrente:
 					trocadores.append(matriz_reserva[i])
-					matriz_reserva[i][2] = len(trocadores)
+				matriz_reserva[-1][2] = len(trocadores)
 
 			soma = 0
 			fracoes = []
@@ -2682,7 +2682,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 				soma += fracoes[-1]
 			fracoes.append(1-soma)
 
-			if dados_do_trocador[6] == 0:
+			if dados_do_trocador[6] < 0.0001:
 				matriz_reserva[-1][6] = calor_atual_frio_sub[matriz_reserva[-1][1]-1][matriz_reserva[-1][3]-1]
 
 			remover_todos_acima()
@@ -2711,7 +2711,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			for i in range(len(matriz_reserva)):
 				if matriz_reserva[i][1] == corrente:
 					trocadores.append(matriz_reserva[i])
-					matriz_reserva[i][3] = len(trocadores)
+			matriz_reserva[-1][3] = len(trocadores)
 
 			soma = 0
 			fracoes = []
@@ -2721,7 +2721,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 				soma += fracoes[-1]
 			fracoes.append(1 - soma)
 
-			if dados_do_trocador[6] == 0:
+			if dados_do_trocador[6] < 0.0001:
 				matriz_reserva[-1][6] = calor_atual_quente_sub_abaixo[matriz_reserva[-1][0]-1][matriz_reserva[-1][2]-1]
 
 			remover_todos_abaixo()
@@ -2755,6 +2755,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			pass
 
 		if tipo == "quente": #acima
+			dados_do_trocador[2] = quantidade_quente[dados_do_trocador[0]-1]
 			if dlg.radioButton_4.isChecked():
 				dados_do_trocador[6] = calor_atual_frio_sub[dados_do_trocador[1]-1][dados_do_trocador[3]-1]
 				matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador, ignora=True)
@@ -2777,6 +2778,7 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 				subestagio_trocador -= 1
 
 		elif tipo == "fria":
+			dados_do_trocador[3] = quantidade_fria_abaixo[dados_do_trocador[1]-1]
 			if dlg.radioButton_20.isChecked():
 				dados_do_trocador[6] = calor_atual_quente_sub_abaixo[dados_do_trocador[0]-1][dados_do_trocador[2]-1]
 				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador, ignora=True)
@@ -2810,6 +2812,8 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 			simm(tipo, corrente, dados_do_trocador)
 		else:
 			naoo(tipo, dados_do_trocador)
+
+
 
 #evolução
 def nao_sacrificar_matriz(matriz_naomuda):

@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -2945,6 +2945,9 @@ QToolButton:focus{
                           <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>125</number>
                           </attribute>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
+                          </attribute>
                           <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
@@ -3136,6 +3139,9 @@ QToolButton:focus{
                           </attribute>
                           <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>125</number>
+                          </attribute>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
                           </attribute>
                           <column>
                            <property name="text">
@@ -4352,6 +4358,9 @@ QToolButton:focus{
                           <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>125</number>
                           </attribute>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
+                          </attribute>
                           <column>
                            <property name="text">
                             <string>Stream</string>
@@ -4519,6 +4528,9 @@ QToolButton:focus{
                           </attribute>
                           <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>125</number>
+                          </attribute>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
                           </attribute>
                           <column>
                            <property name="text">
