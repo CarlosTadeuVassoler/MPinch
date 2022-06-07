@@ -13,8 +13,8 @@ from PyQt5.QtCore import * #alinhamentos
 import funchpinchcerto as fp2 #pinch victor
 from funcPPinch import pontopinch #pinch meninos
 
-from prog_carlos import * #superestrutura acima
-from prog_carlos_abaixo import * #superestrutura abaixo
+from superestrutura_acima import * #superestrutura acima
+from superestrutura_abaixo import * #superestrutura abaixo
 from superestrutura_completa import * #superestrutura ambas (evolucao)
 
 from PIL import Image #usa pra manipular/salvar imagens
@@ -288,11 +288,6 @@ def done_teste(libera=False):
 	for corrente in correntes:
 		lista_cps.append(corrente[2])
 
-	# novos_cps = unidades_compativeis(dlg.temp_unidade.currentIndex(), dlg.cp_unidade.currentIndex(), dlg.pelicula_unidade.currentIndex(), lista_cps)
-	#
-	# for i in range(len(correntes)):
-	# 	correntes[i][2] = round(novos_cps[i], 3)
-
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
 	# inicio = time.time()
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
@@ -508,6 +503,9 @@ def correntesnoscombos(nhot,ncold):
 
 	for i in range(1, min(nhot, ncold)):
 		dlg.nivel.addItem(str(i+1))
+
+	for i in range(max(nhot, ncold)):
+		dlg.comboutil_sub.addItem(str(i+1))
 
 def unidades(header=True, corrente=True, pinch=False):
 	if not header:
@@ -1320,7 +1318,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				correntes_desenho[i].left(180)
 				temp.sety(y_acima - h_string)
 				temp.setx(-distancia_x/2 - distancia_cp - maior_duty)
-				temp.write(str('{:.2f}'.format(round(calor_atual_frio_ev[i]))), align="center", font=("Arial", fonte_carga, "normal"))
+				temp.write(str('{:.2f}'.format(round(calor_atual_frio_ev[i], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 				temp.setx(-distancia_x/2 - len(str('{:.2f}'.format(round(Tcf[i], 2))))*tamanho_string)
 				temp.write(str('{:.2f}'.format(round(Tcf[i], 2))), align="left", font=("Arial", fonte_carga, "normal"))
 				temp.setx(distancia_x/2 + 6)
@@ -2304,7 +2302,10 @@ def dividir_corrente(divisao, onde):
 	if divtype == "Q":
 		janela = dlg.DivisaoQuente
 		for i in range(nhot):
-			dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
+			if not e_utilidade_quente[i]:
+				dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
+			else:
+				dlg.DivisaoQuente.comboBox_2.addItem(str(i+1) + " (utility)")
 		for i in range(ncold):
 			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoQuente.show()
@@ -2312,7 +2313,10 @@ def dividir_corrente(divisao, onde):
 		janela = dlg.DivisaoFria
 		dlg.DivisaoFria.label_5.setText("Split Cold Stream")
 		for i in range(ncold):
-			dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
+			if not e_utilidade_fria[i]:
+				dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
+			else:
+				dlg.DivisaoFria.comboBox_2.addItem(str(i+1) + " (utility)")
 		for i in range(nhot):
 			dlg.DivisaoFria.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoFria.show()
@@ -3603,12 +3607,24 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 	else:
 		oi = dlg.comboutil.currentText().split(" ")
 		corrente = int(oi[1])
+		sub = dlg.comboutil_sub.currentIndex()+1
 		if oi[0] == "Hot":
 			tipo = "Cold"
 			calor = calor_atual_quente_ev[corrente-1]
+			if quantidade_quente_ev_abaixo[corrente-1] < sub:
+				if calor > 0.001:
+					QMessageBox.about(dlg, "Error!", "This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_quente_ev_abaixo[corrente-1]))
+					sub = 1
 		else:
 			tipo = "Hot"
 			calor = calor_atual_frio_ev[corrente-1]
+			if quantidade_fria_ev_acima[corrente-1] < sub:
+				if calor > 0.001:
+						QMessageBox.about(dlg, "Error!", "This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_fria_ev_acima[corrente-1]))
+						sub = 1
+		if calor < 0.001:
+			QMessageBox.about(dlg, "Error!", "There is no duty left for this stream. \nThe utility will not be added.")
+			return
 	if tipo == "Hot" or path:
 		for trocadorr in matriz:
 			if trocadorr[5] == 2:
@@ -3623,13 +3639,13 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 			matriz.append([n_quentes, corrente_fria, 1, sub_fria, 1, 1, calor])
 			dados_do_trocador_quente = [n_quentes, corrente_fria, 1, sub_fria, 1, 1, calor]
 		else:
-			matriz.append([n_quentes, corrente, 1, 1, 1, 1, calor])
-			dados_do_trocador = [n_quentes, corrente, 1, 1, 1, 1, calor]
+			matriz.append([n_quentes, corrente, 1, sub, 1, 1, calor])
+			dados_do_trocador = [n_quentes, corrente, 1, sub, 1, 1, calor]
 		for reserva in matriz_reserva:
 			matriz.append(reserva)
 	else: #somente util fria
-		matriz.append([corrente, n_frias, 1, 1, matriz[-1][4]+1, 2, calor])
-		dados_do_trocador = [corrente, n_frias, 1, 1, matriz[-1][4]+1, 2, calor]
+		matriz.append([corrente, n_frias, sub, 1, matriz[-1][4]+1, 2, calor])
+		dados_do_trocador = [corrente, n_frias, sub, 1, matriz[-1][4]+1, 2, calor]
 
 	if path:
 		matriz.append([corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor])

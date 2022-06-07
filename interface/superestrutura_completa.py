@@ -709,6 +709,8 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 
 	calor_atual_quente_ev[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	calor_atual_frio_ev[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	calor_atual_quente_ev_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	calor_atual_frio_ev_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 	temp_misturador_quente[chot-1] = Thkf[chot-1][estagio-1]
 	temp_misturador_frio[ccold-1] = Tckf[ccold-1][estagio-1]
 
@@ -755,6 +757,8 @@ def remover_trocador_ev(dlg, vetor, indice, linha_interface_ev, ultima=False):
 
 	calor_atual_quente_ev[chot-1] += vetor[6]
 	calor_atual_frio_ev[ccold-1] += vetor[6]
+	calor_atual_quente_ev_sub[chot-1][sbhot-1] += vetor[6]
+	calor_atual_frio_ev_sub[ccold-1][sbcold-1] += vetor[6]
 
 	if calor_atual_quente_ev[chot-1] == Qtotalh01[chot-1]:
 		temperatura_atual_quente_ev_mesclada[chot-1] = pinchq

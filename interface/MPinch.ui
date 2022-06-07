@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -3907,7 +3907,7 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
+                         <width>63</width>
                          <height>33</height>
                         </rect>
                        </property>
@@ -6383,7 +6383,7 @@ QToolButton:focus{
                <x>0</x>
                <y>0</y>
                <width>1541</width>
-               <height>444</height>
+               <height>421</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -7115,44 +7115,85 @@ QToolButton:focus{
                </layout>
               </item>
               <item>
+               <widget class="Line" name="line_63">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
                <layout class="QVBoxLayout" name="verticalLayout_22">
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_40">
+                 <layout class="QHBoxLayout" name="horizontalLayout_54">
                   <item>
-                   <spacer name="horizontalSpacer_6">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QLabel" name="label_51">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
                     </property>
-                    <property name="sizeHint" stdset="0">
+                    <property name="minimumSize">
                      <size>
-                      <width>40</width>
-                      <height>20</height>
+                      <width>103</width>
+                      <height>0</height>
                      </size>
                     </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="dividir_utilidade">
                     <property name="text">
-                     <string>Split Utility</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
+                     <string/>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_23">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QLabel" name="label_52">
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
+                    <property name="text">
+                     <string>Stream</string>
                     </property>
-                   </spacer>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_53">
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Sub Stream</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_65">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -7195,6 +7236,16 @@ QToolButton:focus{
                    </widget>
                   </item>
                   <item>
+                   <widget class="QComboBox" name="comboutil_sub">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="add_util">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
@@ -7216,6 +7267,46 @@ QToolButton:focus{
                    </widget>
                   </item>
                  </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_40">
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="dividir_utilidade">
+                  <property name="text">
+                   <string>Split Utility Stream</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_23">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
@@ -7430,7 +7521,7 @@ QToolButton:focus{
                 <item>
                  <widget class="QCheckBox" name="dividir_utilidade2">
                   <property name="text">
-                   <string>Split Utility</string>
+                   <string>Split Utility Stream</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
