@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>338</width>
-    <height>460</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,23 +82,6 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Confirm</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>(to undo some split, select the stream and split it into 1 branch)</string>
@@ -152,7 +135,7 @@
           <x>0</x>
           <y>0</y>
           <width>316</width>
-          <height>198</height>
+          <height>196</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">

@@ -107,11 +107,11 @@ def preparar_dados_e_rede():
 	global dividida_quente_ev_acima, dividida_quente_ev_abaixo, dividida_fria_ev_acima, dividida_fria_ev_abaixo, quantidade_quente_ev_acima, quantidade_quente_ev_abaixo, quantidade_fria_ev_acima, quantidade_fria_ev_abaixo, fracoes_quentes_ev, fracoes_frias_ev, fechar_corrente_ev, fechar_corrente_ev_abaixo
 
 	Qtotalh0arr = np.array([0])
-	Qtotalh0arr.resize(nhot, ncold, nstages)
+	Qtotalh0arr.resize(nhot, ncold+2, nstages)
 	Qtotalh0 = Qtotalh0arr.tolist()
 	map(float, Qtotalh0)
 	Qtotalc0arr = np.array([0])
-	Qtotalc0arr.resize(ncold, nhot, nstages)
+	Qtotalc0arr.resize(ncold, nhot+2, nstages)
 	Qtotalc0 = Qtotalc0arr.tolist()
 	map(float, Qtotalc0)
 	Qestagioq = np.array([0])
@@ -124,7 +124,7 @@ def preparar_dados_e_rede():
 	map(float, Qestagiof)
 
 	Thskiarr = np.array ([0])
-	Thskiarr.resize(nhot, ncold, nsk, nstages)
+	Thskiarr.resize(nhot, ncold+2, nsk, nstages)
 	Thski = Thskiarr.tolist()
 	map(float, Thski)
 	Thkiarr = np.array ([0])
@@ -132,7 +132,7 @@ def preparar_dados_e_rede():
 	Thki = Thkiarr.tolist()
 	map(float, Thki)
 	Thskfarr = np.array ([0])
-	Thskfarr.resize(nhot, ncold, nsk, nstages)
+	Thskfarr.resize(nhot, ncold+2, nsk, nstages)
 	Thskf = Thskfarr.tolist()
 	map(float, Thskf)
 	Thkfarr = np.array ([0])
@@ -140,7 +140,7 @@ def preparar_dados_e_rede():
 	Thkf = Thkfarr.tolist()
 	map(float, Thkf)
 	Thfinal01arr = np.array ([0])
-	Thfinal01arr.resize(nhot, ncold)
+	Thfinal01arr.resize(nhot, ncold+2)
 	Thfinal01 = Thfinal01arr.tolist()
 	map(float, Thfinal01)
 	Thfinal01karr = np.array ([0])
@@ -149,7 +149,7 @@ def preparar_dados_e_rede():
 	map(float, Thfinal01k)
 
 	Tcskiarr = np.array ([0])
-	Tcskiarr.resize(ncold, nhot, nsk, nstages)
+	Tcskiarr.resize(ncold, nhot+2, nsk, nstages)
 	Tcski = Tcskiarr.tolist()
 	map(float, Tcski)
 	Tckiarr = np.array ([0])
@@ -157,7 +157,7 @@ def preparar_dados_e_rede():
 	Tcki = Tckiarr.tolist()
 	map(float, Tcki)
 	Tcskfarr = np.array ([0])
-	Tcskfarr.resize(ncold, nhot, nsk, nstages)
+	Tcskfarr.resize(ncold, nhot+2, nsk, nstages)
 	Tcskf = Tcskfarr.tolist()
 	map(float, Tcskf)
 	Tckfarr = np.array ([0])
@@ -165,7 +165,7 @@ def preparar_dados_e_rede():
 	Tckf = Tckfarr.tolist()
 	map(float, Tckf)
 	Tcfinal01arr = np.array ([0])
-	Tcfinal01arr.resize(ncold, nhot)
+	Tcfinal01arr.resize(ncold, nhot+2)
 	Tcfinal01 = Tcfinal01arr.tolist()
 	map(float, Tcfinal01)
 	Tcfinal01karr = np.array ([0])
@@ -174,19 +174,19 @@ def preparar_dados_e_rede():
 	map(float, Tcfinal01k)
 
 	Thinarr = np.array ([0])
-	Thinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada quente de um trocador
+	Thinarr.resize(nhot, ncold, ncold+2, nhot+2, nsk, nstages)  #Temperatura de entrada quente de um trocador
 	Thin = Thinarr.tolist()
 	map(float, Thin)
 	Tcinarr = np.array ([0])
-	Tcinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada fria de um trocador
+	Tcinarr.resize(nhot, ncold, ncold+2, nhot+2, nsk, nstages)  #Temperatura de entrada fria de um trocador
 	Tcin = Tcinarr.tolist()
 	map(float, Tcin)
 	Thoutarr = np.array ([0])
-	Thoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de saída quente de um trocador
+	Thoutarr.resize(nhot, ncold, ncold+2, nhot+2, nsk, nstages)  #Temperatura de saída quente de um trocador
 	Thout = Thoutarr.tolist()
 	map(float, Thout)
 	Tcoutarr = np.array ([0])
-	Tcoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages) #Temperatura de saída fria de um trocador
+	Tcoutarr.resize(nhot, ncold, ncold+2, nhot+2, nsk, nstages) #Temperatura de saída fria de um trocador
 	Tcout = Tcoutarr.tolist()
 	map(float, Tcout)
 
@@ -200,13 +200,13 @@ def preparar_dados_e_rede():
 	map(float, Tcout)
 
 	Fharr = np.array ([0])
-	Fharr.resize(nstages, nhot, ncold)
+	Fharr.resize(nstages, nhot, ncold+2)
 	Fharr = Fharr.tolist()
 	Fcarr = np.array ([0])
-	Fcarr.resize(nstages, ncold, nhot)
+	Fcarr.resize(nstages, ncold, nhot+2)
 	Fcarr = Fcarr.tolist()
 	Qarr = np.array ([0])
-	Qarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Q[i][si][j][sj][sk][k]
+	Qarr.resize(nhot, ncold+2, ncold, nhot+2, nsk, nstages)  #Q[i][si][j][sj][sk][k]
 	Q = Qarr.tolist()
 	Qaux = Qarr.tolist()
 	map(float, Q)
@@ -224,7 +224,7 @@ def preparar_dados_e_rede():
 		quantidade_quente_ev_abaixo.append(1)
 		fracoes_quentes_ev_acima.append([])
 		fracoes_quentes_ev_abaixo.append([])
-		for sub in range(ncold):
+		for sub in range(ncold+2):
 			calor_atual_quente_ev_sub[quente].append(0)
 			temperatura_atual_quente_ev[quente].append(Th0[quente])
 	for fria in range(ncold):
@@ -240,7 +240,7 @@ def preparar_dados_e_rede():
 		quantidade_fria_ev_abaixo.append(1)
 		fracoes_frias_ev_acima.append([])
 		fracoes_frias_ev_abaixo.append([])
-		for sub in range(nhot):
+		for sub in range(nhot+2):
 			calor_atual_frio_ev_sub[fria].append(0)
 			temperatura_atual_fria_ev[fria].append(Tc0[fria])
 
@@ -263,7 +263,7 @@ def preparar_dados_e_rede():
 	#Prepara rede
 	for i in range (nhot):
 		#Este loop iguala as temperaturas iniciais de todos os SUB-ESTÁGIOS à temperatura inicial da corrente
-		for si in range (ncold):
+		for si in range (ncold+2):
 			for sk in range (nsk):
 				for k in range (nstages):
 					Thski[i][si][sk][k] = Th0[i]
@@ -274,7 +274,7 @@ def preparar_dados_e_rede():
 			Thkf[i][k] = Th0[i] #Thk é a temperatura inicial do estágio
 
 	for j in range (ncold):
-		for sj in range (nhot):
+		for sj in range (nhot+2):
 			for sk in range(nsk-1, -1, -1):
 				for k in range(nstages-1, -1, -1):
 					Tcski[j][sj][sk][k] = Tcf[j]
@@ -284,7 +284,7 @@ def preparar_dados_e_rede():
 			Tckf[j][k] = Tcf[j]
 
 def receber_pinch_ev(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
-	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
+	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, nsk
 	Th0, Thf, Tc0, Tcf = [], [], [], []
 	CPh, CPc = [], []
 	for corrente in range(nquentes):
@@ -300,6 +300,7 @@ def receber_pinch_ev(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPf
 	nhot = nquentes
 	ncold = nfrias
 	dTmin = deltaTmin
+	#nsk = 2*nhot*ncold
 	preparar_dados_e_rede()
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):

@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -3907,8 +3907,8 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>1471</width>
-                         <height>416</height>
+                         <width>98</width>
+                         <height>33</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_32">
@@ -7119,58 +7119,40 @@ QToolButton:focus{
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_40">
                   <item>
-                   <widget class="QLabel" name="label_53">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
+                   <spacer name="horizontalSpacer_6">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="minimumSize">
+                    <property name="sizeHint" stdset="0">
                      <size>
-                      <width>103</width>
-                      <height>0</height>
+                      <width>40</width>
+                      <height>20</height>
                      </size>
                     </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="dividir_utilidade">
                     <property name="text">
-                     <string/>
+                     <string>Split Utility</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_52">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="font">
-                     <font>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
                     </property>
-                    <property name="text">
-                     <string>Stream</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_51">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -7308,7 +7290,7 @@ QToolButton:focus{
                    <bool>true</bool>
                   </property>
                   <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing a specified Heat Load of some Heat Exchanger and supplying its streams with utilities.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Using this might result in a most expensive network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: The suggested Heat Loads make ΔT &amp;gt; 0 or ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; in both of the Heat Exchanger therminals. If both values are equal, there is no Heat Load that make ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing a specified Heat Load of some Heat Exchanger and supplying its streams with utilities.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Using this might result in a most expensive HEN.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: The suggested Heat Loads make ΔT &amp;gt; 0 or ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; in both of the Heat Exchanger therminals. If both values are equal, there is no Heat Load that make ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QToolButton{
@@ -7431,20 +7413,44 @@ QToolButton:focus{
                </layout>
               </item>
               <item>
-               <spacer name="verticalSpacer_7">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>15</height>
-                 </size>
-                </property>
-               </spacer>
+               <layout class="QHBoxLayout" name="horizontalLayout_53">
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="dividir_utilidade2">
+                  <property name="text">
+                   <string>Split Utility</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_38">

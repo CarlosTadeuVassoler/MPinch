@@ -212,13 +212,13 @@ def preparar_dados_e_rede2():
 	for quente in range(nhot):
 		temperatura_atual_quente_abaixo.append([])
 		temperatura_atual_quente_mesclada_abaixo.append(Th0[quente])
-		temp_misturador_abaixo.append(0)
 		calor_atual_quente_sub_abaixo.append([])
-		calor_sub_sem_utilidade.append([])
 		dividida_quente_abaixo.append(False)
-		fechar_corrente_abaixo.append(False)
 		quantidade_quente_abaixo.append(1)
 		fracoes_quentes_abaixo.append([])
+		fechar_corrente_abaixo.append(False)
+		temp_misturador_abaixo.append(0)
+		calor_sub_sem_utilidade.append([])
 		for sub in range(ncold):
 			calor_atual_quente_sub_abaixo[quente].append(0)
 			temperatura_atual_quente_abaixo[quente].append(Th0[quente])
@@ -277,7 +277,7 @@ def preparar_dados_e_rede2():
 			Tckf[j][k] = Tcf[j]
 
 def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio, deltaTmin, pinch_quente, pinch_frio, matriz_quente_in, matriz_fria_in):
-	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf
+	global Th0, Thf, Tc0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, nsk
 	Th0, Thf, Tc0, Tcf = [], [], [], []
 	for corrente in range(nquentes):
 		Thf.append(matriz_quente[corrente])
@@ -292,6 +292,7 @@ def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente,
 	nhot = nquentes
 	ncold = nfrias
 	dTmin = deltaTmin
+	#nsk = 2*nhot*ncold
 	preparar_dados_e_rede2()
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
@@ -687,11 +688,13 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False):
 	else:
 		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
-	if not ignora:
-		if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
+	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
+		if not ignora:
 			QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			return linha_interface_abaixo, False
+		else:
+			QMessageBox.about(dlg,"Carreful!","The inputed heat is greater than the available heat. \nYou will use more than the utility duty.")
 
 	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] < 0:
 		QMessageBox.about(dlg,"Error!","It is not possible to change a negative amount of heat.")

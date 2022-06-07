@@ -27,6 +27,8 @@ from custos import * #calculos/graficos da aba dtmin optimization
 from graficos import * #graficos da aba diagrams comparison
 from exportaa import export #coisas savefile
 
+import time
+
 
 
 #matrizes que armazenam os trocadores inseridos
@@ -292,7 +294,11 @@ def done_teste(libera=False):
 	# 	correntes[i][2] = round(novos_cps[i], 3)
 
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
+	# inicio = time.time()
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
+	# fim = time.time()
+	# print("pinch sem utilidades:", fim - inicio, "s")
+	# print()
 	dlg.done = uic.loadUi("done.ui")
 	# dlg.done.showMaximized()
 	dlg.done.show()
@@ -359,7 +365,11 @@ def pinch_teste():
 			dlg.pinchbutton.setEnabled(True)
 
 	util_temporaria = nao_sacrificar_matriz(correntes_util)
+	# inicio = time.time()
 	pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
+	# fim = time.time()
+	# print("pinch com utilidades:", fim - inicio, "s")
+	# print()
 
 	for util in correntes_util:
 		if util[3] == "Hot":
@@ -429,15 +439,32 @@ def pinch_teste():
 	unidades(pinch=True)
 
 	#manda tudo pro backend
+
+	# inicio = time.time()
 	receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
+	# fim = time.time()
+	# print("criando super acima:", fim - inicio, "s")
+	# print()
+	# inicio = time.time()
 	receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
+	# fim = time.time()
+	# print("criando super abaixo:", fim - inicio, "s")
+	# print()
+	# inicio = time.time()
 	printar()
 	printar_abaixo()
 	correntesnoscombos(nhot,ncold)
 	testar_correntes(dlg, True)
 	testar_correntes_abaixo(dlg)
+	# fim = time.time()
+	# print("adicionando as coisas pra interface:", fim - inicio, "s")
+	# print()
+	# inicio = time.time()
 	desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	# fim = time.time()
+	# print("desenhando as redes:", fim - inicio, "s")
+	# print()
 	desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
 	#libera botões e coisas
@@ -1422,6 +1449,10 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			onde_temperatura_q = onde_temperatura_f_in = raio_trocador + 2
 			onde_temperatura_q_in = -raio_trocador - len(str('{:.2f}'.format(round(tq_in,2))))*tamanho_string/y
 			onde_temperatura_f = -raio_trocador - len(str('{:.2f}'.format(round(tf_out, 2))))*tamanho_string/y
+			div_q_acima = dividida_quente_ev_acima
+			div_q_abaixo = dividida_quente_ev_abaixo
+			div_f_acima = dividida_fria_ev_acima
+			div_f_abaixo = dividida_fria_ev_abaixo
 		else:
 			tq_in = trocadorr[9]
 			tq_out = trocadorr[7]
@@ -1432,15 +1463,19 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 				onde_temperatura_q = -raio_trocador - len(str('{:.2f}'.format(round(tq_out, 2))))*tamanho_string/y
 				onde_temperatura_f = -raio_trocador - len(str('{:.2f}'.format(round(tf_out, 2))))*tamanho_string/y
 				onde_temperatura_q_in = onde_temperatura_f_in = raio_trocador + 2
+				div_q_acima = dividida_quente
+				div_f_acima = dividida_fria
 			elif onde[6:] == "abaixo":
 				onde_temperatura_q = onde_temperatura_f = raio_trocador + 2
 				onde_temperatura_q_in = -raio_trocador - len(str('{:.2f}'.format(round(tq_in, 2))))*tamanho_string/y
 				onde_temperatura_f_in = -raio_trocador - len(str('{:.2f}'.format(round(tf_in, 2))))*tamanho_string/y
+				div_q_abaixo = dividida_quente_abaixo
+				div_f_abaixo = dividida_fria_abaixo
 
 		if onde[6:] == "acima":
 			trocador.setx(distancia_x/2 - subestagio*espaco_trocadores)
 			temp.setx(distancia_x/2 - subestagio*espaco_trocadores)
-			if dividida_quente[trocadorr[0]-1]:
+			if div_q_acima[trocadorr[0]-1]:
 				trocador.sety(corrente_quente.pos()[1] - raio_trocador - ramo_y*(trocadorr[2]-1))
 				temp.sety(corrente_quente.pos()[1] + raio_trocador + carga_trocador - ramo_y*(trocadorr[2]-1))
 				temperatura.sety(corrente_quente.pos()[1] - h_string - grossura_corrente - 1 - ramo_y*(trocadorr[2]-1))
@@ -1516,7 +1551,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			trocador.end_fill()
 			ident.setx(distancia_x/2 - subestagio*espaco_trocadores + 1)
 			ident.write("E" + str(trocador_atual), align="center", font=("Arial", fonte_carga, "bold"))
-			if dividida_fria[trocadorr[1]-1]:
+			if div_f_acima[trocadorr[1]-1]:
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador - ramo_y*(trocadorr[3]-1))
 				temperatura.sety(corrente_fria.pos()[1] - h_string - grossura_corrente - 1 - ramo_y*(trocadorr[3]-1))
 				ident.sety(corrente_fria.pos()[1] - raio_trocador/2 - ramo_y*(trocadorr[3]-1))
@@ -1560,7 +1595,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		elif onde[6:] == "abaixo":
 			trocador.setx(-distancia_x/2 + subestagio*espaco_trocadores)
 			temp.setx(-distancia_x/2 + subestagio*espaco_trocadores)
-			if dividida_quente_abaixo[trocadorr[0]-1]:
+			if div_q_abaixo[trocadorr[0]-1]:
 				trocador.sety(corrente_quente.pos()[1] - raio_trocador - ramo_y*(trocadorr[2]-1))
 				temp.sety(corrente_quente.pos()[1] + raio_trocador + carga_trocador - ramo_y*(trocadorr[2]-1))
 				temperatura.sety(corrente_quente.pos()[1] - h_string - grossura_corrente - 1 - ramo_y*(trocadorr[2]-1))
@@ -1605,7 +1640,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 			trocador.end_fill()
 			ident.setx(-distancia_x/2 + subestagio*espaco_trocadores + 1)
 			ident.write("E" + str(trocador_atual), align="center", font=("Arial", fonte_carga, "bold"))
-			if dividida_fria_abaixo[trocadorr[1]-1]:
+			if div_f_abaixo[trocadorr[1]-1]:
 				trocador.sety(corrente_fria.pos()[1] - raio_trocador - ramo_y*(trocadorr[3]-1))
 				temperatura.sety(corrente_fria.pos()[1] - h_string - grossura_corrente - 1 - ramo_y*(trocadorr[3]-1))
 				ident.sety(corrente_fria.pos()[1] - raio_trocador/2 - ramo_y*(trocadorr[3] - 1))
@@ -1899,21 +1934,19 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, teste=False):
 		h_acima = 0
 		h_abaixo = 0
 
-		for i in range(len(correntes_quentes)):
-			if quantidade_quente[i] > quantidade_quente_abaixo[i]:
-				h += ramo_y * quantidade_quente[i]
-			else:
-				h += ramo_y * quantidade_quente_abaixo[i]
-			h_acima += ramo_y * quantidade_quente[i]
-			h_abaixo += ramo_y * quantidade_quente_abaixo[i]
+		if subrede != "ambas":
+			for i in range(len(correntes_quentes)):
+				h_acima += ramo_y * quantidade_quente[i]
+				h_abaixo += ramo_y * quantidade_quente_abaixo[i]
 
-		for i in range(len(correntes_frias)):
-			if quantidade_fria[i] > quantidade_fria_abaixo[i]:
-				h += ramo_y * quantidade_fria[i]
-			else:
-				h += ramo_y * quantidade_fria_abaixo[i]
-			h_acima += ramo_y * quantidade_fria[i]
-			h_abaixo += ramo_y * quantidade_fria_abaixo[i]
+			for i in range(len(correntes_frias)):
+				h_acima += ramo_y * quantidade_fria[i]
+				h_abaixo += ramo_y * quantidade_fria_abaixo[i]
+		else:
+			for i in range(len(correntes_quentes)):
+				h += ramo_y * max(quantidade_quente_ev_acima[i], quantidade_quente_ev_abaixo[i])
+			for j in range(len(correntes_frias)):
+				h += ramo_y * max(quantidade_fria_ev_acima[j], quantidade_fria_ev_abaixo[j])
 
 		if subrede == "acima":
 			y_acima, y_abaixo = h_acima/2, h_acima/2
@@ -2269,12 +2302,14 @@ def dividir_corrente(divisao, onde):
 	dlg.DivisaoQuente = uic.loadUi("divisao.ui")
 	dlg.DivisaoFria = uic.loadUi("divisao.ui")
 	if divtype == "Q":
+		janela = dlg.DivisaoQuente
 		for i in range(nhot):
 			dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
 		for i in range(ncold):
 			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoQuente.show()
 	elif divtype == "F":
+		janela = dlg.DivisaoFria
 		dlg.DivisaoFria.label_5.setText("Split Cold Stream")
 		for i in range(ncold):
 			dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
@@ -2282,9 +2317,8 @@ def dividir_corrente(divisao, onde):
 			dlg.DivisaoFria.comboBox_3.addItem(str(i+1))
 		dlg.DivisaoFria.show()
 
-
 	def confirm():
-		global caixa_fracao, quantidade, corrente, estagio
+		global caixa_fracao, quantidade, corrente, estagio, caixa_corrente
 		if divtype == "Q":
 			quantidade = int(dlg.DivisaoQuente.comboBox_3.currentText())
 			estagio = 1
@@ -2294,20 +2328,23 @@ def dividir_corrente(divisao, onde):
 			estagio = 1
 			corrente = int(dlg.DivisaoFria.comboBox_2.currentText())
 
-		if verificar_trocador_estagio(estagio, corrente, divtype) and onde == "above":
-			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
-			return
-
-		if verificar_trocador_estagio_abaixo(estagio, corrente, divtype) and onde == "below":
-			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
-			return
-
 		if divtype == "Q":
 			dlg.DivisaoQuente.pushButton_3.setEnabled(True)
-			dlg.DivisaoQuente.pushButton.setEnabled(False)
+			lay = dlg.DivisaoQuente.verticalLayout_3
 		if divtype == "F":
 			dlg.DivisaoFria.pushButton_3.setEnabled(True)
-			dlg.DivisaoFria.pushButton.setEnabled(False)
+			lay = dlg.DivisaoFria.verticalLayout_3
+
+
+		try:
+			for widget in range(len(caixa_fracao)-1, -1, -1):
+				lay.removeWidget(caixa_corrente[widget])
+				lay.removeWidget(caixa_fracao[widget])
+				caixa_corrente[widget].setParent(None)
+				caixa_fracao[widget].setParent(None)
+		except:
+			pass
+
 
 		caixa_fracao = [0] * quantidade
 		caixa_corrente = [0] * quantidade
@@ -2338,6 +2375,23 @@ def dividir_corrente(divisao, onde):
 
 	def split(onde):
 		global desenho_em_dia, desenho_em_dia_abaixo
+
+		if verificar_trocador_estagio(estagio, corrente, divtype) and onde == "above":
+			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
+			if divtype == "Q":
+				dlg.DivisaoQuente.close()
+			if divtype == "F":
+				dlg.DivisaoFria.close()
+			return
+
+		if verificar_trocador_estagio_abaixo(estagio, corrente, divtype) and onde == "below":
+			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
+			if divtype == "Q":
+				dlg.DivisaoQuente.close()
+			if divtype == "F":
+				dlg.DivisaoFria.close()
+			return
+
 		soma = 0
 		fracao = [0] * quantidade
 		for i in range(quantidade):
@@ -2354,30 +2408,37 @@ def dividir_corrente(divisao, onde):
 		if onde == "above":
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 1, corrente, quantidade, fracao])
+
+			for divisao in divisoes:
+				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
+					divisoes.pop(divisoes.index(divisao))
+					break
+
 			if divtype == "F":
 				testar_correntes(dlg, True)
-				if quantidade > 1:
-					dlg.comboBox_51.setEnabled(True)
 			else:
 				if quantidade == 1:
 					testar_correntes(dlg, True)
 				else:
 					testar_correntes(dlg)
-					dlg.comboBox_50.setEnabled(True)
 			desenho_em_dia = False
+
 		elif onde == "below":
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 2, corrente, quantidade, fracao])
+
+			for divisao in divisoes:
+				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
+					divisoes.pop(divisoes.index(divisao))
+					break
+
 			if divtype == "Q":
 				testar_correntes_abaixo(dlg, True)
-				if quantidade > 1:
-					dlg.comboBox_53.setEnabled(True)
 			else:
 				if quantidade == 1:
 					testar_correntes_abaixo(dlg, True)
 				else:
 					testar_correntes_abaixo(dlg)
-					dlg.comboBox_54.setEnabled(True)
 			desenho_em_dia_abaixo = False
 
 		if divtype == "Q":
@@ -2389,12 +2450,12 @@ def dividir_corrente(divisao, onde):
 		printar_abaixo()
 		atualizar_desenho(onde)
 
-	dlg.DivisaoQuente.pushButton.clicked.connect(lambda: confirm())
-	dlg.DivisaoQuente.pushButton_3.clicked.connect(lambda: split(onde))
-	dlg.DivisaoQuente.pushButton_2.clicked.connect(lambda: dlg.DivisaoQuente.close())
-	dlg.DivisaoFria.pushButton.clicked.connect(lambda: confirm())
-	dlg.DivisaoFria.pushButton_3.clicked.connect(lambda: split(onde))
-	dlg.DivisaoFria.pushButton_2.clicked.connect(lambda: dlg.DivisaoFria.close())
+
+	confirm()
+	janela.comboBox_2.currentIndexChanged.connect(confirm)
+	janela.comboBox_3.currentIndexChanged.connect(confirm)
+	janela.pushButton_3.clicked.connect(lambda: split(onde))
+	janela.pushButton_2.clicked.connect(lambda: dlg.DivisaoQuente.close())
 
 def atualizar_desenho(onde, botao=False):
 	if botao:
@@ -2616,10 +2677,10 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				primeira_util = True
 				if dividir_padrao:
 					divisao_de_correntes("Q", 1, len(e_utilidade_quente), 1, [1.0])
-					# for divisao in divisoes:
-					# 	if divisao[2] == corrente and divisao[1] == 1 and divisoes.index(divisao) != len(divisoes)-1:
-					# 		divisoes.pop(divisoes.index(divisao))
-					# 		break
+					for divisao in divisoes:
+						if divisao[:3] == ["Q", 1, len(e_utilidade_quente)]:
+							divisoes.pop(divisoes.index(divisao))
+							break
 
 		elif onde == "abaixo":
 			para = False
@@ -2633,10 +2694,10 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				primeira_util_fria = True
 				if dividir_padrao:
 					divisao_de_correntes_abaixo("F", 1, len(e_utilidade_fria), 1, [1.0])
-					# for divisao in divisoes:
-					# 	if divisao[2] == corrente and divisao[1] == 2 and divisoes.index(divisao) != len(divisoes)-1:
-					# 		divisoes.pop(divisoes.index(divisao))
-					# 		break
+					for divisao in divisoes:
+						if divisao[:3] == ["F", 2, len(e_utilidade_fria)]:
+							divisoes.pop(divisoes.index(divisao))
+							break
 
 	global remover_todos, perguntar
 
@@ -2651,10 +2712,10 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 		else:
 			nao(onde, indice_remover)
 
-def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
+def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 
-	def simm(tipo, corrente, dados_do_trocador):
-		global matriz_armazenada, matriz_trocadores_abaixo, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
+	def simm(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
+		global matriz_armazenada, matriz_trocadores_abaixo, matriz_evolucao, desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
 		global nao_perguntar, dividir_padrao
 
 		try:
@@ -2664,83 +2725,172 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 		except:
 			pass
 
-		if tipo == "quente": #acima
-			trocadores = []
-			matriz_reserva = nao_sacrificar_matriz(matriz_armazenada)
-			matriz_reserva.append(dados_do_trocador)
+		if not ambas:
+			if tipo == "quente": #acima
+				trocadores = []
+				matriz_reserva = nao_sacrificar_matriz(matriz_armazenada)
+				matriz_reserva.append(dados_do_trocador)
+				if dados_do_trocador[6] < 0.001:
+					matriz_reserva[-1][6] = calor_atual_frio_sub[matriz_reserva[-1][1]-1][matriz_reserva[-1][3]-1]
+				if matriz_reserva[-1][6] < 0.001:
+					return
 
-			for i in range(len(matriz_reserva)):
-				if matriz_reserva[i][0] == corrente:
-					trocadores.append(matriz_reserva[i])
-				matriz_reserva[-1][2] = len(trocadores)
+				ramos = []
+				for i in range(len(matriz_reserva)):
+					if matriz_reserva[i][0] == corrente:
+						trocadores.append(matriz_reserva[i])
+						ramos.append(matriz_reserva[i][2])
 
-			soma = 0
-			fracoes = []
+				quantidade = max(ramos) + 1
+				matriz_reserva[-1][2] = quantidade
 
-			for i in range(len(trocadores)-1):
-				fracoes.append(trocadores[i][6] / util_quente)
-				soma += fracoes[-1]
-			fracoes.append(1-soma)
+				soma = 0
+				fracoes = []
 
-			if dados_do_trocador[6] < 0.0001:
-				matriz_reserva[-1][6] = calor_atual_frio_sub[matriz_reserva[-1][1]-1][matriz_reserva[-1][3]-1]
+				calor = 0
+				for t in trocadores:
+					calor += t[6]
 
-			remover_todos_acima()
-			divisao_de_correntes("Q", 1, corrente, len(fracoes), fracoes)
-			divisoes.append(["Q", 1, corrente, len(fracoes), fracoes])
+				for i in range(quantidade-1):
+					soma_trocadores = 0
+					for j in range(len(trocadores)):
+						if trocadores[j][2] == i + 1:
+							soma_trocadores += trocadores[j][6]
+					fracoes.append(soma_trocadores / max(util_quente, calor))
+					soma += fracoes[-1]
+				fracoes.append(1-soma)
 
-			for trocador in matriz_reserva:
-				if dlg.radioButton.isChecked():
-					matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7])
-				else:
+				remover_todos_acima()
+				divisao_de_correntes("Q", 1, corrente, quantidade, fracoes)
+				divisoes.append(["Q", 1, corrente, quantidade, fracoes])
+
+				for divisao in divisoes:
+					if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
+						divisoes.pop(divisoes.index(divisao))
+						break
+
+				for trocador in matriz_reserva:
 					matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True)
 
-			printar()
-			checaresgotadosacima()
-			dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
-			dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
-			desenho_em_dia = False
-			desenho_em_dia_ambas = False
-			atualizar_desenho("acima")
+				printar()
+				checaresgotadosacima()
+				dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
+				dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
+				desenho_em_dia = False
+				desenho_em_dia_ambas = False
+				atualizar_desenho("acima")
 
-		elif tipo == "fria":
+			elif tipo == "fria":
+				trocadores = []
+				matriz_reserva = nao_sacrificar_matriz(matriz_trocadores_abaixo)
+				matriz_reserva.append(dados_do_trocador)
+				if dados_do_trocador[6] < 0.001:
+					matriz_reserva[-1][6] = calor_atual_quente_sub_abaixo[matriz_reserva[-1][0]-1][matriz_reserva[-1][2]-1]
+
+				ramos = []
+				for i in range(len(matriz_reserva)):
+					if matriz_reserva[i][1] == corrente:
+						trocadores.append(matriz_reserva[i])
+						ramos.append(matriz_reserva[i][3])
+
+				quantidade = max(ramos) + 1
+				matriz_reserva[-1][3] = quantidade
+
+				soma = 0
+				fracoes = []
+
+				calor = 0
+				for t in trocadores:
+					calor += t[6]
+
+				for i in range(quantidade-1):
+					soma_trocadores = 0
+					for j in range(len(trocadores)):
+						if trocadores[j][3] == i + 1:
+							soma_trocadores += trocadores[j][6]
+					fracoes.append(soma_trocadores / max(calor, util_fria))
+					soma += fracoes[-1]
+				fracoes.append(1 - soma)
+
+				remover_todos_abaixo()
+				divisao_de_correntes_abaixo("F", 1, corrente, quantidade, fracoes)
+				divisoes.append(["F", 2, corrente, quantidade, fracoes])
+
+				for divisao in divisoes:
+					if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
+						divisoes.pop(divisoes.index(divisao))
+						break
+
+				for trocador in matriz_reserva:
+					matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7], ignora=True)
+
+				printar_abaixo()
+				checaresgotadosabaixo()
+				dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
+				dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
+				desenho_em_dia_abaixo = False
+				desenho_em_dia_ambas = False
+				atualizar_desenho("abaixo")
+		else:
+			if tipo == "quente" or tipo == "Hot":
+				estagio = 1
+				div = "Q"
+				util = util_quente
+				ramo_indice = 2
+			else:
+				estagio = 2
+				div = "F"
+				util = util_fria
+				ramo_indice = 3
+
 			trocadores = []
-			matriz_reserva = nao_sacrificar_matriz(matriz_trocadores_abaixo)
-			matriz_reserva.append(dados_do_trocador)
+			matriz_reserva = nao_sacrificar_matriz(m)
 
+			ramos = []
 			for i in range(len(matriz_reserva)):
-				if matriz_reserva[i][1] == corrente:
-					trocadores.append(matriz_reserva[i])
-			matriz_reserva[-1][3] = len(trocadores)
+				if tipo == "quente" or tipo == "Hot":
+					if matriz_reserva[i][0] == corrente and matriz_reserva[i][5] == estagio:
+						trocadores.append(matriz_reserva[i])
+						ramos.append(matriz_reserva[i][2])
+					if matriz_reserva[i][5] == estagio and dados_do_trocador[4] == matriz_reserva[i][4]:
+						parar = i
+				else:
+					if matriz_reserva[i][1] == corrente and matriz_reserva[i][5] == estagio:
+						trocadores.append(matriz_reserva[i])
+						ramos.append(matriz_reserva[i][3])
+
+			quantidade = max(ramos) + 1
+
+			if tipo == "quente" or tipo == "Hot":
+				matriz_reserva[parar][2] = quantidade
+			else:
+				matriz_reserva[-1][3] = quantidade
 
 			soma = 0
 			fracoes = []
 
-			for i in range(len(trocadores)-1):
-				fracoes.append(trocadores[i][6] / util_fria)
+			calor = 0
+			for t in trocadores:
+				calor += t[6]
+
+			for i in range(quantidade-1):
+				soma_trocadores = 0
+				for j in range(len(trocadores)):
+					if trocadores[j][ramo_indice] == i + 1:
+						soma_trocadores += trocadores[j][6]
+				fracoes.append(soma_trocadores / max(calor, util))
 				soma += fracoes[-1]
 			fracoes.append(1 - soma)
 
-			if dados_do_trocador[6] < 0.0001:
-				matriz_reserva[-1][6] = calor_atual_quente_sub_abaixo[matriz_reserva[-1][0]-1][matriz_reserva[-1][2]-1]
+			divisao_de_correntes_ev(div, estagio, corrente, quantidade, fracoes)
+			divisoes_ev.append([div, estagio, corrente, quantidade, fracoes])
 
-			remover_todos_abaixo()
-			divisao_de_correntes_abaixo("F", 1, corrente, len(fracoes), fracoes)
-			divisoes.append(["F", 2, corrente, len(fracoes), fracoes])
+			for divisao in divisoes_ev:
+				if divisao[:3] == divisoes_ev[-1][:3] and divisoes_ev.index(divisao) != len(divisoes_ev) - 1:
+					divisoes_ev.pop(divisoes_ev.index(divisao))
+					break
 
-			for trocador in matriz_reserva:
-				if dlg.radioButton_17.isChecked():
-					matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
-				else:
-					matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7], ignora=True)
-
-			printar_abaixo()
-			checaresgotadosabaixo()
-			dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
-			dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
-			desenho_em_dia_abaixo = False
-			desenho_em_dia_ambas = False
-			atualizar_desenho("abaixo")
+			return matriz_reserva
 
 		dlg.perguntar_util.close()
 
@@ -2802,16 +2952,19 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador):
 
 		dlg.perguntar_util.close()
 
-	if not nao_perguntar:
+	if not nao_perguntar and not ambas:
 		dlg.perguntar_util = uic.loadUi("dividir_util.ui")
 		dlg.perguntar_util.show()
 		dlg.perguntar_util.sim.clicked.connect(lambda: simm(tipo, corrente, dados_do_trocador))
 		dlg.perguntar_util.nao.clicked.connect(lambda: naoo(tipo, dados_do_trocador))
 	else:
-		if dividir_padrao:
-			simm(tipo, corrente, dados_do_trocador)
+		if not ambas:
+			if dividir_padrao:
+				simm(tipo, corrente, dados_do_trocador)
+			else:
+				naoo(tipo, dados_do_trocador)
 		else:
-			naoo(tipo, dados_do_trocador)
+			return simm(tipo, corrente, dados_do_trocador, ambas, m)
 
 
 
@@ -2940,14 +3093,22 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				remover_todos_ev()
 			except:
 				pass
+
+			for quente in range(nhot):
+				divisao_de_correntes_ev("Q", 1, quente+1, 1, [1])
+				divisao_de_correntes_ev("Q", 2, quente+1, 1, [1])
+			for fria in range(ncold):
+				divisao_de_correntes_ev("F", 1, fria+1, 1, [1])
+				divisao_de_correntes_ev("F", 2, fria+1, 1, [1])
+			for i in range(len(divisoes)):
+				divisao_de_correntes_ev(divisoes[i][0], divisoes[i][1], divisoes[i][2], divisoes[i][3], divisoes[i][4])
 		else:
 			ultimo_subestagio_acima = matriz_acima[0][4]
 			remover_todos_ev()
+			for i in range(len(divisoes_ev)):
+				divisao_de_correntes_ev(divisoes_ev[i][0], divisoes_ev[i][1], divisoes_ev[i][2], divisoes_ev[i][3], divisoes_ev[i][4])
 
 		matriz_total = matriz_acima + matriz_abaixo
-
-		for i in range(len(divisoes)):
-			divisao_de_correntes_ev(divisoes[i][0], divisoes[i][1], divisoes[i][2], divisoes[i][3], divisoes[i][4])
 
 		for trocador in matriz_total:
 			if len(trocador) > 2:
@@ -3174,7 +3335,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			ramo_frio = matriz_completa[trocadores_laco[trocador_removido]-1][3]
 			estagio = matriz_completa[trocadores_laco[trocador_removido]-1][5]
 
-			novas_divisoes = remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=(trocadores_laco[trocador_removido]-1))
+			novas_divisoes, h = remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=(trocadores_laco[trocador_removido]-1))
 
 			for i in range(len(trocadores_laco)):
 				matriz_completa[trocadores_laco[i]-1][6] = valores[i]
@@ -3281,7 +3442,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				ja_violava.append(viola_agora[i])
 
 			dlg.dividir_calor.botaodone.clicked.connect(lambda: done(matriz_completa, novas_divisoes))
-			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda, divisoes))
+			dlg.dividir_calor.botaoundone.clicked.connect(lambda: undone(matriz_completa_naomuda, divisoes_ev))
 
 			def done(matriz_completa_done, novas_divisoes):
 				global matriz_evolucao, desenho_em_dia_ambas, divisoes_ev
@@ -3300,10 +3461,13 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			def undone(matriz_completa_undone, novas_divisoes):
 				global matriz_evolucao, divisoes_ev
 				remover_todos_ev()
-				for trocador in matriz_completa_undone:
-					matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-				matriz_evolucao = nao_sacrificar_matriz(matriz_completa)
+				matriz_evolucao = nao_sacrificar_matriz(matriz_completa_undone)
 				divisoes_ev = nao_sacrificar_matriz(novas_divisoes)
+				if todos:
+					evolucao([], [], "todos", True)
+				else:
+					evolucao([], [], nivel)
+
 				dlg.dividir_calor.close()
 
 		def liberar_bloquear(valor_trocador, acao, trocador_removido, placeholders):
@@ -3457,29 +3621,62 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 			matriz.pop(-1)
 		if path:
 			matriz.append([n_quentes, corrente_fria, 1, sub_fria, 1, 1, calor])
+			dados_do_trocador_quente = [n_quentes, corrente_fria, 1, sub_fria, 1, 1, calor]
 		else:
 			matriz.append([n_quentes, corrente, 1, 1, 1, 1, calor])
+			dados_do_trocador = [n_quentes, corrente, 1, 1, 1, 1, calor]
 		for reserva in matriz_reserva:
 			matriz.append(reserva)
-	else:
+	else: #somente util fria
 		matriz.append([corrente, n_frias, 1, 1, matriz[-1][4]+1, 2, calor])
+		dados_do_trocador = [corrente, n_frias, 1, 1, matriz[-1][4]+1, 2, calor]
+
 	if path:
 		matriz.append([corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor])
+		dados_do_trocador_fria = [corrente_quente, n_frias, sub_quente, 1, matriz[-1][4]+1, 2, calor]
 	else:
 		remover_todos_ev()
+
+	quente = fria = 0
+	for trocador in matriz:
+		if tipo == "Hot" or path:
+			if trocador[5] == 1 and trocador[0] == n_quentes:
+				quente += 1
+		if tipo == "Cold" or path:
+			if trocador[5] == 2 and trocador[1] == n_frias:
+				fria += 1
+
+	if not path and dlg.dividir_utilidade.isChecked():
+		if tipo == "Hot" and quente > 1:
+			matriz = divisao_de_utilidades(tipo, dados_do_trocador[0], dados_do_trocador, ambas=True, m=matriz)
+		if tipo == "Cold" and fria > 1:
+			matriz = divisao_de_utilidades(tipo, dados_do_trocador[1], dados_do_trocador, ambas=True, m=matriz)
+
+
+	if path and dlg.dividir_utilidade2.isChecked():
+		if quente > 1:
+			matriz = divisao_de_utilidades("quente", dados_do_trocador_quente[0], dados_do_trocador_quente, ambas=True, m=matriz)
+		if fria > 1:
+			matriz = divisao_de_utilidades("fria", dados_do_trocador_fria[1], dados_do_trocador_fria, ambas=True, m=matriz)
+
+
 	for trocadorr in matriz:
 		matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
+
 	if path:
 		return matriz_teste
 	else:
 		desenho_em_dia_ambas = False
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+		dlg.trocador_editar.addItem("E" + str(dlg.trocador_editar.count()+1))
+		dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
 
 def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=-1):
 	ainda_tem_quente = False
 	ainda_tem_frio = False
 	ramoo = [True, True]
+	remove_quente = remove_fria = False
 	for trocador in matriz_completa:
 		if matriz_completa.index(trocador) != excecao and trocador[5] == estagio:
 			if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
@@ -3510,7 +3707,11 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 								if trocador[0] == corrente_quente and trocador[2] == ramo+1 and trocador[5] == estagio:
 									trocador[2] -= 1
 				divisao_de_correntes_ev("Q", estagio, corrente_quente, len(fracao), fracao)
-				divisao = ["Q", estagio, corrente_fria, len(fracao), fracao]
+				if len(fracao) != 1:
+					novas_divisoes[novas_divisoes.index(divisao)] = ["Q", estagio, corrente_fria, len(fracao), fracao]
+				else:
+					remove_quente = True
+					indice_quente = novas_divisoes.index(divisao)
 
 	if not ainda_tem_frio:
 		for divisao in novas_divisoes:
@@ -3529,7 +3730,16 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 								if trocador[1] == corrente_fria and trocador[3] == ramo+1 and trocador[5] == estagio:
 									trocador[3] -= 1
 				divisao_de_correntes_ev("F", estagio, corrente_fria, len(fracao), fracao)
-				divisao = ["F", estagio, corrente_fria, len(fracao), fracao]
+				if len(fracao) != 1:
+					novas_divisoes[novas_divisoes.index(divisao)] = ["F", estagio, corrente_fria, len(fracao), fracao]
+				else:
+					remove_fria = True
+					indice_fria = novas_divisoes.index(divisao)
+
+	if remove_quente:
+		novas_divisoes.pop(indice_quente)
+	if remove_fria:
+		novas_divisoes.pop(indice_fria)
 
 	return novas_divisoes, ramoo
 
@@ -3718,7 +3928,6 @@ def inserir_teste():
 			atualizar_desenho("acima")
 		else:
 			subestagio_trocador -= 1
-			return
 
 def remover_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
@@ -4007,7 +4216,6 @@ def inserir_teste_abaixo():
 			atualizar_desenho("abaixo")
 		else:
 			subestagio_trocador_abaixo -= 1
-			return
 
 def remover_teste_abaixo():
 	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
@@ -4313,18 +4521,31 @@ def suprir_9_correntes():
 		# 	acima.append([3, 2, 1, 2, i+1, 1, 1])
 		# 	abaixo.append([1, 2, 1, 1, i+1, 1, 1])
 
-		#viola termo util
+		# viola termo util
 		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
 		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
 
-		#sem viola term util
-		# acima = [[3, 2, 1, 2, 1, 1, "max"], [2, 2, 1, 1, 2, 1, "max"], [3, 2, 1, 1, 3, 1, "max"], [4, 2, 1, 1, 4, 1, "max"]]
-		# abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]#, [1, 3, 1, 1, 5, 1, "max"], [2, 3, 1, 2, 6, 1, "max"], [3, 3, 1, 3, 7, 1, "max"]]
+		# utilidades
+		acima.append([4, 2, 1, 1, 4, 1, "max"])
+		acima.append([4, 2, 1, 2, 5, 1, "max"])
+		abaixo.append([1, 3, 1, 1, 5, 1, "max"])
+		abaixo.append([2, 3, 1, 2, 6, 1, "max"])
+		abaixo.append([3, 3, 1, 3, 7, 1, "max"])
 
+		#sem viola term util
+		# acima = [[3, 2, 1, 2, 1, 1, "max"], [2, 2, 1, 1, 2, 1, "max"], [3, 2, 1, 1, 3, 1, "max"]]
+		# abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
+		#
+		# #utilidades
+		# acima.append([4, 2, 1, 1, 4, 1, "max"])
+		# abaixo.append([1, 3, 1, 1, 5, 1, "max"])
+		# abaixo.append([2, 3, 1, 2, 6, 1, "max"])
+		# abaixo.append([3, 3, 1, 3, 7, 1, "max"])
+		#
 		divisao_de_correntes("F", 1, 2, 2, [0.72, 0.28])
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
-		# divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
-		# divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
+		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
+		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
 
 		# if len(correntes_util) == 4:
 		# 	correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
