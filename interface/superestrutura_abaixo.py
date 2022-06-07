@@ -293,7 +293,7 @@ def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente,
 	nhot = nquentes
 	ncold = nfrias
 	dTmin = deltaTmin
-	#nsk = 2*nhot*ncold
+	nsk = 2*max(nhot, ncold)
 	preparar_dados_e_rede2()
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):

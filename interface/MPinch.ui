@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -3907,7 +3907,7 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>63</width>
+                         <width>98</width>
                          <height>33</height>
                         </rect>
                        </property>
@@ -6510,7 +6510,7 @@ QToolButton:focus{
                    <bool>true</bool>
                   </property>
                   <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;By joining the subnetworks, some of the Heat Exchangers might be &amp;quot;redundant&amp;quot;. This function identify those &amp;quot;redundancies&amp;quot; by searching for heat exchange loops and allows you to remove a Heat Exchanger of them. &lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;The Heat Load of the removed HE must be distributed between/among the reamaining of the loop.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: If all the Heat Load is not distributed, you can add utilities in the not supplied streams.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;By joining the subnetworks, some of the Heat Exchangers (HE) might be &amp;quot;redundant&amp;quot;. This function identifies those &amp;quot;redundancies&amp;quot; by searching for heat exchange loops and allows you to remove a HE from them. &lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;The Heat Load from the removed HE must be distributed between/among the reamaining of the loop.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: If all the Heat Load is not distributed, you can add utilities in the not supplied streams.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QToolButton{
@@ -6909,7 +6909,7 @@ QToolButton:focus{
                    <bool>true</bool>
                   </property>
                   <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;This Function allows you to edit the Heat Load of any Heat Exchanger, by just typing the desired value and clicking the &amp;quot;Edit&amp;quot; Button. If is desired to remove a HE, just make its Heat Load equals 0.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: Thermodynamics violations might appear in the HEN.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;If some Stream is not supplied, it is also possible to add some utility to it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;This Function allows you to edit the Heat Load of any Heat Exchanger (HE) by just typing the desired value and clicking the &amp;quot;Edit&amp;quot; Button. If it is desired to remove a HE, just make its Heat Load equal to 0.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Note: Changing heat loads may cause Thermodynamic violations to arise in the network.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;If some Stream is not supplied, it is also possible to add some utility to it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QToolButton{
@@ -7381,7 +7381,7 @@ QToolButton:focus{
                    <bool>true</bool>
                   </property>
                   <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing a specified Heat Load of some Heat Exchanger and supplying its streams with utilities.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Using this might result in a most expensive HEN.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: The suggested Heat Loads make ΔT &amp;gt; 0 or ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; in both of the Heat Exchanger therminals. If both values are equal, there is no Heat Load that make ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;This function allows you to undo some Thermodynamics Violation by removing specified Heat Load from some Heat Exchanger and supplying its streams with utilities.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Using this may increase heat exchanger network total costs.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: Other Thermodynamics Violations might appear in the Network.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Note: The suggested Heat Loads make ΔT &amp;gt; 0 or ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; in both Heat Exchanger ends. If both values are equal, there is no Heat Load that make ΔT &amp;gt; ΔT&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;min&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QToolButton{

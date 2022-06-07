@@ -300,8 +300,9 @@ def receber_pinch_ev(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPf
 	nhot = nquentes
 	ncold = nfrias
 	dTmin = deltaTmin
-	#nsk = 2*nhot*ncold
+	nsk = 2*max(nhot, ncold)
 	preparar_dados_e_rede()
+
 
 def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 	Qtotalestagioq = Qtotalestagiof = 0

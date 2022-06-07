@@ -75,6 +75,8 @@ primeira_util = True
 primeira_util_fria = True
 
 
+ja_gerou_outra_acima = False
+
 
 
 #streams
@@ -280,6 +282,7 @@ def remover_corrente(corrente, tabela, tipo):
 		dlg.botao_addutility.setEnabled(True)
 
 	tabela.removeRow(corrente)
+	tabela.setCurrentCell(-1, -1)
 
 def done_teste(libera=False):
 	global dTmin, done, correntes
@@ -3917,8 +3920,28 @@ def printar():
 					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste():
-	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas,  matriz_armazenada, primeira_util
+	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas,  matriz_armazenada, primeira_util, ja_gerou_outra_acima
 	subestagio_trocador += 1
+	if subestagio_trocador > max(nhot, ncold) * 2 and not ja_gerou_outra_acima:
+		msgBox = QMessageBox()
+		msgBox.setIcon(QMessageBox.Information)
+		msgBox.setWindowTitle("Max number os Heat Exchangers")
+		msgBox.setText("A new superstructure will be generated to handle this many Heat Exchangers. This may take some time. \nDo you want to proceed?")
+		msgBox.setStyleSheet("font-weight: bold; font-size: 10pt; text-align: center")
+		msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+		returnValue = msgBox.exec()
+		if returnValue == QMessageBox.Cancel:
+			subestagio_trocador -= 1
+			return
+		else:
+			ja_gerou_outra_acima = True
+			salvar_matriz = nao_sacrificar_matriz(matriz_armazenada)
+			remover_todos_acima()
+			receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima, sk=4)
+			for trocador in salvar_matriz:
+				matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7])
+
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 	insere_sim = True
 	if e_utilidade_quente[dados_do_trocador[0]-1]:
@@ -4732,7 +4755,7 @@ for i in range(5):
 openfile_teste(False)
 done_teste(True)
 pinch_teste()
-suprir_9_correntes()
+# suprir_9_correntes()
 
 
 
