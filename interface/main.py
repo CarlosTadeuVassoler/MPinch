@@ -439,11 +439,11 @@ def pinch_teste():
 
 	#manda tudo pro backend
 
-	# inicio = time.time()
+	inicio = time.time()
 	receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
-	# fim = time.time()
-	# print("criando super acima:", fim - inicio, "s")
-	# print()
+	fim = time.time()
+	print("criando super acima:", fim - inicio, "s")
+	print()
 	# inicio = time.time()
 	receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
 	# fim = time.time()
@@ -4771,9 +4771,9 @@ for i in range(5):
 
 
 
-openfile_teste(False)
-done_teste(True)
-pinch_teste()
+# openfile_teste(False)
+# done_teste(True)
+# pinch_teste()
 # suprir_9_correntes()
 
 
