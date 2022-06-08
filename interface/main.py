@@ -293,11 +293,7 @@ def done_teste(libera=False):
 		lista_cps.append(corrente[2])
 
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
-	# inicio = time.time()
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
-	# fim = time.time()
-	# print("pinch sem utilidades:", fim - inicio, "s")
-	# print()
 	dlg.done = uic.loadUi("done.ui")
 	# dlg.done.showMaximized()
 	dlg.done.show()
@@ -364,11 +360,7 @@ def pinch_teste():
 			dlg.pinchbutton.setEnabled(True)
 
 	util_temporaria = nao_sacrificar_matriz(correntes_util)
-	# inicio = time.time()
 	pinchf, pinchq, util_quente, util_fria, a = pontopinch(correntes, n, dTmin)
-	# fim = time.time()
-	# print("pinch com utilidades:", fim - inicio, "s")
-	# print()
 
 	for util in correntes_util:
 		if util[3] == "Hot":
@@ -439,31 +431,15 @@ def pinch_teste():
 
 	#manda tudo pro backend
 
-	inicio = time.time()
 	receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima)
-	fim = time.time()
-	print("criando super acima:", fim - inicio, "s")
-	print()
-	# inicio = time.time()
 	receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo)
-	# fim = time.time()
-	# print("criando super abaixo:", fim - inicio, "s")
-	# print()
-	# inicio = time.time()
 	printar()
 	printar_abaixo()
 	correntesnoscombos(nhot,ncold)
 	testar_correntes(dlg, True)
 	testar_correntes_abaixo(dlg)
-	# fim = time.time()
-	# print("adicionando as coisas pra interface:", fim - inicio, "s")
-	# print()
-	# inicio = time.time()
 	desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
-	# fim = time.time()
-	# print("desenhando as redes:", fim - inicio, "s")
-	# print()
 	desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
 	#libera botões e coisas
@@ -3083,7 +3059,11 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		ultimo_subestagio_acima = 0
 
 		if primeiro:
-			receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0)
+			if ja_gerou_outra_acima or ja_gerou_outra_abaixo:
+				nska = max(subestagio_trocador, subestagio_trocador_abaixo) + max(nhot, ncold)
+			else:
+				nska = 3*max(nhot, ncold)
+			receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0, nska)
 			for i in range(len(matriz_acima)-1, -1, -1):
 				if len(matriz_acima[i]) > 2:
 					ultimo_subestagio_acima = matriz_acima[i][4]
@@ -3118,9 +3098,15 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 		matriz_total = matriz_acima + matriz_abaixo
 
+		inicio = time.time()
 		for trocador in matriz_total:
 			if len(trocador) > 2:
+				it = time.time()
 				matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+				itt = time.time()
+				print("trocador", trocador[4], itt - it)
+		fim = time.time()
+		print("trocadores total", fim - inicio)
 		try:
 			return nao_sacrificar_matriz(matriz_completa)
 		except:
@@ -3500,6 +3486,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas, divisoes_ev
 
 	if jogar_evolucao:
+		print("comecou")
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
 		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
@@ -4604,11 +4591,6 @@ def suprir_9_correntes():
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
 		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
 		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
-
-		# if len(correntes_util) == 4:
-		# 	correntes_util[1][2] = correntes_util[1][2] * 0.72185186976924193314304968313096
-		# 	correntes_util[2][2] = correntes_util[2][2] * 0.10981568380823375743795655749601
-		# 	correntes_util[3][2] = correntes_util[3][2] * 0.16833244642252430941899375937303
 
 	for trocador in acima:
 		if len(trocador) > 1:

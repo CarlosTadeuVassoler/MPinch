@@ -341,13 +341,13 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 									for j1 in range(ncold):
 										for sj1 in range(nhot):
 											for sk1 in range (nsk):
-												Qestagioq += Q[chot-1][si1][j1][sj1][sk1][estagio-1]
+												Qestagioq += Q[i][si1][j1][sj1][sk1][k]
 								Qestagiof = 0
 								for sj1 in range (nhot):
 									for i1 in range(nhot):
 										for si1 in range(ncold):
 											for sk1 in range (nsk):
-												Qestagiof += Q[i1][si1][ccold-1][sj1][sk1][estagio-1]
+												Qestagiof += Q[i1][si1][j][sj1][sk1][k]
 
 								if Fharr[k][i][si] == 0:
 									Fharr[k][i][si] = 100
