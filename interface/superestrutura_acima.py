@@ -116,11 +116,13 @@ def preparar_dados_e_rede(sk):
 		Qtotalh0arr = np.array([0])
 		Qtotalh0arr.resize(nhot, ncold, nstages)
 		Qtotalh0 = Qtotalh0arr.tolist()
-		map(float, Qtotalh0)
+		map(float, Qtotalh0)#ok
 		Qtotalc0arr = np.array([0])
 		Qtotalc0arr.resize(ncold, nhot, nstages)
 		Qtotalc0 = Qtotalc0arr.tolist()
-		map(float, Qtotalc0)
+		map(float, Qtotalc0)#ok
+
+		#tirar
 		Qestagioq = np.array([0])
 		Qestagioq.resize(nhot, nstages)
 		Qestagiof = np.array([0])
@@ -129,11 +131,13 @@ def preparar_dados_e_rede(sk):
 		Thkiarr = np.array ([0])
 		Thkiarr.resize(nhot, nstages)
 		Thki = Thkiarr.tolist()
-		map(float, Thki)
+		map(float, Thki)#ok
 		Thkfarr = np.array ([0])
 		Thkfarr.resize(nhot, nstages)
 		Thkf = Thkfarr.tolist()
-		map(float, Thkf)
+		map(float, Thkf)#ok
+
+		#tirar
 		Thfinal01arr = np.array ([0])
 		Thfinal01arr.resize(nhot, ncold)
 		Thfinal01 = Thfinal01arr.tolist()
@@ -146,11 +150,13 @@ def preparar_dados_e_rede(sk):
 		Tckiarr = np.array ([0])
 		Tckiarr.resize(ncold, nstages)
 		Tcki = Tckiarr.tolist()
-		map(float, Tcki)
+		map(float, Tcki)#ok
 		Tckfarr = np.array ([0])
 		Tckfarr.resize(ncold, nstages)
 		Tckf = Tckfarr.tolist()
-		map(float, Tckf)
+		map(float, Tckf)#ok
+
+		#tirar
 		Tcfinal01arr = np.array ([0])
 		Tcfinal01arr.resize(ncold, nhot)
 		Tcfinal01 = Tcfinal01arr.tolist()
@@ -160,6 +166,7 @@ def preparar_dados_e_rede(sk):
 		Tcfinal01k = Tcfinal01karr.tolist()
 		map(float, Tcfinal01k)
 
+		#ok
 		Fharr = np.array ([0])
 		Fharr.resize(nstages, nhot, ncold)
 		Fharr = Fharr.tolist()
@@ -170,20 +177,21 @@ def preparar_dados_e_rede(sk):
 	Thskiarr = np.array ([0])
 	Thskiarr.resize(nhot, ncold, nsk, nstages)
 	Thski = Thskiarr.tolist()
-	map(float, Thski)
+	map(float, Thski)#ok
 	Thskfarr = np.array ([0])
 	Thskfarr.resize(nhot, ncold, nsk, nstages)
 	Thskf = Thskfarr.tolist()
-	map(float, Thskf)
+	map(float, Thskf)#ok
 	Tcskiarr = np.array ([0])
 	Tcskiarr.resize(ncold, nhot, nsk, nstages)
 	Tcski = Tcskiarr.tolist()
-	map(float, Tcski)
+	map(float, Tcski)#ok
 	Tcskfarr = np.array ([0])
 	Tcskfarr.resize(ncold, nhot, nsk, nstages)
 	Tcskf = Tcskfarr.tolist()
-	map(float, Tcskf)
+	map(float, Tcskf)#ok
 
+	#tirar
 	Thinarr = np.array ([0])
 	Thinarr.resize(nhot, ncold, ncold, nhot, nsk, nstages)  #Temperatura de entrada quente de um trocador
 	Thin = Thinarr.tolist()
@@ -200,7 +208,6 @@ def preparar_dados_e_rede(sk):
 	Tcoutarr.resize(nhot, ncold, ncold, nhot, nsk, nstages) #Temperatura de saída fria de um trocador
 	Tcout = Tcoutarr.tolist()
 	map(float, Tcout)
-
 	Think = Thinarr.tolist()
 	map(float, Think)
 	Tcink = Tcinarr.tolist()
@@ -215,14 +222,13 @@ def preparar_dados_e_rede(sk):
 	Q = Qarr.tolist()
 	Qaux = Qarr.tolist()
 	map(float, Q)
-	map(float, Qaux)
+	map(float, Qaux)#tirar
 
 	if sk == 2:
 		for quente in range(nhot):
 			temperatura_atual_quente.append([])
 			temperatura_atual_quente_mesclada.append(Thf[quente])
 			calor_atual_quente_sub.append([])
-			# if sk == 2:
 			dividida_quente.append(False)
 			quantidade_quente.append(1)
 			fracoes_quentes.append([])
@@ -233,7 +239,6 @@ def preparar_dados_e_rede(sk):
 			temperatura_atual_fria.append([])
 			temperatura_atual_fria_mesclada.append(Tc0[fria])
 			calor_atual_frio_sub.append([])
-			# if sk == 2:
 			dividida_fria.append(False)
 			quantidade_fria.append(1)
 			fracoes_frias.append([])

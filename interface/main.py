@@ -76,6 +76,7 @@ primeira_util_fria = True
 
 
 ja_gerou_outra_acima = False
+ja_gerou_outra_abaixo = False
 
 
 
@@ -3763,6 +3764,16 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 	return novas_divisoes, ramoo
 
 
+def mensagem_super():
+	msgBox = QMessageBox()
+	msgBox.setIcon(QMessageBox.Information)
+	msgBox.setWindowTitle("Max number os Heat Exchangers")
+	msgBox.setText("A new superstructure will be generated to handle this many Heat Exchangers. This may take some time. \nDo you want to proceed?")
+	msgBox.setStyleSheet("font-weight: bold; font-size: 10pt; text-align: center")
+	msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+	return msgBox
+
 #above
 def printar():
 	dlg.tableWidget_3.clearContents()
@@ -3923,13 +3934,7 @@ def inserir_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas,  matriz_armazenada, primeira_util, ja_gerou_outra_acima
 	subestagio_trocador += 1
 	if subestagio_trocador > max(nhot, ncold) * 2 and not ja_gerou_outra_acima:
-		msgBox = QMessageBox()
-		msgBox.setIcon(QMessageBox.Information)
-		msgBox.setWindowTitle("Max number os Heat Exchangers")
-		msgBox.setText("A new superstructure will be generated to handle this many Heat Exchangers. This may take some time. \nDo you want to proceed?")
-		msgBox.setStyleSheet("font-weight: bold; font-size: 10pt; text-align: center")
-		msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-
+		msgBox = mensagem_super()
 		returnValue = msgBox.exec()
 		if returnValue == QMessageBox.Cancel:
 			subestagio_trocador -= 1
@@ -4228,8 +4233,22 @@ def printar_abaixo():
 					item.setTextAlignment(Qt.AlignCenter)
 
 def inserir_teste_abaixo():
-	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo, primeira_util_fria
+	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo, primeira_util_fria, ja_gerou_outra_abaixo
 	subestagio_trocador_abaixo += 1
+	if subestagio_trocador_abaixo > max(nhot, ncold) * 2 and not ja_gerou_outra_abaixo:
+		msgBox = mensagem_super()
+		returnValue = msgBox.exec()
+		if returnValue == QMessageBox.Cancel:
+			subestagio_trocador_abaixo -= 1
+			return
+		else:
+			ja_gerou_outra_abaixo = True
+			salvar_matriz = nao_sacrificar_matriz(matriz_trocadores_abaixo)
+			remover_todos_abaixo()
+			receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo, sk=4)
+			for trocador in salvar_matriz:
+				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
+
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 	insere_sim = True
 	if e_utilidade_fria[dados_do_trocador[1]-1]:
