@@ -3059,14 +3059,14 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		ultimo_subestagio_acima = 0
 
 		if primeiro:
-			if ja_gerou_outra_acima or ja_gerou_outra_abaixo:
-				nska = max(subestagio_trocador, subestagio_trocador_abaixo) + max(nhot, ncold)
-			else:
-				nska = 3*max(nhot, ncold)
+			nska = max(subestagio_trocador, subestagio_trocador_abaixo) + max(nhot, ncold)
 			receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0, nska)
 			for i in range(len(matriz_acima)-1, -1, -1):
 				if len(matriz_acima[i]) > 2:
-					ultimo_subestagio_acima = matriz_acima[i][4]
+					try:
+						ultimo_subestagio_acima = matriz_acima[i][4]
+					except:
+						ultimo_subestagio_acima = 1
 					break
 
 			for i in range(len(matriz_acima)):
@@ -3098,15 +3098,15 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 		matriz_total = matriz_acima + matriz_abaixo
 
-		inicio = time.time()
+		# inicio = time.time()
 		for trocador in matriz_total:
 			if len(trocador) > 2:
-				it = time.time()
+				# it = time.time()
 				matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-				itt = time.time()
-				print("trocador", trocador[4], itt - it)
-		fim = time.time()
-		print("trocadores total", fim - inicio)
+				# itt = time.time()
+				# print("trocador", trocador[4], itt - it)
+		# fim = time.time()
+		# print("trocadores total", fim - inicio)
 		try:
 			return nao_sacrificar_matriz(matriz_completa)
 		except:
@@ -3486,7 +3486,6 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas, divisoes_ev
 
 	if jogar_evolucao:
-		print("comecou")
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
 		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
@@ -4753,10 +4752,10 @@ for i in range(5):
 
 
 
-# openfile_teste(False)
-# done_teste(True)
-# pinch_teste()
-# suprir_9_correntes()
+openfile_teste(False)
+done_teste(True)
+pinch_teste()
+suprir_9_correntes()
 
 
 
