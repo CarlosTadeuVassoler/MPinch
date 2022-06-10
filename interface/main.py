@@ -82,7 +82,7 @@ ja_gerou_outra_abaixo = False
 
 #streams
 def openfile_teste(pergunta=True):
-	global n, nhot, ncold, correntes
+	global n, nhot, ncold, correntes, arquivo
 
 	#le o excel
 	dlg.tableWidget.blockSignals(True)
@@ -91,7 +91,12 @@ def openfile_teste(pergunta=True):
 		filename = askopenfilename()
 		workbook = xlrd.open_workbook(filename)
 	else:
-		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		# arquivo = "9 correntes - 20 dtmin.xls"
+		# workbook = xlrd.open_workbook("25 correntes.xls")
+		# arquivo = "25 correntes.xls"
+		workbook = xlrd.open_workbook("50 correntes.xls")
+		arquivo = "50 correntes.xls"
 
 	worksheet = workbook.sheet_by_index(0)
 	k=0
@@ -4547,24 +4552,20 @@ def OPTA():
 def suprir_9_correntes():
 	global matriz_armazenada, matriz_trocadores_abaixo, subestagio_trocador_abaixo, subestagio_trocador
 
-	if nhot == 2 and ncold == 2:
-		acima = [[1, 1, 1, 1, 1, 1, 150], [1, 1, 2, 2, 2, 1, 150], [2, 2, 2, 2, 4, 1, 60], [2, 2, 1, 1, 3, 1, 60], [1], [2]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 15], [1, 2, 2, 2, 2, 1, 15], [2, 2, 2, 2, 4, 1, 5], [2, 2, 1, 1, 3, 1, 5], [2]]
-		#divtype, estagio, corrente, quantidade, fracao
-		divisao_de_correntes("Q", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes("Q", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes("F", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes("F", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("Q", 1, 1, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("Q", 1, 2, 2, [0.5, 0.5])
-		divisao_de_correntes_abaixo("F", 1, 2, 2, [0.5, 0.5])
+	if arquivo == "25 correntes.xls":
+		acima = [[2, 2, 1, 1, 1, 1, 10], [2, 2, 1, 1, 2, 1, 10], [2, 2, 1, 1, 3, 1, 10]]
+		abaixo = [[1, 1, 1, 1, 1, 1, 10], [1, 1, 1, 1, 2, 1, 10], [1, 1, 1, 1, 3, 1, 10]]
+	elif arquivo == "50 correntes.xls":
+		acima = [[2, 2, 1, 1, 1, 1, 1], [3, 2, 1, 1, 2, 1, 1]]
+		abaixo = [[1, 1, 1, 1, 1, 1, 10], [1, 1, 1, 1, 2, 1, 10], [1, 1, 1, 1, 3, 1, 10]]
+		for i in range(2, 11):
+			try:
+				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+1, 1, 1])
+				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+2, 1, 1])
+			except:
+				pass
+		print(acima)
 	else:
-		# acima = []
-		# abaixo = []
-		# for i in range(10):
-		# 	acima.append([3, 2, 1, 2, i+1, 1, 1])
-		# 	abaixo.append([1, 2, 1, 1, i+1, 1, 1])
-
 		# viola termo util
 		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
 		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
@@ -4755,7 +4756,7 @@ for i in range(5):
 openfile_teste(False)
 done_teste(True)
 pinch_teste()
-suprir_9_correntes()
+# suprir_9_correntes()
 
 
 

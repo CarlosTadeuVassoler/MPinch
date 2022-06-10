@@ -52,15 +52,13 @@ def declarar_np(*args):
 def preparar_dados_e_rede(sk=2):
 	global Qtotalh01, Qtotalc01, Qtotalh0, Qtotalc0
 	global Thski, Thki, Thskf, Thkf, Tcski, Tcki, Tcskf, Tckf
-	global Fharr, Fcarr, Q, Qestagioq, Qestagiof
+	global Fharr, Fcarr, Q
 
 	Thski = declarar_np(nhot, ncold+2, nsk, nstages)
 	Thskf = declarar_np(nhot, ncold+2, nsk, nstages)
 	Tcski = declarar_np(ncold, nhot+2, nsk, nstages)
 	Tcskf = declarar_np(ncold, nhot+2, nsk, nstages)
 	Q = declarar_np(nhot, ncold+2, ncold, nhot+2, nsk, nstages)
-	Qestagioq = declarar_np(nstages, nhot)
-	Qestagiof = declarar_np(nstages, ncold)
 
 	if sk == 4:
 		linha_interface_ev.clear()
@@ -318,13 +316,6 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 			Tcki[j][k] = Tc0[j]
 			Tckf[j][k] = Tc0[j]
 
-	if acao == "adicao":
-		Qestagioq[estagio-1][chot-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		Qestagiof[estagio-1][ccold-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-	else:
-		Qestagioq[estagio-1][chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		Qestagiof[estagio-1][ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-
 	violou = False
 	trocador_violado = []
 
@@ -335,15 +326,16 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 				for si in sorted(subq_usadas[i]):
 					for j in sorted(frias_usadas):
 						for sj in sorted(subf_usadas[j]):
-	# for k in range(nstages):
-	# 	for sk in range(nsk):
-	# 		for i in range(nhot):
-	# 			for si in range(ncold):
-	# 				for j in range(ncold):
-	# 					for sj in range(nhot):
 
 							if Q[i][si][j][sj][sk][k] != 0:
 								# print("achou", time.time())
+
+								Qestagioq = 0
+								for si1 in sorted(subq_usadas[i]):
+									for j1 in sorted(frias_usadas):
+										for sj1 in sorted(subf_usadas[j1]):
+											for sk1 in sorted(subestagios[k]):
+												Qestagioq += Q[i][si1][j1][sj1][sk1][k]
 
 								if Fharr[k][i][si] == 0:
 									Fharr[k][i][si] = 100
@@ -352,30 +344,26 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								Thout = Thin - (Q[i][si][j][sj][sk][k]/(CPh[i]*Fharr[k][i][si]/100))
 
 								Think = Thki[i][k]
-								Thoutk = Think - (Qestagioq[k][i]/CPh[i])
+								Thoutk = Think - (Qestagioq/CPh[i])
 
 								temperatura_atual_quente_ev_mesclada[i] = Thoutk
 
 								#Temperatura de estágios e sub-estágios
 								for k1 in range(nstages):
 									for sk1 in sorted(subestagios[k1]):
-										if k1 > (k): #para estágios mais a esqueda do atual da superestrutura, todas as temperaturas recebem a temperatura pós troca
-											#entrada
+										if k1 > (k):
 											Thki[i][k1] = Thoutk
-
-											#saida
 											Thkf[i][k1] = Thoutk
 
 											for sub_quente in range(ncold+2):
 												Thski[i][sub_quente][sk1][k1] = Thoutk
 												Thskf[i][sub_quente][sk1][k1] = Thoutk
 
-										if k1 == (k): #para o estágio atual da superestrutura, depende de qual subestagio
-											if sk1 >= (sk): #para os subestagios a esquerda ou atual da superestrutura, depende se entra ou sai
-												if sk1 > sk: #para os a esquerda, entra recebe após troca
+										if k1 == (k):
+											if sk1 >= (sk):
+												if sk1 > sk:
 													Thski[i][si][sk1][k1] = Thout
 												Thskf[i][si][sk1][k1] = Thout
-
 											Thkf[i][k1] = Thoutk
 
 								if Fharr[k][i][si] == 100:
@@ -391,6 +379,13 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 
 							if Q[i][si][j][sj][sk][k] != 0:
 
+								Qestagiof = 0
+								for sj1 in sorted(subf_usadas[j]):
+									for i1 in sorted(quentes_usadas):
+										for si1 in sorted(subq_usadas[i1]):
+											for sk1 in sorted(subestagios[k]):
+												Qestagiof += Q[i1][si1][j][sj1][sk1][k]
+
 								if Fcarr[k][j][sj] == 0:
 									Fcarr[k][j][sj] = 100
 
@@ -398,7 +393,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								Tcout = Tcin + (Q[i][si][j][sj][sk][k]/(CPc[j]*Fcarr[k][j][sj]/100))
 
 								Tcink = Tcki[j][k]
-								Tcoutk = Tcink + (Qestagiof[k][j]/CPc[j])
+								Tcoutk = Tcink + (Qestagiof/CPc[j])
 
 								tempdif = Thin - Tcout
 								tempdif_terminal_frio = Thout - Tcin
@@ -408,23 +403,19 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 								#Temperatura de estágios e sub-estágios
 								for k1 in range(nstages-1, -1, -1):
 									for sk1 in reversed(sorted(subestagios[k1])):
-										if k1 < (k): #para estágios mais a esqueda do atual da superestrutura, todas as temperaturas recebem a temperatura pós troca
-											#entrada
+										if k1 < (k):
 											Tcki[j][k1] = Tcoutk
-
-											#saida
 											Tckf[j][k1] = Tcoutk
 
 											for sub_fria in range(nhot+2):
 												Tcski[j][sub_fria][sk1][k1] = Tcoutk
 												Tcskf[j][sub_fria][sk1][k1] = Tcoutk
 
-										if k1 == (k): #para o estágio atual da superestrutura, depende de qual subestagio
-											if sk1 <= (sk): #para os subestagios a esquerda ou atual da superestrutura, depende se entra ou sai
-												if sk1 < sk: #para os a esquerda, entra recebe após troca
+										if k1 == (k):
+											if sk1 <= (sk):
+												if sk1 < sk:
 													Tcski[j][sj][sk1][k1] = Tcout
 												Tcskf[j][sj][sk1][k1] = Tcout
-
 											Tckf[j][k1] = Tcoutk
 
 								if Fcarr[k][j][sj] == 100:
@@ -515,15 +506,11 @@ def inserir_trocador_ev(dlg, vetor, ultima=False):
 		subq_usadas[chot-1].append(sbhot-1)
 	if sbcold-1 not in subf_usadas[ccold-1]:
 		subf_usadas[ccold-1].append(sbcold-1)
-	subestagios[estagio-1].append(sestagio-1)
+	if sestagio-1 not in subestagios[estagio-1]:
+		subestagios[estagio-1].append(sestagio-1)
 
 	# CÁLCULO DE TODA A SUPERESTRUTURA
 	violou, trocador_violado = calcular_superestrutura(dlg, "adicao", chot, ccold, sbhot, sbcold, sestagio, estagio, ultima)
-	if violou and trocador_violado == "termo":
-		print("viola termo")
-
-	# violou, trocador_violado = False, False
-	# superestrutura("adicao", chot, ccold, sbhot, sbcold, sestagio, estagio, ultima)
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
@@ -577,6 +564,16 @@ def remover_trocador_ev(dlg, vetor, indice, linha_interface_ev, ultima=False):
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 
+	if sestagio == 1:
+		subestagios[0].clear()
+		subestagios[1].clear()
+		quentes_usadas.clear()
+		frias_usadas.clear()
+		for i in range(len(subq_usadas)):
+			subq_usadas[i].clear()
+		for j in range(len(subf_usadas)):
+			subf_usadas[j].clear()
+			
 	calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio, ultima)
 
 	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
