@@ -91,10 +91,10 @@ def openfile_teste(pergunta=True):
 		filename = askopenfilename()
 		workbook = xlrd.open_workbook(filename)
 	else:
-		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
-		# arquivo = "9 correntes - 20 dtmin.xls"
-		workbook = xlrd.open_workbook("25 correntes.xls")
-		arquivo = "25 correntes.xls"
+		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		arquivo = "9 correntes - 20 dtmin.xls"
+		# workbook = xlrd.open_workbook("25 correntes.xls")
+		# arquivo = "25 correntes.xls"
 		# workbook = xlrd.open_workbook("50 correntes.xls")
 		# arquivo = "50 correntes.xls"
 
@@ -111,9 +111,9 @@ def openfile_teste(pergunta=True):
 	#armazena as correntes e calcula a quantidade de quentes e frias
 	correntes = []
 	dlg.tableWidget.setRowCount(n)
-	for i in range (n):
+	for i in range(n):
 		dados_da_corrente = []
-		for j in range (3):
+		for j in range(3):
 			dados_da_corrente.append(worksheet.cell(i+1, j+1).value)
 		if dados_da_corrente[0] > dados_da_corrente[1]:
 			dados_da_corrente.append("Hot")
@@ -381,7 +381,7 @@ def pinch_teste():
 	correntes += correntes_util
 	n += len(correntes_util)
 	#arruma as temperaturas baseado no pinch
-	for i in range (n): #correção das temperaturas
+	for i in range(n): #correção das temperaturas
 		if correntes[i][3] == "Hot":
 			correntes_quentes.append(1)
 			if e_utilidade[i]:
@@ -3103,15 +3103,8 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 		matriz_total = matriz_acima + matriz_abaixo
 
-		# inicio = time.time()
-		for trocador in matriz_total:
-			if len(trocador) > 2:
-				# it = time.time()
-				matriz_completa, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
-				# itt = time.time()
-				# print("trocador", trocador[4], itt - it)
-		# fim = time.time()
-		# print("trocadores total", fim - inicio)
+		matriz_completa = inserir_trocador_ev(matriz_total)
+
 		try:
 			return nao_sacrificar_matriz(matriz_completa)
 		except:
@@ -3349,8 +3342,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				if trocador[4] > partir_estagio and trocador[5] == estagio:
 					trocador[4] -= 1
 
-			for trocador in matriz_completa:
-				matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocador[:7])
+			matriz_teste = inserir_trocador_ev(matriz_completa)
 
 			matriz_completa = nao_sacrificar_matriz(matriz_teste)
 
@@ -3564,8 +3556,7 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
 		else:
 			matriz[trocador][6] = calor
-		for trocadorr in matriz:
-			matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
+		matriz_teste = inserir_trocador_ev(matriz)
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
 	else:
 		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True, ramo=ramo))
@@ -3670,9 +3661,7 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 		if fria > 1:
 			matriz = divisao_de_utilidades("fria", dados_do_trocador_fria[1], dados_do_trocador_fria, ambas=True, m=matriz)
 
-
-	for trocadorr in matriz:
-		matriz_teste, violou, trocadores_violados = inserir_trocador_ev("oi", trocadorr[:7])
+	matriz_teste = inserir_trocador_ev(matriz)
 
 	if path:
 		return matriz_teste
@@ -3998,9 +3987,9 @@ def calcular_calor_teste():
 	dlg.TempLoadAbove.radioButton_2.setText("Inlet Hot Temperature")
 	dlg.TempLoadAbove.radioButton.setText("Outlet Cold Temperature")
 
-	for i in range (nhot):
+	for i in range(nhot):
 		dlg.TempLoadAbove.comboBox.addItem(str(i+1))
-	for i in range (ncold):
+	for i in range(ncold):
 		dlg.TempLoadAbove.comboBox_2.addItem(str(i+1))
 
 	dlg.TempLoadAbove.comboBox.setCurrentText(str(dlg.comboBox_2.currentText()))

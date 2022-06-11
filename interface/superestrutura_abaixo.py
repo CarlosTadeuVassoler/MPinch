@@ -104,13 +104,13 @@ def preparar_dados_e_rede2(sk):
 				temperatura_atual_fria_abaixo[fria].append(Tcf[fria])
 
 		#calores totais
-		for i in range (nhot):
+		for i in range(nhot):
 			if Th0[i] <= Thf[i]:
 				CPh[i] = 0
 			Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
 			calor_atual_quente_abaixo.append(CPh[i] * (Th0[i] - Thf[i]))
 			calor_atual_quente_sub_abaixo[i][0] = CPh[i] * (Th0[i] - Thf[i])
-		for j in range (ncold):
+		for j in range(ncold):
 			if Tcf[j] <= Tc0[j]:
 				CPc[j] = 0
 			Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
@@ -124,23 +124,23 @@ def preparar_dados_e_rede2(sk):
 					Qtotalc0[j][0][k] = Qtotalc01[j]
 
 	#prepara rede
-	for i in range (nhot):
-		for si in range (ncold):
-			for sk in range (nsk):
-				for k in range (nstages):
+	for i in range(nhot):
+		for si in range(ncold):
+			for sk in range(nsk):
+				for k in range(nstages):
 					Thski[i][si][sk][k] = Th0[i]
 					Thskf[i][si][sk][k] = Th0[i]
-		for k in range (nstages):
+		for k in range(nstages):
 			Thki[i][k] = Th0[i]
 			Thkf[i][k] = Th0[i]
 
-	for j in range (ncold):
-		for sj in range (nhot):
+	for j in range(ncold):
+		for sj in range(nhot):
 			for sk in range(nsk-1, -1, -1):
 				for k in range(nstages-1, -1, -1):
 					Tcski[j][sj][sk][k] = Tcf[j]
 					Tcskf[j][sj][sk][k] = Tcf[j]
-		for k in range (nstages-1, -1, -1):
+		for k in range(nstages-1, -1, -1):
 			Tcki[j][k] = Tcf[j]
 			Tckf[j][k] = Tcf[j]
 
@@ -293,37 +293,37 @@ def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
 
 def verificar_trocador_estagio_abaixo(estagio, corrente, tipo):
 	if tipo == "Q":
-		for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
+		for si in range(ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
 			for j in range(ncold):
 				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
-					for sk in range (nsk):
+					for sk in range(nsk):
 						if Q[corrente-1][si][j][sj][sk][estagio-1] != 0:
 							return True
 	elif tipo == "F":
 		for i in range(nhot):
-			for si in range (ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
+			for si in range(ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
 				for sj in range(nhot): #max de subcorrentes frias é igual ao numero de correntes quentes
-					for sk in range (nsk):
+					for sk in range(nsk):
 						if Q[i][si][corrente-1][sj][sk][estagio-1] != 0:
 							return True
 
 def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
-	for si in range (ncold):
-		for sk in range (nsk):
-			for k in range (nstages):
+	for si in range(ncold):
+		for sk in range(nsk):
+			for k in range(nstages):
 				Thski[chot-1][si][sk][k] = Th0[chot-1]
 				Thskf[chot-1][si][sk][k] = Th0[chot-1]
 
-	for k in range (nstages):
+	for k in range(nstages):
 		Thki[chot-1][k] = Th0[chot-1]
 		Thkf[chot-1][k] = Th0[chot-1]
 
-	for sj in range (nhot):
+	for sj in range(nhot):
 		for sk in range(nsk-1, -1, -1):
 			for k in range(nstages-1, -1, -1):
 				Tcski[ccold-1][sj][sk][k] = Tcf[ccold-1]
 				Tcskf[ccold-1][sj][sk][k] = Tcf[ccold-1]
-	for k in range (nstages-1, -1, -1):
+	for k in range(nstages-1, -1, -1):
 		Tcki[ccold-1][k] = Tcf[ccold-1]
 		Tckf[ccold-1][k] = Tcf[ccold-1]
 
@@ -340,10 +340,10 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 						if Q[chot-1][si][j][sj][sk][k] != 0:
 
 							Qestagioq = 0
-							for si1 in range (ncold):
+							for si1 in range(ncold):
 								for j1 in range(ncold):
 									for sj1 in range(nhot):
-										for sk1 in range (nsk):
+										for sk1 in range(nsk):
 											Qestagioq += Q[chot-1][si1][j1][sj1][sk1][k]
 
 							if Fharr[k][chot-1][si] == 0:
@@ -389,10 +389,10 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 						if Q[i][si][ccold-1][sj][sk][k] != 0:
 
 							Qestagiof = 0
-							for sj1 in range (nhot):
+							for sj1 in range(nhot):
 								for i1 in range(nhot):
 									for si1 in range(ncold):
-										for sk1 in range (nsk):
+										for sk1 in range(nsk):
 											Qestagiof += Q[i1][si1][ccold-1][sj1][sk1][k]
 
 							if Fcarr[k][ccold-1][sj] == 0:
