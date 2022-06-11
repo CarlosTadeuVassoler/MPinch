@@ -93,10 +93,10 @@ def openfile_teste(pergunta=True):
 	else:
 		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
 		# arquivo = "9 correntes - 20 dtmin.xls"
-		# workbook = xlrd.open_workbook("25 correntes.xls")
-		# arquivo = "25 correntes.xls"
-		workbook = xlrd.open_workbook("50 correntes.xls")
-		arquivo = "50 correntes.xls"
+		workbook = xlrd.open_workbook("25 correntes.xls")
+		arquivo = "25 correntes.xls"
+		# workbook = xlrd.open_workbook("50 correntes.xls")
+		# arquivo = "50 correntes.xls"
 
 	worksheet = workbook.sheet_by_index(0)
 	k=0
@@ -4553,18 +4553,33 @@ def suprir_9_correntes():
 	global matriz_armazenada, matriz_trocadores_abaixo, subestagio_trocador_abaixo, subestagio_trocador
 
 	if arquivo == "25 correntes.xls":
-		acima = [[2, 2, 1, 1, 1, 1, 10], [2, 2, 1, 1, 2, 1, 10], [2, 2, 1, 1, 3, 1, 10]]
-		abaixo = [[1, 1, 1, 1, 1, 1, 10], [1, 1, 1, 1, 2, 1, 10], [1, 1, 1, 1, 3, 1, 10]]
+		acima = [[2, 2, 1, 1, 1, 1, 1], [3, 2, 1, 1, 2, 1, 1]]
+		for i in range(2, 6):
+			try:
+				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+1, 1, 1])
+				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+2, 1, 1])
+			except:
+				pass
+
+		abaixo = [[1, 1, 1, 1, 1, 1, 1], [2, 2, 1, 1, 2, 1, 1], [3, 11, 1, 1, 3, 1, 1]]
+		for i in range(4):
+			abaixo.append([abaixo[-2][0]+2, abaixo[-2][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
+			abaixo.append([abaixo[-1][0]+1, abaixo[-1][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
+			abaixo.append([abaixo[-1][0]+1, 11, 1, 1, len(abaixo) + 1, 1, 1])
+
 	elif arquivo == "50 correntes.xls":
 		acima = [[2, 2, 1, 1, 1, 1, 1], [3, 2, 1, 1, 2, 1, 1]]
-		abaixo = [[1, 1, 1, 1, 1, 1, 10], [1, 1, 1, 1, 2, 1, 10], [1, 1, 1, 1, 3, 1, 10]]
 		for i in range(2, 11):
 			try:
 				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+1, 1, 1])
 				acima.append([acima[len(acima)-2][0]+3, i*2, 1, 1, i+2, 1, 1])
 			except:
 				pass
-		print(acima)
+		abaixo = [[1, 1, 1, 1, 1, 1, 1], [2, 2, 1, 1, 2, 1, 1], [3, 11, 1, 1, 3, 1, 1]]
+		for i in range(9):
+			abaixo.append([abaixo[-2][0]+2, abaixo[-2][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
+			abaixo.append([abaixo[-1][0]+1, abaixo[-1][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
+			abaixo.append([abaixo[-1][0]+1, 11, 1, 1, len(abaixo) + 1, 1, 1])
 	else:
 		# viola termo util
 		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
@@ -4756,7 +4771,7 @@ for i in range(5):
 openfile_teste(False)
 done_teste(True)
 pinch_teste()
-# suprir_9_correntes()
+suprir_9_correntes()
 
 
 
