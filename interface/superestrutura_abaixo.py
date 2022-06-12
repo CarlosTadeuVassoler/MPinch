@@ -13,6 +13,8 @@ nstages = 1
 subestagios = []
 quentes_usadas = []
 frias_usadas = []
+quentesxfrias = []
+friasxquentes = []
 subq_usadas = []
 subf_usadas = []
 linha_interface_abaixo = []
@@ -87,6 +89,7 @@ def preparar_dados_e_rede2(sk):
 			fechar_corrente_abaixo.append(False)
 			temp_misturador_abaixo.append(0)
 			calor_sub_sem_utilidade.append([])
+			quentesxfrias.append([])
 			subq_usadas.append([])
 			for sub in range(ncold):
 				calor_atual_quente_sub_abaixo[quente].append(0)
@@ -98,6 +101,7 @@ def preparar_dados_e_rede2(sk):
 			dividida_fria_abaixo.append(False)
 			quantidade_fria_abaixo.append(1)
 			fracoes_frias_abaixo.append([])
+			friasxquentes.append([])
 			subf_usadas.append([])
 			for sub in range(nhot):
 				calor_atual_frio_sub_abaixo[fria].append(0)
@@ -327,14 +331,11 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 		Tcki[ccold-1][k] = Tcf[ccold-1]
 		Tckf[ccold-1][k] = Tcf[ccold-1]
 
-	violou = False
-	trocador_violado = False
-
 	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range(nstages):
 		for sk in sorted(subestagios):
 			for si in sorted(subq_usadas[chot-1]):
-				for j in sorted(frias_usadas):
+				for j in sorted(quentesxfrias[chot-1]):
 					for sj in sorted(subf_usadas[j]):
 
 						if Q[chot-1][si][j][sj][sk][k] != 0:
@@ -382,7 +383,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 
 	for k in range(nstages):
 		for sk in sorted(subestagios):
-			for i in sorted(quentes_usadas):
+			for i in sorted(friasxquentes[ccold-1]):
 				for si in sorted(subq_usadas[i]):
 					for sj in sorted(subf_usadas[ccold-1]):
 
@@ -439,8 +440,6 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 
 							if Fcarr[k][ccold-1][sj] == 100:
 								Fcarr[k][ccold-1][sj] = 0
-
-	return violou, trocador_violado
 
 def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 	qsi = quantidade
@@ -548,8 +547,12 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False):
 
 	if chot-1 not in quentes_usadas:
 		quentes_usadas.append(chot-1)
+	if ccold-1 not in quentesxfrias[chot-1]:
+		quentesxfrias[chot-1].append(ccold-1)
 	if ccold-1 not in frias_usadas:
 		frias_usadas.append(ccold-1)
+	if chot-1 not in friasxquentes[ccold-1]:
+		friasxquentes[ccold-1].append(chot-1)
 	if sbhot-1 not in subq_usadas[chot-1]:
 		subq_usadas[chot-1].append(sbhot-1)
 	if sbcold-1 not in subf_usadas[ccold-1]:
@@ -557,9 +560,7 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False):
 	if sestagio-1 not in subestagios:
 		subestagios.append(sestagio-1)
 
-	violou, trocador_violado = calcular_superestrutura_abaixo(dlg, verificar_termo, chot, ccold, sbhot, sbcold, sestagio, estagio)
-	if violou and trocador_violado == "termo":
-		return linha_interface_abaixo, False
+	calcular_superestrutura_abaixo(dlg, verificar_termo, chot, ccold, sbhot, sbcold, sestagio, estagio)
 
 	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
 
@@ -617,6 +618,10 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 			subq_usadas[i].clear()
 		for j in range(len(subf_usadas)):
 			subf_usadas[j].clear()
+		for i in range(len(quentesxfrias)):
+			quentesxfrias[i].clear()
+		for j in range(len(friasxquentes)):
+			friasxquentes[j].clear()
 
 	calcular_superestrutura_abaixo(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
 

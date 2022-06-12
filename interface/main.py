@@ -2450,8 +2450,12 @@ def atualizar_desenho(onde, botao=False):
 	if botao:
 		if onde == "acima" or onde == "above":
 			dlg.tab_acima.setCurrentIndex(0)
+			for trocador in matriz_armazenada:
+				print(trocador)
 		elif onde == "abaixo" or onde == "below":
 			dlg.tab_abaixo.setCurrentIndex(0)
+			for trocador in matriz_trocadores_abaixo:
+				print(trocador)
 	if onde == "acima" or onde == "above":
 		if dlg.tab_acima.currentIndex() == 0:
 			desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
@@ -3743,7 +3747,6 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 
 	return novas_divisoes, ramoo
 
-
 def mensagem_super():
 	msgBox = QMessageBox()
 	msgBox.setIcon(QMessageBox.Information)
@@ -4569,6 +4572,21 @@ def suprir_9_correntes():
 			abaixo.append([abaixo[-2][0]+2, abaixo[-2][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
 			abaixo.append([abaixo[-1][0]+1, abaixo[-1][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
 			abaixo.append([abaixo[-1][0]+1, 11, 1, 1, len(abaixo) + 1, 1, 1])
+	elif arquivo == "40 correntes - 3 dtmin.xls":
+		acima = [[15, 7, 1, 1, 2, 1, "max"],
+				 [15, 5, 1, 1, 3, 1, "max"],
+				 [15, 4, 1, 1, 4, 1, "max"],
+				 [14, 4, 1, 1, 5, 1, "max"],
+				 [4, 9, 1, 1, 6, 1, "max"],
+				 [4, 8, 1, 1, 7, 1, "max"],
+				 [14, 8, 1, 1, 8, 1, "max"],
+				 [14, 14, 1, 1, 9, 1, "max"],
+				 [1, 13, 1, 1, 10, 1, "max"],
+				 [3, 16, 1, 1, 11, 1, "max"],
+				 [7, 13, 1, 1, 12, 1, "max"],
+				 [14, 16, 1, 1, 13, 1, "max"],
+				 [14, 13, 1, 1, 14, 1, "max"],
+				 [16, 13, 1, 1, 15, 1, "max"]]
 	else:
 		# viola termo util
 		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
@@ -4757,10 +4775,10 @@ for i in range(5):
 
 
 
-openfile_teste(False)
-done_teste(True)
-pinch_teste()
-suprir_9_correntes()
+# openfile_teste(False)
+# done_teste(True)
+# pinch_teste()
+# suprir_9_correntes()
 
 
 
