@@ -2516,11 +2516,11 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				trocador_remover = matriz_armazenada[indice_remover]
 				matriz = nao_sacrificar_matriz(matriz_armazenada)
 				matriz.pop(indice_remover)
-				remover_todos_acima()
+				remover_todos_acima(indice_remover)
 				for trocador in matriz:
 					if matriz.index(trocador) >= indice_remover:
 						trocador[4] -= 1
-					matriz_armazenada, oi = inserir_trocador(dlg, trocador, False)
+						matriz_armazenada, oi = inserir_trocador(dlg, trocador, False)
 				if len(matriz) == 0:
 					matriz_armazenada = []
 				dlg.trocador_acima.removeItem(dlg.trocador_acima.count()-1)
@@ -2577,11 +2577,11 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				trocador_remover = matriz_trocadores_abaixo[indice_remover]
 				matriz = nao_sacrificar_matriz(matriz_trocadores_abaixo)
 				matriz.pop(indice_remover)
-				remover_todos_abaixo()
+				remover_todos_abaixo(indice_remover)
 				for trocador in matriz:
 					if matriz.index(trocador) >= indice_remover:
 						trocador[4] -= 1
-					matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador, False)
+						matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador, False)
 				if len(matriz) == 0:
 					matriz_trocadores_abaixo = []
 				dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
@@ -4775,10 +4775,10 @@ for i in range(5):
 
 
 
-# openfile_teste(False)
-# done_teste(True)
-# pinch_teste()
-# suprir_9_correntes()
+openfile_teste(False)
+done_teste(True)
+pinch_teste()
+suprir_9_correntes()
 
 
 

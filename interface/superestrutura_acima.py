@@ -358,7 +358,6 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 				Tcski[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
 				Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
 
-	com = time.time()
 	#CÁLCULO DE TODA A SUPERESTRUTURA quente
 	for k in range(nstages):
 		for sk in range(sestagio-1, len(subestagios)):
@@ -409,8 +408,7 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 
 							if Fharr[k][chot-1][si] == 100:
 								Fharr[k][chot-1][si] = 0
-	fi = time.time()
-	print("fim super quente", fi - com)
+
 	for k in range(nstages):
 		for sk in range(sestagio-1, len(subestagios)):
 			for i in sorted(friasxquentes[ccold-1]):
@@ -435,20 +433,9 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 							Tcink = Tcki[ccold-1][k]
 							Tcoutk = Tcink + (Qestagiof/CPc[ccold-1])
 
-							# tempdif = Thout - Tcout
-							# tempdif_terminal_frio = Thin - Tcin
-							#
-							# if tempdif < 0 or tempdif_terminal_frio < 0:
-							# 	if acao:
-							# 		QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-							# 		Q[i][si][ccold-1][sj][sk][k] = 0
-							# 		return True, "termo"
-							# 	else:
-							# 		QMessageBox.about(dlg, "Warning!", "Removing this Heat Exchanger resulted in a Thermodynamics Violation (E{})".format(sk+1))
-							if True:
-								if dividida_fria[ccold-1]:
-									temperatura_atual_fria[ccold-1][sj] = Tcout
-								temperatura_atual_fria_mesclada[ccold-1] = Tcoutk
+							if dividida_fria[ccold-1]:
+								temperatura_atual_fria[ccold-1][sj] = Tcout
+							temperatura_atual_fria_mesclada[ccold-1] = Tcoutk
 
 							#Temperatura de estágios e sub-estágios
 							for k1 in range(nstages):
@@ -653,7 +640,7 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 		for j in range(len(friasxquentes)):
 			friasxquentes[j].clear()
 
-	calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	calcular_superestrutura(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio, remover=True)
 
 	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
@@ -789,8 +776,8 @@ def testar_correntes(dlg, primeira=False):
 		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")
 
-def remover_todos_acima():
-	for i in range(len(linha_interface)-1, -1, -1):
+def remover_todos_acima(ate=0):
+	for i in range(len(linha_interface)-1, ate-1, -1):
 		remover_trocador("oi", linha_interface[i], i, linha_interface)
 	for i in range(len(utilidades)-1, -1, -1):
 		remover_utilidade(utilidades[i][0], i, utilidades)

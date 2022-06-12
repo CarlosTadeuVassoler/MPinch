@@ -311,29 +311,56 @@ def verificar_trocador_estagio_abaixo(estagio, corrente, tipo):
 						if Q[i][si][corrente-1][sj][sk][estagio-1] != 0:
 							return True
 
-def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
-	for si in range(ncold):
-		for sk in range(nsk):
-			for k in range(nstages):
-				Thski[chot-1][si][sk][k] = Th0[chot-1]
-				Thskf[chot-1][si][sk][k] = Th0[chot-1]
+def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio, remover=False):
+	if sestagio != 1:
+		ultimo = 0
+		sai = False
+		for sk in range(sestagio-2, -1, -1):
+			for j in sorted(quentesxfrias[chot-1]):
+				for sj in sorted(subf_usadas[j]):
+					if Q[chot-1][sbhot-1][j][sj][sk][estagio-1] != 0:
+						ultimo = sk
+						sai = True
+						break
+				if sai:
+					break
+			if sai:
+				break
 
-	for k in range(nstages):
-		Thki[chot-1][k] = Th0[chot-1]
-		Thkf[chot-1][k] = Th0[chot-1]
+		ultimof = 0
+		sai = False
+		for sk in range(sestagio-2, -1, -1):
+			for i in sorted(friasxquentes[ccold-1]):
+				for si in sorted(subq_usadas[i]):
+					if Q[i][si][ccold-1][sbcold-1][sk][estagio-1] != 0:
+						ultimof = sk
+						sai = True
+						break
+				if sai:
+					break
+			if sai:
+				break
 
-	for sj in range(nhot):
-		for sk in range(nsk-1, -1, -1):
-			for k in range(nstages-1, -1, -1):
-				Tcski[ccold-1][sj][sk][k] = Tcf[ccold-1]
-				Tcskf[ccold-1][sj][sk][k] = Tcf[ccold-1]
-	for k in range(nstages-1, -1, -1):
-		Tcki[ccold-1][k] = Tcf[ccold-1]
-		Tckf[ccold-1][k] = Tcf[ccold-1]
+		if not remover:
+			for sk1 in range(ultimo+1, sestagio):
+				Thski[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
+				if sk1 != sestagio-1:
+					Thskf[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
+			for sk1 in range(ultimof+1, sestagio):
+				Tcski[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
+				if sk1 != sestagio-1:
+					Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
+		else:
+			for sk1 in range(ultimo+1, sestagio):
+				Thski[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
+				Thskf[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
+				Tcski[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
+				Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
+
 
 	#CÁLCULO DE TODA A SUPERESTRUTURA
 	for k in range(nstages):
-		for sk in sorted(subestagios):
+		for sk in range(sestagio-1, len(subestagios)):
 			for si in sorted(subq_usadas[chot-1]):
 				for j in sorted(quentesxfrias[chot-1]):
 					for sj in sorted(subf_usadas[j]):
@@ -382,7 +409,7 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 								Fharr[k][chot-1][si] = 0
 
 	for k in range(nstages):
-		for sk in sorted(subestagios):
+		for sk in range(sestagio-1, len(subestagios)):
 			for i in sorted(friasxquentes[ccold-1]):
 				for si in sorted(subq_usadas[i]):
 					for sj in sorted(subf_usadas[ccold-1]):
@@ -405,20 +432,9 @@ def calcular_superestrutura_abaixo(dlg, acao, chot, ccold, sbhot, sbcold, sestag
 							Tcink = Tcki[ccold-1][k]
 							Tcoutk = Tcink - (Qestagiof/CPc[ccold-1])
 
-							# tempdif = Thin - Tcin
-							# tempdif_terminal_frio = Thout - Tcout
-							#
-							# if tempdif < 0 or tempdif_terminal_frio < 0:
-							# 	if acao:
-							# 		QMessageBox.about(dlg, "Error!", "Thermodynamics Violation. The temperature of the cold stream will be greater thant the temperature of the hot stream")
-							# 		Q[i][si][ccold-1][sj][sk][k] = 0
-							# 		return True, "termo"
-							# 	else:
-							# 		QMessageBox.about(dlg, "Warning!", "Removing this Heat Exchanger resulted in a Thermodynamics Violation (E{})".format(sk+1))
-							if True:
-								if dividida_fria_abaixo[ccold-1]:
-									temperatura_atual_fria_abaixo[ccold-1][sj] = Tcout
-								temperatura_atual_fria_mesclada_abaixo[ccold-1] = Tcoutk
+							if dividida_fria_abaixo[ccold-1]:
+								temperatura_atual_fria_abaixo[ccold-1][sj] = Tcout
+							temperatura_atual_fria_mesclada_abaixo[ccold-1] = Tcoutk
 
 							#Temperatura de estágios e sub-estágios
 							for k1 in range(nstages):
@@ -623,7 +639,7 @@ def remover_trocador_abaixo(dlg, vetor, indice, linha_interface_abaixo):
 		for j in range(len(friasxquentes)):
 			friasxquentes[j].clear()
 
-	calcular_superestrutura_abaixo(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio)
+	calcular_superestrutura_abaixo(dlg, "remocao", chot, ccold, sbhot, sbcold, sestagio, estagio, remover=True)
 
 	if Fharr[estagio-1][chot-1][sbhot-1] == 0:
 		fracao_quente = 1
@@ -759,8 +775,8 @@ def testar_correntes_abaixo(dlg, primeira=False):
 		dlg.label_27.setText("Not Respected")
 		dlg.label_27.setStyleSheet("QLabel {color: red}")
 
-def remover_todos_abaixo():
-	for i in range(len(linha_interface_abaixo)-1, -1, -1):
+def remover_todos_abaixo(ate=0):
+	for i in range(len(linha_interface_abaixo)-1, ate-1, -1):
 		remover_trocador_abaixo("oi", linha_interface_abaixo[i], i, linha_interface_abaixo)
 	for i in range(len(utilidades_abaixo)-1, -1, -1):
 		remover_utilidade_abaixo(utilidades_abaixo[i][0], i, utilidades_abaixo)
