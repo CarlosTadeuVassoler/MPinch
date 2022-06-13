@@ -526,7 +526,7 @@ def ler_dados(dlg, subestagio_trocador):
 
 	return [i, j, si, sj, sk, k, q]
 
-def inserir_trocador(dlg, vetor, verificar_termo=True, ignora=False):
+def inserir_trocador(dlg, vetor, verificar_termo=True, ignora=False, ultimo=False):
 	chot = vetor[0]
 	ccold = vetor[1]
 	sbhot = vetor[2]
@@ -547,20 +547,11 @@ def inserir_trocador(dlg, vetor, verificar_termo=True, ignora=False):
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		if not ignora:
-			QMessageBox.about(dlg,"Error!","The inputed heat is greater than the available heat.")
+			QMessageBox.about(dlg,"Error!","The input heat is greater than the available heat.")
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			return linha_interface, False
-		else:
-			QMessageBox.about(dlg,"Carreful!","The inputed heat is greater than the available heat. \nYou will use more than the utility duty.")
-
-	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] < 0:
-		QMessageBox.about(dlg,"Error!","It is not possible to change a negative amount of heat.")
-		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
-		return linha_interface, False
-
-	elif Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] == 0:
-		QMessageBox.about(dlg,"Error!","The inputed heat must be greater than 0.")
-		return linha_interface, False
+		elif ultimo:
+			QMessageBox.about(dlg,"Carreful!","The input heat is greater than the available heat. \nYou will use more than the utility duty.")
 
 	if chot-1 not in quentes_usadas:
 		quentes_usadas.append(chot-1)
