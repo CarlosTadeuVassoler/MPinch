@@ -167,134 +167,6 @@ def receber_pinch(matriz_quente, matriz_fria, nquentes, nfrias, CPquente, CPfrio
 	nsk = sk*max(nhot, ncold)
 	preparar_dados_e_rede(sk)
 
-def remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
-	Qtotalestagioq = Qtotalestagiof = 0
-	if Fharr[estagio-1][chot-1][sbhot-1] == 100:
-		Qtotalh0[chot-1][sbhot-1][estagio-1] = Qtotalh0[chot-1][sbhot-1][estagio-1] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagioq = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fharr[k][chot-1][sbhot-1] == 100:
-					Qtotalh0[chot-1][sbhot-1][k] = Qtotalh0[chot-1][sbhot-1][k] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for si in range(ncold):
-						Qtotalestagioq += Qtotalh0[chot-1][si][k]
-					Qtotalestagioq = Qtotalestagioq - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for si in range(ncold):
-						Qtotalh0[chot-1][si][k] = Qtotalestagioq*(Fharr[k][chot-1][si]/100)
-	else:
-		Qtotalh0[chot-1][sbhot-1][estagio-1] = Qtotalh0[chot-1][sbhot-1][estagio-1] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagioq = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fharr[k][chot-1][sbhot-1] == 100:
-					Qtotalh0[chot-1][0][k] = Qtotalh0[chot-1][0][k] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for si in range(ncold):
-						Qtotalestagioq += Qtotalh0[chot-1][si][k]
-					Qtotalestagioq = Qtotalestagioq - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for si in range(ncold):
-						Qtotalh0[chot-1][si][k] = Qtotalestagioq*(Fharr[k][chot-1][si]/100)
-
-	if Fcarr[estagio-1][ccold-1][sbcold-1] == 100:
-		Qtotalc0[ccold-1][sbcold-1][estagio-1] = Qtotalc0[ccold-1][sbcold-1][estagio-1] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagiof = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fcarr[k][ccold-1][sbcold-1] == 100:
-					Qtotalc0[ccold-1][sbcold-1][k] = Qtotalc0[ccold-1][sbcold-1][k] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for sj in range(nhot):
-						Qtotalestagiof += Qtotalc0[ccold-1][sj][k]
-					Qtotalestagiof = Qtotalestagiof - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for sj in range(nhot):
-						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
-	else:
-		Qtotalc0[ccold-1][sbcold-1][estagio-1] = Qtotalc0[ccold-1][sbcold-1][estagio-1] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagiof = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fcarr[k][ccold-1][sbcold-1] == 100:
-					Qtotalc0[ccold-1][0][k] = Qtotalc0[ccold-1][0][k] - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for sj in range(nhot):
-						Qtotalestagiof += Qtotalc0[ccold-1][sj][k]
-					Qtotalestagiof = Qtotalestagiof - Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for sj in range(nhot):
-						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
-
-def adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio):
-	Qtotalestagioq = Qtotalestagiof = 0
-	if Fharr[estagio-1][chot-1][sbhot-1] == 100:
-		Qtotalh0[chot-1][sbhot-1][estagio-1] = Qtotalh0[chot-1][sbhot-1][estagio-1] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagioq = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fharr[k][chot-1][sbhot-1] == 100:
-					Qtotalh0[chot-1][sbhot-1][k] = Qtotalh0[chot-1][sbhot-1][k] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for si in range(ncold):
-						Qtotalestagioq += Qtotalh0[chot-1][si][k]
-					Qtotalestagioq = Qtotalestagioq + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for si in range(ncold):
-						Qtotalh0[chot-1][si][k] = Qtotalestagioq*(Fharr[k][chot-1][si]/100)
-	else:
-		Qtotalh0[chot-1][sbhot-1][estagio-1] = Qtotalh0[chot-1][sbhot-1][estagio-1] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagioq = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fharr[k][chot-1][sbhot-1] == 100:
-					Qtotalh0[chot-1][0][k] = Qtotalh0[chot-1][0][k] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for si in range(ncold):
-						Qtotalestagioq += Qtotalh0[chot-1][si][k]
-					Qtotalestagioq = Qtotalestagioq + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for si in range(ncold):
-						Qtotalh0[chot-1][si][k] = Qtotalestagioq*(Fharr[k][chot-1][si]/100)
-
-	if Fcarr[estagio-1][ccold-1][sbcold-1] == 100:
-		Qtotalc0[ccold-1][sbcold-1][estagio-1] = Qtotalc0[ccold-1][sbcold-1][estagio-1] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagiof = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fcarr[k][ccold-1][sbcold-1] == 100:
-					Qtotalc0[ccold-1][sbcold-1][k] = Qtotalc0[ccold-1][sbcold-1][k] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for sj in range(nhot):
-						Qtotalestagiof += Qtotalc0[ccold-1][sj][k]
-					Qtotalestagiof = Qtotalestagiof + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for sj in range(nhot):
-						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
-	else:
-		Qtotalc0[ccold-1][sbcold-1][estagio-1] = Qtotalc0[ccold-1][sbcold-1][estagio-1] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		for k in range(nstages):
-			Qtotalestagiof = 0
-			if k == (estagio-1):
-				continue
-			else:
-				if Fcarr[k][ccold-1][sbcold-1] == 100:
-					Qtotalc0[ccold-1][0][k] = Qtotalc0[ccold-1][0][k] + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-				else:
-					for sj in range(nhot):
-						Qtotalestagiof += Qtotalc0[ccold-1][sj][k]
-					Qtotalestagiof = Qtotalestagiof + Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-					for sj in range(nhot):
-						Qtotalc0[ccold-1][sj][k] = Qtotalestagiof*(Fcarr[k][ccold-1][sj]/100)
-
 def verificar_trocador_estagio(estagio, corrente, tipo):
 	if tipo == "Q":
 		for si in range(ncold): #max de subcorrentes quentes é igual ao numero de correntes frias
@@ -312,55 +184,51 @@ def verificar_trocador_estagio(estagio, corrente, tipo):
 							return True
 
 def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, estagio, remover=False):
-	if sestagio != 1:
-		ultimo = 0
-		sai = False
-		for sk in range(sestagio-2, -1, -1):
-			for j in sorted(quentesxfrias[chot-1]):
-				for sj in sorted(subf_usadas[j]):
-					if Q[chot-1][sbhot-1][j][sj][sk][estagio-1] != 0:
-						ultimo = sk
-						sai = True
-						break
-				if sai:
+
+	ultimo = -1
+	sai = False
+	for sk in range(sestagio-2, -1, -1):
+		for j in sorted(quentesxfrias[chot-1]):
+			for sj in sorted(subf_usadas[j]):
+				if Q[chot-1][sbhot-1][j][sj][sk][estagio-1] != 0:
+					ultimo = sk
+					sai = True
 					break
 			if sai:
 				break
+		if sai:
+			break
 
-		ultimof = 0
-		sai = False
-		for sk in range(sestagio-2, -1, -1):
-			for i in sorted(friasxquentes[ccold-1]):
-				for si in sorted(subq_usadas[i]):
-					if Q[i][si][ccold-1][sbcold-1][sk][estagio-1] != 0:
-						ultimof = sk
-						sai = True
-						break
-				if sai:
+	ultimof = -1
+	sai = False
+	for sk in range(sestagio-2, -1, -1):
+		for i in sorted(friasxquentes[ccold-1]):
+			for si in sorted(subq_usadas[i]):
+				if Q[i][si][ccold-1][sbcold-1][sk][estagio-1] != 0:
+					ultimof = sk
+					sai = True
 					break
 			if sai:
 				break
+		if sai:
+			break
 
-		if not remover:
-			for sk1 in range(ultimo+1, sestagio):
-				Thski[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
-				Thskf[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
-			for sk1 in range(ultimof+1, sestagio):
-				Tcski[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
-				Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
-
-		else:
-			for sk1 in range(ultimo+1, sestagio):
-				Thski[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
-				Thskf[chot-1][sbhot-1][sk1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
-				Tcski[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
-				Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
-
+	if ultimo != -1:
+		tq = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
 	else:
-		Thski[chot-1][sbhot-1][0][estagio-1] = Thf[chot-1]
-		Thskf[chot-1][sbhot-1][0][estagio-1] = Thf[chot-1]
-		Tcski[ccold-1][sbcold-1][0][estagio-1] = Tc0[ccold-1]
-		Tcskf[ccold-1][sbcold-1][0][estagio-1] = Tc0[ccold-1]
+		tq = Thf[chot-1]
+
+	if ultimof != -1:
+		tf = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
+	else:
+		tf = Tc0[ccold-1]
+
+	for sk1 in range(ultimo+1, sestagio):
+		Thski[chot-1][sbhot-1][sk1][estagio-1] = tq
+		Thskf[chot-1][sbhot-1][sk1][estagio-1] = tq
+	for sk1 in range(ultimof+1, sestagio):
+		Tcski[ccold-1][sbcold-1][sk1][estagio-1] = tf
+		Tcskf[ccold-1][sbcold-1][sk1][estagio-1] = tf
 
 	#CÁLCULO DE TODA A SUPERESTRUTURA quente
 	for k in range(nstages):
@@ -448,6 +316,97 @@ def calcular_superestrutura(dlg, acao, chot, ccold, sbhot, sbcold, sestagio, est
 												Tcski[ccold-1][sj][sk1][k1] = Tcout
 											Tcskf[ccold-1][sj][sk1][k1] = Tcout
 										Tckf[ccold-1][k1] = Tcoutk
+
+def calcular_superestrutura2(sestagio):
+
+	#CÁLCULO DE TODA A SUPERESTRUTURA quente
+	for k in range(nstages):
+		for sk in range(sestagio-1, len(subestagios)):
+			for i in sorted(quentes_usadas):
+				for si in sorted(subq_usadas[i]):
+					for j in sorted(quentesxfrias[i]):
+						for sj in sorted(subf_usadas[j]):
+
+							if Q[i][si][j][sj][sk][k] != 0:
+
+								Qestagioq = 0
+								for si1 in range(ncold):
+									for j1 in range(ncold):
+										for sj1 in range(nhot):
+											for sk1 in range(nsk):
+												Qestagioq += Q[i][si1][j1][sj1][sk1][k]
+
+								Thin = Thski[i][si][sk][k]
+								Thout = Thin + (Q[i][si][j][sj][sk][k]/(CPh[i]*Fharr[k][i][si]/100))
+
+								Think = Thki[i][k]
+								Thoutk = Think + (Qestagioq/CPh[i])
+
+								if dividida_quente[i]:
+									temperatura_atual_quente[i][si] = Thout
+								temperatura_atual_quente_mesclada[i] = Thoutk
+
+								#Temperatura de estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in sorted(subestagios):
+										if k1 > (k):
+											Thki[i][k1] = Thoutk
+											Thkf[i][k1] = Thoutk
+
+											for sub_quente in range(ncold):
+												Thski[i][sub_quente][sk1][k1] = Thoutk
+												Thskf[i][sub_quente][sk1][k1] = Thoutk
+
+										if k1 == (k):
+											if sk1 >= (sk):
+												if sk1 > sk:
+													Thski[i][si][sk1][k1] = Thout
+												Thskf[i][si][sk1][k1] = Thout
+											Thkf[i][k1] = Thoutk
+
+	for k in range(nstages):
+		for sk in range(sestagio-1, len(subestagios)):
+			for j in sorted(frias_usadas):
+				for sj in sorted(subf_usadas[j]):
+					for i in sorted(friasxquentes[j]):
+						for si in sorted(subq_usadas[i]):
+
+							if Q[i][si][j][sj][sk][k] != 0:
+
+								Qestagiof = 0
+								for sj1 in range(nhot):
+									for i1 in range(nhot):
+										for si1 in range(ncold):
+											for sk1 in range(nsk):
+												Qestagiof += Q[i1][si1][j][sj1][sk1][k]
+
+								Tcin = Tcski[j][sj][sk][k]
+								Tcout = Tcin + (Q[i][si][j][sj][sk][k]/(CPc[j]*Fcarr[k][j][sj]/100))
+
+								Tcink = Tcki[j][k]
+								Tcoutk = Tcink + (Qestagiof/CPc[j])
+
+								if dividida_fria[j]:
+									temperatura_atual_fria[j][sj] = Tcout
+								temperatura_atual_fria_mesclada[j] = Tcoutk
+
+								#Temperatura de estágios e sub-estágios
+								for k1 in range(nstages):
+									for sk1 in sorted(subestagios):
+										if k1 > (k):
+											Tcki[j][k1] = Tcoutk
+											Tckf[j][k1] = Tcoutk
+
+											for sub_fria in range(nhot):
+												Tcski[j][sub_fria][sk1][k1] = Tcoutk
+												Tcskf[j][sub_fria][sk1][k1] = Tcoutk
+
+										if k1 == (k):
+											if sk1 >= (sk):
+												if sk1 > sk:
+													Tcski[j][sj][sk1][k1] = Tcout
+												Tcskf[j][sj][sk1][k1] = Tcout
+											Tckf[j][k1] = Tcoutk
 
 def divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao):
 	qsi = quantidade
@@ -561,7 +520,8 @@ def inserir_trocador(dlg, vetor, verificar_termo=True, ignora=False, ultimo=Fals
 
 	calcular_superestrutura(dlg, verificar_termo, chot, ccold, sbhot, sbcold, sestagio, estagio)
 
-	remocao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
+	Qtotalh0[chot-1][sbhot-1][estagio-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	Qtotalc0[ccold-1][sbcold-1][estagio-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 	fracao_quente = Fharr[estagio-1][chot-1][sbhot-1]/100
 	fracao_fria = Fcarr[estagio-1][ccold-1][sbcold-1]/100
@@ -597,7 +557,8 @@ def remover_trocador(dlg, vetor, indice, linha_interface):
 	sestagio = vetor[4]
 	estagio = vetor[5]
 
-	adicao_de_calor(chot, ccold, sbhot, sbcold, sestagio, estagio)
+	Qtotalh0[chot-1][sbhot-1][estagio-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+	Qtotalc0[ccold-1][sbcold-1][estagio-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 
@@ -747,8 +708,92 @@ def testar_correntes(dlg, primeira=False):
 		dlg.label_26.setText("Not Respected")
 		dlg.label_26.setStyleSheet("QLabel {color: red}")
 
+def inserir_todos_acima(matriz):
+	for trocador in matriz:
+		chot = trocador[0]
+		ccold = trocador[1]
+		sbhot = trocador[2]
+		sbcold = trocador[3]
+		sestagio = trocador[4]
+		estagio = trocador[5]
+		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = trocador[6]
+
+		Qtotalh0[chot-1][sbhot-1][estagio-1] -= trocador[6]
+		Qtotalc0[ccold-1][sbcold-1][estagio-1] -= trocador[6]
+
+		calor_atual_quente[chot-1] -= trocador[6]
+		calor_atual_frio[ccold-1] -= trocador[6]
+		calor_atual_quente_sub[chot-1][sbhot-1] -= trocador[6]
+		calor_atual_frio_sub[ccold-1][sbcold-1] -= trocador[6]
+
+		if chot-1 not in quentes_usadas:
+			quentes_usadas.append(chot-1)
+		if ccold-1 not in quentesxfrias[chot-1]:
+			quentesxfrias[chot-1].append(ccold-1)
+		if ccold-1 not in frias_usadas:
+			frias_usadas.append(ccold-1)
+		if chot-1 not in friasxquentes[ccold-1]:
+			friasxquentes[ccold-1].append(chot-1)
+		if sbhot-1 not in subq_usadas[chot-1]:
+			subq_usadas[chot-1].append(sbhot-1)
+		if sbcold-1 not in subf_usadas[ccold-1]:
+			subf_usadas[ccold-1].append(sbcold-1)
+		if sestagio-1 not in subestagios:
+			subestagios.append(sestagio-1)
+
+	calcular_superestrutura2(1)
+
+	for trocador in matriz:
+		chot = trocador[0]
+		ccold = trocador[1]
+		sbhot = trocador[2]
+		sbcold = trocador[3]
+		sestagio = trocador[4]
+		estagio = trocador[5]
+		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = trocador[6]
+
+		linha_interface.append([chot,
+								ccold,
+								sbhot,
+								sbcold,
+								sestagio,
+								estagio,
+								Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1],
+								Thskf[chot-1][sbhot-1][sestagio-1][estagio-1],
+								Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1],
+								Thski[chot-1][sbhot-1][sestagio-1][estagio-1],
+								Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1],
+								Fharr[estagio-1][chot-1][sbhot-1]/100,
+								Fcarr[estagio-1][ccold-1][sbcold-1]/100])
+
+	atualizar_matriz(linha_interface)
+
+	return linha_interface
+
 def remover_todos_acima(ate=0):
 	for i in range(len(linha_interface)-1, ate-1, -1):
-		remover_trocador("oi", linha_interface[i], i, linha_interface)
+		chot = linha_interface[i][0]
+		ccold = linha_interface[i][1]
+		sbhot = linha_interface[i][2]
+		sbcold = linha_interface[i][3]
+		sestagio = linha_interface[i][4]
+		estagio = linha_interface[i][5]
+		calor = linha_interface[i][6]
+
+		Qtotalh0[chot-1][sbhot-1][estagio-1] += calor
+		Qtotalc0[ccold-1][sbcold-1][estagio-1] += calor
+
+		Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
+
+		calor_atual_quente[chot-1] += calor
+		calor_atual_frio[ccold-1] += calor
+		calor_atual_quente_sub[chot-1][sbhot-1] += calor
+		calor_atual_frio_sub[ccold-1][sbcold-1] += calor
+
+		linha_interface.pop(-1)
+
+	calcular_superestrutura2(ate+1)
+
+
 	for i in range(len(utilidades)-1, -1, -1):
 		remover_utilidade(utilidades[i][0], i, utilidades)

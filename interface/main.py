@@ -93,12 +93,12 @@ def openfile_teste(pergunta=True):
 		workbook = xlrd.open_workbook(filename)
 		arquivo = filename
 	else:
-		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
-		arquivo = "9 correntes - 20 dtmin.xls"
+		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		# arquivo = "9 correntes - 20 dtmin.xls"
 		# workbook = xlrd.open_workbook("25 correntes.xls")
 		# arquivo = "25 correntes.xls"
-		# workbook = xlrd.open_workbook("40 correntes - 3 dtmin.xls")
-		# arquivo = "40 correntes - 3 dtmin.xls"
+		workbook = xlrd.open_workbook("40 correntes - 3 dtmin.xls")
+		arquivo = "40 correntes - 3 dtmin.xls"
 		# workbook = xlrd.open_workbook("50 correntes.xls")
 		# arquivo = "50 correntes.xls"
 
@@ -2795,11 +2795,13 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 						divisoes.pop(divisoes.index(divisao))
 						break
 
-				for trocador in matriz_reserva:
-					if matriz_reserva.index(trocador) != len(matriz_reserva)-1:
-						matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True)
-					else:
-						matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True, ultimo=True)
+				# for trocador in matriz_reserva:
+				# 	if matriz_reserva.index(trocador) != len(matriz_reserva)-1:
+				# 		matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True)
+				# 	else:
+				# 		matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7], ignora=True, ultimo=True)
+
+				matriz_armazenada = inserir_todos_acima(matriz_reserva)
 
 				printar()
 				checaresgotadosacima()
