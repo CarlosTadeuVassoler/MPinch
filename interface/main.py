@@ -6,9 +6,10 @@ import xlsxwriter #criar excel
 from tkinter import Tk #usa pra nao mostrar a aba tk
 from tkinter.filedialog import askopenfilename #abrir arquivo (excel)
 
-from PyQt5.QtWidgets import * #widgets em geral
-from PyQt5.QtGui import * #pixmaps p inserir imagem em label
+from PyQt5 import uic, QtGui, QtWidgets #ler interface e widgets de um jeito diferente
+from PyQt5.QtWidgets import * #widgets
 from PyQt5.QtCore import * #alinhamentos
+from PyQt5.QtGui import * #pixmaps
 
 import funchpinchcerto as fp2 #pinch victor
 from funcPPinch import pontopinch #pinch meninos
@@ -90,11 +91,14 @@ def openfile_teste(pergunta=True):
 	if pergunta:
 		filename = askopenfilename()
 		workbook = xlrd.open_workbook(filename)
+		arquivo = filename
 	else:
 		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
 		arquivo = "9 correntes - 20 dtmin.xls"
 		# workbook = xlrd.open_workbook("25 correntes.xls")
 		# arquivo = "25 correntes.xls"
+		# workbook = xlrd.open_workbook("40 correntes - 3 dtmin.xls")
+		# arquivo = "40 correntes - 3 dtmin.xls"
 		# workbook = xlrd.open_workbook("50 correntes.xls")
 		# arquivo = "50 correntes.xls"
 
@@ -298,6 +302,8 @@ def done_teste(libera=False):
 		lista_cps.append(corrente[2])
 
 	dTmin=float(dlg.lineEdit_2.text().replace(",", "."))
+	if arquivo == "40 correntes - 3 dtmin.xls":
+		dTmin = 3
 	pinchf, pinchq, util_quente, util_fria, coisas_graficos = pontopinch(correntes, len(correntes), dTmin)
 	dlg.done = uic.loadUi("done.ui")
 	# dlg.done.showMaximized()
@@ -331,12 +337,12 @@ def done_teste(libera=False):
 		dlg.remover_corrente.setEnabled(False)
 		dlg.done.close()
 		if libera:
-			correntes_util.append([300, 299, 1, "Hot", 0.5])
-			correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# correntes_util.append([10, 20, 1, "Cold", 0.5])
-			# e_utilidade.append(True)
-			# e_utilidade.append(True)
+			if arquivo == "9 correntes - 20 dtmin.xls":
+				correntes_util.append([300, 299, 1, "Hot", 0.5])
+				correntes_util.append([10, 20, 1, "Cold", 0.5])
+			else:
+				correntes_util.append([600, 599, 1, "Hot", 0.5])
+				correntes_util.append([0, 5, 1, "Cold", 0.5])
 			e_utilidade.append(True)
 			e_utilidade.append(True)
 
@@ -369,9 +375,13 @@ def pinch_teste():
 
 	for util in correntes_util:
 		if util[3] == "Hot":
+			if util[0] == util[1]:
+				util[1] -= 1
 			util[2] = util_quente/(util[0] - util[1])
 			nhot += 1
 		else:
+			if util[0] == util[1]:
+				util[0] -= 1
 			util[2] = util_fria/(util[1] - util[0])
 			ncold += 1
 
@@ -462,29 +472,29 @@ def pinch_teste():
 
 def correntesnoscombos(nhot,ncold):
 	for i in range(nhot):
-		dlg.comboBox_9.addItem(str(i+1)) #acima   quadro de correntes quentes
-		dlg.comboBox_35.addItem(str(i+1))   #abaixo   add heat ex
-		dlg.comboBox_43.addItem(str(i+1))#abaixo   quadro de correntes quentes
-		dlg.comboBox_51.addItem(str(i+1))	#n max de sub frias é o número de correntes quentes
-		dlg.comboBox_54.addItem(str(i+1))
+		dlg.comboBox_9.addItem(str(i+1)) #util fria tabelas acima (corrente quente)
+		dlg.comboBox_43.addItem(str(i+1)) #util fria tabelas abaixo (corrente quente)
+		dlg.comboBox_51.addItem(str(i+1)) #sub cold acima
+		dlg.comboBox_54.addItem(str(i+1)) #sub cold abaixo
 		dlg.corrente_abaixo.addItem("Hot " + str(i+1))
 		if not e_utilidade_quente[i]:
-			dlg.comboutil.addItem("Hot " + str(i+1))
-			dlg.comboBox_2.addItem(str(i+1))
+			dlg.comboutil.addItem("Hot " + str(i+1)) #util evolução
+			dlg.comboBox_2.addItem(str(i+1)) #hot acima
+			dlg.comboBox_35.addItem(str(i+1)) #hot abaixo
 		else:
-			dlg.comboBox_2.addItem(str(i+1) + " (utility)")
+			dlg.comboBox_2.addItem(str(i+1) + " (utility)") #hot acima
 	for i in range(ncold):
-		dlg.comboBox_10.addItem(str(i+1)) #acima quadro correntes frias
-		dlg.comboBox_5.addItem(str(i+1)) #acima add heat ex
-		dlg.comboBox_44.addItem(str(i+1)) #abaixo quadro de correntes frias
-		dlg.comboBox_50.addItem(str(i+1)) #n max de sub quentes é o nomero de correntes frias
-		dlg.comboBox_53.addItem(str(i+1))
+		dlg.comboBox_10.addItem(str(i+1)) #util quente tabelas acima (corrente fria)
+		dlg.comboBox_44.addItem(str(i+1)) #util quente tabelas abaixo (corrente fria)
+		dlg.comboBox_50.addItem(str(i+1)) #sub hot acima
+		dlg.comboBox_53.addItem(str(i+1)) #sub hot abaixo
 		dlg.corrente_acima.addItem("Cold " + str(i+1))
 		if not e_utilidade_fria[i]:
-			dlg.comboBox_36.addItem(str(i+1))
-			dlg.comboutil.addItem("Cold " + str(i+1))
+			dlg.comboBox_5.addItem(str(i+1)) #cold acima
+			dlg.comboBox_36.addItem(str(i+1)) #cold abaixo
+			dlg.comboutil.addItem("Cold " + str(i+1)) #util evolução
 		else:
-			dlg.comboBox_36.addItem(str(i+1) + " (utility)")
+			dlg.comboBox_36.addItem(str(i+1) + " (utility)") #cold abaixo
 
 	for i in range(1, min(nhot, ncold)):
 		dlg.nivel.addItem(str(i+1))
@@ -1015,7 +1025,7 @@ def desenhar_rede(correntes_quentes, correntes_frias, subrede, subredes=False, e
 						temp.setx(distancia_x/2 + distancia_cp + maior_cp)
 						temp.write(str('{:.2f}'.format(round(CPh[i]*fracoes_quentes_abaixo[i][quantidade_quente_abaixo[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 						temp.setx(distancia_x/2 + distancia_cp + maior_cp*2 + maior_duty)
-						temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][quantidade_quente_abaixo[i-1]], 2))), align="center", font=("Arial", fonte_carga, "normal"))
+						temp.write(str('{:.2f}'.format(round(calor_atual_quente_sub_abaixo[i][quantidade_quente_abaixo[i]-1], 2))), align="center", font=("Arial", fonte_carga, "normal"))
 					if Th0_abaixo[i] == pinchq:
 						correntes_desenho[i].setx(-distancia_x/2)
 						correntes_desenho[i].pendown()
@@ -2276,8 +2286,14 @@ def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 
 	if trocador_violado[6] < dTmin:
 		dlg.dtmin.label_3.setStyleSheet("QLabel {color: red}")
+		if trocador_violado[6] < 0:
+			dlg.dtmin.label_3.setText(text + "**")
+			dlg.dtmin.label_3.setStyleSheet("QLabel {font: 1000; color: red}")
 	if trocador_violado[7] < dTmin:
 		dlg.dtmin.label_4.setStyleSheet("QLabel {color: red}")
+		if trocador_violado[7] < 0:
+			dlg.dtmin.label_4.setText(textfrio + "**")
+			dlg.dtmin.label_4.setStyleSheet("QLabel {font: 1000; color: red}")
 
 	dlg.dtmin.pushButton_2.clicked.connect(lambda: dlg.dtmin.close())
 
@@ -2601,6 +2617,8 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 
 	def sim(onde, indice_remover):
 		global perguntar, remover_todos, desenho_em_dia_ambas, desenho_em_dia, desenho_em_dia_abaixo
+		global matriz_armazenada, matriz_trocadores_abaixo
+
 		try:
 			if dlg.perguntar.lembrar.isChecked():
 				perguntar = False
@@ -2608,12 +2626,19 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 			dlg.perguntar.close()
 		except:
 			pass
+
+		verifica = False
 		if onde == "acima":
+			if e_utilidade_quente[matriz_armazenada[indice_remover][0]-1]:
+				verifica = True
 			remover_acima(indice_remover)
 		if onde == "abaixo":
+			if e_utilidade_fria[matriz_trocadores_abaixo[indice_remover][1]-1]:
+				verifica = True
 			remover_abaixo(indice_remover)
 
-		verificar_uteis(onde)
+		if verifica:
+			verificar_uteis(onde)
 
 		if onde == "acima":
 			printar()
@@ -2630,6 +2655,8 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 
 	def nao(onde, indice_remover):
 		global perguntar, remover_todos, desenho_em_dia_ambas, desenho_em_dia, desenho_em_dia_abaixo
+		global matriz_armazenada, matriz_trocadores_abaixo
+
 		try:
 			if dlg.perguntar.lembrar.isChecked():
 				perguntar = False
@@ -2637,12 +2664,19 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 			dlg.perguntar.close()
 		except:
 			pass
+
+		verifica = False
 		if onde == "acima":
+			if e_utilidade_quente[matriz_armazenada[indice_remover][0]-1]:
+				verifica = True
 			remover_acima(indice_remover, False)
 		if onde == "abaixo":
+			if e_utilidade_fria[matriz_trocadores_abaixo[indice_remover][1]-1]:
+				verifica = True
 			remover_abaixo(indice_remover, False)
 
-		verificar_uteis(onde)
+		if verifica:
+			verificar_uteis(onde)
 
 		if onde == "acima":
 			printar()
@@ -2660,7 +2694,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 	def verificar_uteis(onde):
 		global matriz_armazenada, matriz_trocadores_abaixo, primeira_util, primeira_util_fria
 
-		if onde == "acima":
+		if onde == "acima" and e_utilidade_quente[nhot-1]:
 			para = False
 			for trocador in matriz_armazenada:
 				if e_utilidade_quente[trocador[0]-1]:
@@ -2676,7 +2710,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 						divisoes.pop(divisoes.index(divisao))
 						break
 
-		elif onde == "abaixo":
+		elif onde == "abaixo" and e_utilidade_fria[ncold-1]:
 			para = False
 			for trocador in matriz_trocadores_abaixo:
 				if e_utilidade_fria[trocador[1]-1]:
@@ -3938,6 +3972,14 @@ def inserir_teste():
 				matriz_armazenada, inseriu = inserir_trocador(dlg, trocador[:7])
 
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
+
+	if dados_do_trocador[2] > quantidade_quente[dados_do_trocador[0]-1]:
+		mensagem_erro("The hot stream has not this many branches.")
+		return
+	elif dados_do_trocador[3] > quantidade_fria[dados_do_trocador[1]-1]:
+		mensagem_erro("The cold stream has not this many branches.")
+		return
+
 	if not e_utilidade_quente[dados_do_trocador[0]-1] and ((dados_do_trocador[6] <= 0 and not dlg.radioButton_4.isChecked()) or (dados_do_trocador[6] < 0.001 and dlg.radioButton_4.isChecked())):
 		mensagem_erro("The input heat must be greater than 0.")
 		return
@@ -3968,8 +4010,6 @@ def inserir_teste():
 			desenho_em_dia_ambas = False
 			atualizar_desenho("acima")
 			subestagio_trocador += 1
-		else:
-			subestagio_trocador -= 1
 
 def remover_teste():
 	global subestagio_trocador, desenho_em_dia, desenho_em_dia_ambas
@@ -4247,6 +4287,14 @@ def inserir_teste_abaixo():
 				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
 
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
+
+	if dados_do_trocador[2] > quantidade_quente_abaixo[dados_do_trocador[0]-1]:
+		mensagem_erro("The hot stream has not this many branches.")
+		return
+	elif dados_do_trocador[3] > quantidade_fria_abaixo[dados_do_trocador[1]-1]:
+		mensagem_erro("The cold stream has not this many branches.")
+		return
+
 	if not e_utilidade_fria[dados_do_trocador[1]-1] and ((dados_do_trocador[6] <= 0 and not dlg.radioButton_20.isChecked()) or (dados_do_trocador[6] < 0.001 and dlg.radioButton_20.isChecked())):
 		mensagem_erro("The input heat must be greater than 0.")
 		return
@@ -4266,8 +4314,8 @@ def inserir_teste_abaixo():
 		if inseriu:
 			if (matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8]) < dTmin or (matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10]) < dTmin:
 				trocador_violado = matriz_trocadores_abaixo[-1][:6]
-				trocador_violado.append(matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8])
 				trocador_violado.append(matriz_trocadores_abaixo[-1][9] - matriz_trocadores_abaixo[-1][10])
+				trocador_violado.append(matriz_trocadores_abaixo[-1][7] - matriz_trocadores_abaixo[-1][8])
 				violou_dtmin(trocador_violado, "below", dados_do_trocador)
 			printar_abaixo()
 			checaresgotadosabaixo()
@@ -4277,8 +4325,6 @@ def inserir_teste_abaixo():
 			desenho_em_dia_ambas = False
 			atualizar_desenho("abaixo")
 			subestagio_trocador_abaixo += 1
-		else:
-			subestagio_trocador_abaixo -= 1
 
 def remover_teste_abaixo():
 	global subestagio_trocador_abaixo, desenho_em_dia_abaixo, desenho_em_dia_ambas, matriz_trocadores_abaixo
@@ -4564,7 +4610,7 @@ def OPTA():
 
 #inutilidades porem depende
 def suprir_9_correntes():
-	global matriz_armazenada, matriz_trocadores_abaixo, subestagio_trocador_abaixo, subestagio_trocador
+	global matriz_armazenada, matriz_trocadores_abaixo, subestagio_trocador_abaixo, subestagio_trocador, dTmin
 
 	if arquivo == "25 correntes.xls":
 		acima = [[2, 2, 1, 1, 1, 1, 1], [3, 2, 1, 1, 2, 1, 1]]
@@ -4595,20 +4641,74 @@ def suprir_9_correntes():
 			abaixo.append([abaixo[-1][0]+1, abaixo[-1][1]+1, 1, 1, len(abaixo) + 1, 1, 1])
 			abaixo.append([abaixo[-1][0]+1, 11, 1, 1, len(abaixo) + 1, 1, 1])
 	elif arquivo == "40 correntes - 3 dtmin.xls":
-		acima = [[15, 7, 1, 1, 2, 1, "max"],
-				 [15, 5, 1, 1, 3, 1, "max"],
-				 [15, 4, 1, 1, 4, 1, "max"],
-				 [14, 4, 1, 1, 5, 1, "max"],
-				 [4, 9, 1, 1, 6, 1, "max"],
-				 [4, 8, 1, 1, 7, 1, "max"],
-				 [14, 8, 1, 1, 8, 1, "max"],
-				 [14, 14, 1, 1, 9, 1, "max"],
-				 [1, 13, 1, 1, 10, 1, "max"],
-				 [3, 16, 1, 1, 11, 1, "max"],
-				 [7, 13, 1, 1, 12, 1, "max"],
-				 [14, 16, 1, 1, 13, 1, "max"],
-				 [14, 13, 1, 1, 14, 1, "max"],
-				 [16, 13, 1, 1, 15, 1, "max"]]
+		divisao_de_correntes("Q", 1, 15, 3, [0.17, 0.79, 0.04])
+		divisoes.append(["Q", 1, 15, 3, [0.17, 0.79, 0.04]])
+		divisao_de_correntes("Q", 1, 14, 3, [0.28, 0.32, 0.40])
+		divisoes.append(["Q", 1, 14, 3, [0.28, 0.32, 0.40]])
+		divisao_de_correntes("F", 1, 13, 2, [0.5, 0.5])
+		divisoes.append(["F", 1, 13, 2, [0.5, 0.5]])
+		divisao_de_correntes("Q", 1, 17, 3, [0.03461047894321384, 0.47533989450877473, 0.49004962654801143])
+		divisoes.append(["Q", 1, 17, 3, [0.03461047894321384, 0.47533989450877473, 0.49004962654801143]])
+
+		acima = [[15, 5, 1, 1, 1, 1, "max"],
+				 [15, 7, 3, 1, 2, 1, "max"],
+				 [15, 6, 2, 1, 3, 1, "max"],
+				 [4, 9, 1, 1, 4, 1, "max"],
+				 [14, 14, 1, 1, 5, 1, "max"],
+				 [14, 4, 3, 1, 6, 1, "max"],
+				 [14, 4, 2, 1, 7, 1, "max"],
+				 [14, 8, 2, 1, 8, 1, "max"],
+				 [15, 6, 3, 1, 9, 1, "max"],
+				 [1, 16, 1, 1, 10, 1, "max"],
+				 [16, 16, 1, 1, 11, 1, "max"],
+				 [3, 13, 1, 1, 12, 1, "max"],
+				 [7, 13, 1, 2, 13, 1, "max"],
+				 [15, 5, 3, 1, 14, 1, "max"],
+				 [15, 8, 3, 1, 15, 1, "max"],
+				 [15, 14, 3, 1, 16, 1, "max"],
+				 [15, 16, 3, 1, 17, 1, "max"],
+				 [4, 16, 1, 1, 18, 1, "max"],
+				 [15, 14, 2, 1, 19, 1, "max"],
+				 [15, 16, 2, 1, 20, 1, "max"],
+				 [15, 8, 2, 1, 21, 1, "max"],
+				 [17, 8, 1, 1, 22, 1, "max"],
+				 [17, 13, 2, 1, 23, 1, "max"],
+				 [17, 13, 3, 2, 24, 1, "max"]]
+
+		divisao_de_correntes_abaixo("Q", 1, 13, 5, [0.18, 0.10, 0.11, 0.52, 0.09])
+		divisoes.append(["Q", 2, 13, 5, [0.18, 0.10, 0.11, 0.52, 0.09]])
+		divisao_de_correntes_abaixo("F", 1, 18, 10, [0.04411665198623181, 0.0009617876307905618, 0.31263859862075805, 0.0414726963117882, 0.0013317286795616215, 0.21075390853650794, 0.08600612293802927, 0.08249488893347355, 0.15439135094374853, 0.06583226541911047])
+		divisoes.append(["F", 2, 18, 10, [0.04411665198623181, 0.0009617876307905618, 0.31263859862075805, 0.0414726963117882, 0.0013317286795616215, 0.21075390853650794, 0.08600612293802927, 0.08249488893347355, 0.15439135094374853, 0.06583226541911047]])
+
+		abaixo = [	[3, 1, 1, 1, 1, 1, "max"],
+					[13, 13, 1, 1, 2, 1, "max"],
+					[13, 16, 2, 1, 3, 1, "max"],
+					[13, 3, 3, 1, 4, 1, "max"],
+					[13, 12, 4, 1, 5, 1, "max"],
+					[13, 15, 5, 1, 6, 1, "max"],
+					[13, 2, 4, 1, 7, 1, "max"],
+					[5, 10, 1, 1, 8, 1, "max"],
+					[5, 18, 1, 1, 9, 1, "max"],
+					[8, 11, 1, 1, 10, 1, "max"],
+					[10, 11, 1, 1, 11, 1, "max"],
+					[3, 11, 1, 1, 12, 1, "max"],
+					[6, 11, 1, 1, 13, 1, "max"],
+					[11, 11, 1, 1, 14, 1, "max"],
+					[4, 9, 1, 1, 15, 1, "max"],
+					[4, 18, 1, 2, 16, 1, "max"],
+					[9, 17, 1, 1, 17, 1, "max"],
+					[12, 17, 1, 1, 18, 1, "max"],
+					[7, 17, 1, 1, 19, 1, "max"],
+					[2, 18, 1, 3, 20, 1, "max"],
+					[7, 18, 1, 4, 21, 1, "max"],
+					[11, 18, 1, 5, 22, 1, "max"],
+					[13, 18, 1, 6, 23, 1, "max"],
+					[13, 18, 2, 7, 24, 1,"max"],
+					[13, 18, 3, 8, 25, 1, "max"],
+					[13, 18, 4, 9, 26, 1, "max"],
+					[13, 18, 5, 10, 27, 1, "max"]]
+
+
 	else:
 		# viola termo util
 		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
@@ -4684,7 +4784,7 @@ def centralizar_combobox_teste(x):
 
 
 
-app = QtWidgets.QApplication([])
+app = QApplication([])
 dlg = uic.loadUi("MPinch.ui")
 
 

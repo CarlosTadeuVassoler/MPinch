@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>337</width>
-    <height>208</height>
+    <height>239</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -221,6 +221,19 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>(if ΔT &lt; 0 in some terminal, there is a Thermodynamics Violation at this Heat Exchanger, and it must be removed)</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="Line" name="line_2">
