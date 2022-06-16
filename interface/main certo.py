@@ -2566,8 +2566,10 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				dlg.comboBox_43.setEnabled(False)
 				dlg.pushButton_20.setEnabled(False)
 				for i in range(len(matriz_trocadores_abaixo)-1, indice_remover-1, -1):
+					trocador_remover = matriz_trocadores_abaixo[i]
+					atualizar_matriz_abaixo(matriz_trocadores_abaixo)
 					dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
-				remover_todos_abaixo(indice_remover, temps=True)
+				remover_trocador_abaixo(dlg, trocador_remover, i, matriz_trocadores_abaixo)
 				subestagio_trocador_abaixo = indice_remover + 1
 			else:
 				tabela = dlg.tableWidget_14.currentRow()
@@ -2595,7 +2597,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				for trocador in matriz:
 					if matriz.index(trocador) >= indice_remover:
 						trocador[4] -= 1
-				matriz_trocadores_abaixo = inserir_todos_abaixo(matriz[indice_remover:])
+						matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador, ignora=True, ultimo=False)
 				if len(matriz) == 0:
 					matriz_trocadores_abaixo = []
 				dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
