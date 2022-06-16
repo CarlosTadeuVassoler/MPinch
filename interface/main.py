@@ -93,14 +93,14 @@ def openfile_teste(pergunta=True):
 		workbook = xlrd.open_workbook(filename)
 		arquivo = filename
 	else:
-		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
-		arquivo = "9 correntes - 20 dtmin.xls"
+		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		# arquivo = "9 correntes - 20 dtmin.xls"
 		# workbook = xlrd.open_workbook("25 correntes.xls")
 		# arquivo = "25 correntes.xls"
 		# workbook = xlrd.open_workbook("40 correntes - 3 dtmin.xls")
 		# arquivo = "40 correntes - 3 dtmin.xls"
-		# workbook = xlrd.open_workbook("50 correntes.xls")
-		# arquivo = "50 correntes.xls"
+		workbook = xlrd.open_workbook("50 correntes.xls")
+		arquivo = "50 correntes.xls"
 
 	worksheet = workbook.sheet_by_index(0)
 	k=0
@@ -357,7 +357,7 @@ def done_teste(libera=False):
 	dlg.done.escolher_utilidades.clicked.connect(liberar_utilidades)
 	dlg.done.pinch_sem_utilidades.clicked.connect(pinch_sem_util)
 
-def pinch_teste():
+def pinch_teste(desenha=True):
 	global Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo
 	Th0, Thf, CPh, Tc0, Tcf, CPc, Thf_acima, Th0_abaixo, Tc0_acima, Tcf_abaixo = [], [], [], [], [], [], [], [], [], []
 	global correntes, correntes_util, dTmin, pinchf, pinchq, n, util_quente, util_fria, nhot, ncold, util_temporaria, correntes_temporaria
@@ -453,8 +453,9 @@ def pinch_teste():
 	correntesnoscombos(nhot,ncold)
 	testar_correntes(dlg, True)
 	testar_correntes_abaixo(dlg)
-	desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
-	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	if desenha:
+		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 	desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
 	#libera botões e coisas
@@ -4636,117 +4637,106 @@ def suprir_9_correntes():
 		divisao_de_correntes("Q", 1, 17, 3, [0.03461047894321384, 0.47533989450877473, 0.49004962654801143])
 		divisoes.append(["Q", 1, 17, 3, [0.03461047894321384, 0.47533989450877473, 0.49004962654801143]])
 
-		acima = [[15, 5, 1, 1, 1, 1, "max"],
-				 [15, 7, 3, 1, 2, 1, "max"],
-				 [15, 6, 2, 1, 3, 1, "max"],
-				 [4, 9, 1, 1, 4, 1, "max"],
-				 [14, 14, 1, 1, 5, 1, "max"],
-				 [14, 4, 3, 1, 6, 1, "max"],
-				 [14, 4, 2, 1, 7, 1, "max"],
-				 [14, 8, 2, 1, 8, 1, "max"],
-				 [15, 6, 3, 1, 9, 1, "max"],
-				 [1, 16, 1, 1, 10, 1, "max"],
-				 [16, 16, 1, 1, 11, 1, "max"],
-				 [3, 13, 1, 1, 12, 1, "max"],
-				 [7, 13, 1, 2, 13, 1, "max"],
-				 [15, 5, 3, 1, 14, 1, "max"],
-				 [15, 8, 3, 1, 15, 1, "max"],
-				 [15, 14, 3, 1, 16, 1, "max"],
-				 [15, 16, 3, 1, 17, 1, "max"],
-				 [4, 16, 1, 1, 18, 1, "max"],
-				 [15, 14, 2, 1, 19, 1, "max"],
-				 [15, 16, 2, 1, 20, 1, "max"],
-				 [15, 8, 2, 1, 21, 1, "max"],
-				 [17, 8, 1, 1, 22, 1, "max"],
-				 [17, 13, 2, 1, 23, 1, "max"],
-				 [17, 13, 3, 2, 24, 1, "max"]]
+		acima = [[15, 5, 1, 1, 1, 1, 8418.576800000004],
+				 [15, 7, 3, 1, 2, 1, 1721.2799999999993],
+				 [15, 6, 2, 1, 3, 1, 38109.99999999783],
+				 [4, 9, 1, 1, 4, 1, 2131.5],
+				 [14, 14, 1, 1, 5, 1, 5081.916000000003],
+				 [14, 4, 3, 1, 6, 1, 7259.880000000004],
+				 [14, 4, 2, 1, 7, 1, 717.0799999999954],
+				 [14, 8, 2, 1, 8, 1, 5090.824000000007],
+				 [1, 16, 1, 1, 9, 1, 104.88000000000001],
+				 [16, 16, 1, 1, 10, 1, 613.6],
+				 [3, 13, 1, 1, 11, 1, 1318.0400000000002],
+				 [7, 13, 1, 2, 12, 1, 1212.3999999999999],
+				 [15, 5, 3, 1, 13, 1, 148.5831999999973],
+				 [15, 8, 3, 1, 14, 1, 110.97840000000429],
+				 [4, 16, 1, 1, 15, 1, 38.84999999999991],
+				 [15, 14, 2, 1, 16, 1, 70.88399999999729],
+				 [15, 16, 2, 1, 17, 1, 576.1100000000005],
+				 [15, 8, 2, 1, 18, 1, 364.6276000021909],
+				 [17, 8, 1, 1, 19, 1, 248.55999999774224],
+				 [17, 13, 2, 1, 20, 1, 3413.7199999999966],
+				 [17, 13, 3, 2, 21, 1, 3519.359999999997]]
 
 		divisao_de_correntes_abaixo("Q", 1, 13, 5, [0.18, 0.10, 0.11, 0.52, 0.09])
 		divisoes.append(["Q", 2, 13, 5, [0.18, 0.10, 0.11, 0.52, 0.09]])
 		divisao_de_correntes_abaixo("F", 1, 18, 10, [0.04411665198623181, 0.0009617876307905618, 0.31263859862075805, 0.0414726963117882, 0.0013317286795616215, 0.21075390853650794, 0.08600612293802927, 0.08249488893347355, 0.15439135094374853, 0.06583226541911047])
 		divisoes.append(["F", 2, 18, 10, [0.04411665198623181, 0.0009617876307905618, 0.31263859862075805, 0.0414726963117882, 0.0013317286795616215, 0.21075390853650794, 0.08600612293802927, 0.08249488893347355, 0.15439135094374853, 0.06583226541911047]])
 
-		abaixo = [	[3, 1, 1, 1, 1, 1, "max"],
-					[13, 13, 1, 1, 2, 1, "max"],
-					[13, 16, 2, 1, 3, 1, "max"],
-					[13, 3, 3, 1, 4, 1, "max"],
-					[13, 12, 4, 1, 5, 1, "max"],
-					[13, 15, 5, 1, 6, 1, "max"],
-					[13, 2, 4, 1, 7, 1, "max"],
-					[5, 10, 1, 1, 8, 1, "max"],
-					[5, 18, 1, 1, 9, 1, "max"],
-					[8, 11, 1, 1, 10, 1, "max"],
-					[10, 11, 1, 1, 11, 1, "max"],
-					[3, 11, 1, 1, 12, 1, "max"],
-					[6, 11, 1, 1, 13, 1, "max"],
-					[11, 11, 1, 1, 14, 1, "max"],
-					[4, 9, 1, 1, 15, 1, "max"],
-					[4, 18, 1, 2, 16, 1, "max"],
-					[9, 17, 1, 1, 17, 1, "max"],
-					[12, 17, 1, 1, 18, 1, "max"],
-					[7, 17, 1, 1, 19, 1, "max"],
-					[2, 18, 1, 3, 20, 1, "max"],
-					[7, 18, 1, 4, 21, 1, "max"],
-					[11, 18, 1, 5, 22, 1, "max"],
-					[13, 18, 1, 6, 23, 1, "max"],
-					[13, 18, 2, 7, 24, 1,"max"],
-					[13, 18, 3, 8, 25, 1, "max"],
-					[13, 18, 4, 9, 26, 1, "max"],
-					[13, 18, 5, 10, 27, 1, "max"]]
+		abaixo = [	[3, 1, 1, 1, 1, 1, 267.86],
+					[13, 13, 1, 1, 2, 1, 373.5599999999965],
+					[13, 16, 2, 1, 3, 1, 1259.3599999999994],
+					[13, 3, 3, 1, 4, 1, 1795.1999999999998],
+					[13, 12, 4, 1, 5, 1, 8302.0],
+					[13, 15, 5, 1, 6, 1, 1525.0999999999992],
+					[13, 2, 4, 1, 7, 1, 8157.34],
+					[5, 10, 1, 1, 8, 1, 4949.0],
+					[5, 18, 1, 1, 9, 1, 1493.0500000000002],
+					[8, 11, 1, 1, 10, 1, 129.12000000000012],
+					[10, 11, 1, 1, 11, 1, 64.17000000000003],
+					[3, 11, 1, 1, 12, 1, 445.94000000000005],
+					[6, 11, 1, 1, 13, 1, 857.9999999999998],
+					[11, 11, 1, 1, 14, 1, 44.529999999999745],
+					[4, 9, 1, 1, 15, 1, 597.4499999999999],
+					[4, 18, 1, 2, 16, 1, 32.55000000000007],
+					[9, 17, 1, 1, 17, 1, 689.71],
+					[12, 17, 1, 1, 18, 1, 27.610000000000003],
+					[7, 17, 1, 1, 19, 1, 544.93],
+					[2, 18, 1, 3, 20, 1, 10580.699999999999],
+					[7, 18, 1, 4, 21, 1, 1403.5699999999997],
+					[11, 18, 1, 5, 22, 1, 45.07000000000026],
+					[13, 18, 1, 6, 23, 1, 7132.593000000003],
+					[13, 18, 2, 7, 24, 1, 2910.7250000000004],
+					[13, 18, 3, 8, 25, 1, 2791.8935],
+					[13, 18, 4, 9, 26, 1, 5225.101999999999],
+					[13, 18, 5, 10, 27, 1, 2227.9765000000007]]
 
 
 	else:
 		# viola termo util
-		acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
-
-		# utilidades
-		acima.append([4, 2, 1, 1, 4, 1, "max"])
-		acima.append([4, 2, 1, 2, 5, 1, "max"])
-		abaixo.append([1, 3, 1, 1, 5, 1, "max"])
-		abaixo.append([2, 3, 1, 2, 6, 1, "max"])
-		abaixo.append([3, 3, 1, 3, 7, 1, "max"])
-
-		#sem viola term util
-		# acima = [[3, 2, 1, 2, 1, 1, "max"], [2, 2, 1, 1, 2, 1, "max"], [3, 2, 1, 1, 3, 1, "max"]]
-		# abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
+		# # acima = [[3, 2, 1, 2, 1, 1, 677.9], [2, 2, 1, 1, 2, 1, 220.3], [3, 2, 1, 1, 3, 1, 306.5]]
+		# # abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, "max"]]
 		#
-		# #utilidades
+		# # utilidades
 		# acima.append([4, 2, 1, 1, 4, 1, "max"])
+		# acima.append([4, 2, 1, 2, 5, 1, "max"])
 		# abaixo.append([1, 3, 1, 1, 5, 1, "max"])
 		# abaixo.append([2, 3, 1, 2, 6, 1, "max"])
 		# abaixo.append([3, 3, 1, 3, 7, 1, "max"])
-		#
+
+		#sem viola term util
+		acima = [[3, 2, 1, 2, 1, 1, 691.8408000000001], [2, 2, 1, 1, 2, 1, 220.32], [3, 2, 1, 1, 3, 1, 292.5591999999999]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 411.8], [2, 1, 1, 1, 2, 1, 31.3], [3, 1, 1, 1, 3, 1, 195.2], [1, 1, 1, 1, 4, 1, 715.8300000000002]]
+
+		#util
+		acima.append([4, 2, 1, 1, 4, 1, 1266.14])
+		abaixo.append([1, 3, 1, 1, 5, 1, 746.0699999999999])
+		abaixo.append([2, 3, 1, 2, 6, 1, 113.54])
+		abaixo.append([3, 3, 1, 3, 7, 1, 173.95])
+
+
 		divisao_de_correntes("F", 1, 2, 2, [0.72, 0.28])
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
 		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
 		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
 
 	for trocador in acima:
-		if len(trocador) > 1:
-			if trocador[6] == "max":
-				trocador[6] = min(calor_atual_frio_sub[trocador[1]-1][trocador[3]-1], calor_atual_quente_sub[trocador[0]-1][trocador[2]-1])
-			matriz_armazenada, oi = inserir_trocador(dlg, trocador)
-			dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
-			dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
-			subestagio_trocador += 1
-		else:
-			utilidadee = adicionar_utilidade(dlg, trocador[0])
-			utilidades.append(utilidadee[-1])
-			utilidades.sort()
+		if trocador[6] == "max":
+			trocador[6] = min(calor_atual_frio_sub[trocador[1]-1][trocador[3]-1], calor_atual_quente_sub[trocador[0]-1][trocador[2]-1])
+		dlg.trocador_acima.addItem("E" + str(subestagio_trocador))
+		dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
+		subestagio_trocador += 1
 
 	for trocador in abaixo:
-		if len(trocador) > 1:
-			if trocador[6] == "max":
-				trocador[6] = min(calor_atual_quente_sub_abaixo[trocador[0]-1][trocador[2]-1], calor_atual_frio_sub_abaixo[trocador[1]-1][trocador[3]-1])
-			matriz_trocadores_abaixo, oi = inserir_trocador_abaixo(dlg, trocador)
-			dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
-			dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
-			subestagio_trocador_abaixo += 1
-		else:
-			utilidadee = adicionar_utilidade_abaixo(dlg, trocador[0])
-			utilidades_abaixo.append(utilidadee[-1])
-			utilidades_abaixo.sort()
+		if trocador[6] == "max":
+			trocador[6] = min(calor_atual_quente_sub_abaixo[trocador[0]-1][trocador[2]-1], calor_atual_frio_sub_abaixo[trocador[1]-1][trocador[3]-1])
+		dlg.trocador_abaixo.addItem("E" + str(subestagio_trocador_abaixo))
+		dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
+		subestagio_trocador_abaixo += 1
+
+	matriz_trocadores_abaixo = inserir_todos_abaixo(abaixo)
+	matriz_armazenada = inserir_todos_acima(acima)
 
 	printar()
 	printar_abaixo()
@@ -4885,7 +4875,7 @@ for i in range(5):
 
 openfile_teste(False)
 done_teste(True)
-pinch_teste()
+pinch_teste(False)
 suprir_9_correntes()
 
 
