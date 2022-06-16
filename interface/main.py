@@ -2665,11 +2665,17 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 		if onde == "acima":
 			if e_utilidade_quente[matriz_armazenada[indice_remover][0]-1]:
 				verifica = True
-			remover_acima(indice_remover, False)
+			if indice_remover != len(matriz_armazenada)-1:
+				remover_acima(indice_remover, False)
+			else:
+				remover_acima(indice_remover)
 		if onde == "abaixo":
 			if e_utilidade_fria[matriz_trocadores_abaixo[indice_remover][1]-1]:
 				verifica = True
-			remover_abaixo(indice_remover, False)
+			if indice_remover != len(matriz_trocadores_abaixo)-1:
+				remover_abaixo(indice_remover, False)
+			else:
+				remover_abaixo(indice_remover)
 
 		if verifica:
 			verificar_uteis(onde)
@@ -2834,20 +2840,15 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 						soma += fracoes[-1]
 				fracoes.append(1-soma)
 
-				remover_todos_abaixo()
+				preparar_corrente_abaixo(corrente)
 				divisao_de_correntes_abaixo("F", 1, corrente, len(fracoes), fracoes)
 				divisoes.append(["F", 2, corrente, len(fracoes), fracoes])
+				matriz_trocadores_abaixo = inserir_todos_abaixo(trocadores, coloca=False, atualiza=True)
 
 				for divisao in divisoes:
 					if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
 						divisoes.pop(divisoes.index(divisao))
 						break
-
-				for trocador in matriz_reserva:
-					if matriz_reserva.index(trocador) != len(matriz_reserva)-1:
-						matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7], ignora=True)
-					else:
-						matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7], ignora=True, ultimo=True)
 
 				printar_abaixo()
 				checaresgotadosabaixo()
@@ -4269,8 +4270,7 @@ def inserir_teste_abaixo():
 			salvar_matriz = nao_sacrificar_matriz(matriz_trocadores_abaixo)
 			remover_todos_abaixo()
 			receber_pinch_abaixo(Thf, Tc0, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0_abaixo, Tcf_abaixo, sk=4)
-			for trocador in salvar_matriz:
-				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, trocador[:7])
+			matriz_trocadores_abaixo = inserir_todos_abaixo(salvar_matriz)
 
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 

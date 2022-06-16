@@ -3957,7 +3957,7 @@ def inserir_teste():
 			salvar_matriz = nao_sacrificar_matriz(matriz_armazenada)
 			remover_todos_acima()
 			receber_pinch(Th0, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Thf_acima, Tc0_acima, sk=4)
-			matriz_armazenada = inserir_todos_acima(matriz_armazenada)
+			matriz_armazenada = inserir_todos_acima(salvar_matriz)
 
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 

@@ -215,12 +215,12 @@ def calcular_superestrutura_abaixo(acao, chot, ccold, sbhot, sbcold, sestagio, e
 	if ultimo != -1:
 		Thski[chot-1][sbhot-1][sestagio-1][estagio-1] = Thskf[chot-1][sbhot-1][ultimo][estagio-1]
 	else:
-		Thski[chot-1][sbhot-1][sestagio-1][estagio-1] = Thf[chot-1]
+		Thski[chot-1][sbhot-1][sestagio-1][estagio-1] = Th0[chot-1]
 
 	if ultimof != -1:
 		Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1] = Tcskf[ccold-1][sbcold-1][ultimof][estagio-1]
 	else:
-		Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1] = Tc0[ccold-1]
+		Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1] = Tcf[ccold-1]
 
 	Qestagioq = 0
 	for si1 in subq_usadas[chot-1]:
@@ -245,24 +245,24 @@ def calcular_superestrutura_abaixo(acao, chot, ccold, sbhot, sbcold, sestagio, e
 	Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1] = Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1] - (Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]/(CPc[ccold-1]*Fcarr[estagio-1][ccold-1][sbcold-1]/100))
 	Tckf[ccold-1][estagio-1] = Tcf[ccold-1] - (Qestagiof/CPc[ccold-1])
 
-	temperatura_atual_fria_abaixo[ccold-1][sj] = Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1]
+	temperatura_atual_fria_abaixo[ccold-1][sbcold-1] = Tcskf[ccold-1][sbcold-1][sestagio-1][estagio-1]
 	temperatura_atual_fria_mesclada_abaixo[ccold-1] = Tckf[ccold-1][estagio-1]
 
 	if acao == "inserir":
 		Qtotalh0[chot-1][sbhot-1][estagio-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 		Qtotalc0[ccold-1][sbcold-1][estagio-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_quente[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_frio[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_quente_sub[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_frio_sub[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_quente_abaixo[chot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_frio_abaixo[ccold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_quente_sub_abaixo[chot-1][sbhot-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_frio_sub_abaixo[ccold-1][sbcold-1] -= Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 	elif acao == "remover":
 		Qtotalh0[chot-1][sbhot-1][estagio-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 		Qtotalc0[ccold-1][sbcold-1][estagio-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_quente[chot-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_frio[ccold-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_quente_sub[chot-1][sbhot-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
-		calor_atual_frio_sub[ccold-1][sbcold-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_quente_abaixo[chot-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_frio_abaixo[ccold-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_quente_sub_abaixo[chot-1][sbhot-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
+		calor_atual_frio_sub_abaixo[ccold-1][sbcold-1] += Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1]
 
 def divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao):
 	qsi = quantidade
@@ -436,7 +436,7 @@ def matrizes(acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
 			subf_usadas.append([])
 			friasxquentes.append([])
 
-		for trocador in linha_interface:
+		for trocador in linha_interface_abaixo:
 			verificar(trocador[0]-1, quentes_usadas)
 			verificar(trocador[1]-1, frias_usadas)
 			verificar(trocador[2]-1, subq_usadas[trocador[0]-1])
@@ -640,7 +640,7 @@ def inserir_todos_abaixo(matriz, coloca=True, atualiza=False):
 										Fharr[estagio-1][chot-1][sbhot-1]/100,
 										Fcarr[estagio-1][ccold-1][sbcold-1]/100])
 
-	atualizar_matriz_abaixo(linha_interface)
+	atualizar_matriz_abaixo(linha_interface_abaixo)
 
 	return linha_interface_abaixo
 
@@ -670,23 +670,23 @@ def remover_todos_abaixo(ate=0, temps=False):
 	if temps:
 		for trocador in linha_interface_abaixo:
 			calcular_superestrutura_abaixo("nada", trocador[0], trocador[1], trocador[2], trocador[3], trocador[4], trocador[5])
-		atualizar_matriz(linha_interface_abaixo)
+		atualizar_matriz_abaixo(linha_interface_abaixo)
 
 def preparar_corrente_abaixo(corrente):
 	for i in range(len(linha_interface_abaixo)-1, -1, -1):
 		if linha_interface_abaixo[i][1] == corrente:
-			chot = linha_interface[i][0]
-			ccold = linha_interface[i][1]
-			sbhot = linha_interface[i][2]
-			sbcold = linha_interface[i][3]
-			sestagio = linha_interface[i][4]
-			estagio = linha_interface[i][5]
-			calor = linha_interface[i][6]
+			chot = linha_interface_abaixo[i][0]
+			ccold = linha_interface_abaixo[i][1]
+			sbhot = linha_interface_abaixo[i][2]
+			sbcold = linha_interface_abaixo[i][3]
+			sestagio = linha_interface_abaixo[i][4]
+			estagio = linha_interface_abaixo[i][5]
+			calor = linha_interface_abaixo[i][6]
 
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			Qtotalh0[chot-1][sbhot-1][estagio-1] += calor
 			Qtotalc0[ccold-1][sbcold-1][estagio-1] += calor
-			calor_atual_quente[chot-1] += calor
-			calor_atual_frio[ccold-1] += calor
-			calor_atual_quente_sub[chot-1][sbhot-1] += calor
-			calor_atual_frio_sub[ccold-1][sbcold-1] += calor
+			calor_atual_quente_abaixo[chot-1] += calor
+			calor_atual_frio_abaixo[ccold-1] += calor
+			calor_atual_quente_sub_abaixo[chot-1][sbhot-1] += calor
+			calor_atual_frio_sub_abaixo[ccold-1][sbcold-1] += calor
