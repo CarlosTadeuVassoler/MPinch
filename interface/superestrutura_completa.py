@@ -60,6 +60,14 @@ def preparar_dados_e_rede(sk=2):
 	Tcskf = declarar_np(ncold, nhot+2, nsk, nstages)
 	Q = declarar_np(nhot, ncold+2, ncold, nhot+2, nsk, nstages)
 
+	subestagios[0].clear()
+	subestagios[1].clear()
+	quentes_usadas.clear()
+	frias_usadas.clear()
+	for i in range(len(subq_usadas)):
+		subq_usadas[i].clear()
+		for j in range(len(subf_usadas)):
+			subf_usadas[j].clear()
 	if sk == 4:
 		linha_interface_ev.clear()
 
@@ -123,18 +131,15 @@ def preparar_dados_e_rede(sk=2):
 					Qtotalh0[i][0][k] = Qtotalh01[i]
 					Qtotalc0[j][0][k] = Qtotalc01[j]
 
-	#Prepara rede
 	for i in range(nhot):
-		#Este loop iguala as temperaturas iniciais de todos os SUB-ESTÁGIOS à temperatura inicial da corrente
 		for si in range(ncold+2):
 			for sk in range(nsk):
 				for k in range(nstages):
 					Thski[i][si][sk][k] = Th0[i]
-					Thskf[i][si][sk][k] = Th0[i] #Thsk é a temperatura inicial do sub-estágio
-		#Este loop iguala as temperaturas iniciais de todos os ESTÁGIOS à temperatura inicial da corrente
+					Thskf[i][si][sk][k] = Th0[i]
 		for k in range(nstages):
 			Thki[i][k] = Th0[i]
-			Thkf[i][k] = Th0[i] #Thk é a temperatura inicial do estágio
+			Thkf[i][k] = Th0[i]
 
 	for j in range(ncold):
 		for sj in range(nhot+2):
@@ -569,8 +574,6 @@ def remover_todos_ev():
 
 		calor_atual_quente_ev[chot-1] += vetorr[6]
 		calor_atual_frio_ev[ccold-1] += vetorr[6]
-
-	calcular_superestrutura()
 
 	subestagios[0].clear()
 	subestagios[1].clear()

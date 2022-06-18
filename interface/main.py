@@ -93,14 +93,14 @@ def openfile_teste(pergunta=True):
 		workbook = xlrd.open_workbook(filename)
 		arquivo = filename
 	else:
-		# workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
-		# arquivo = "9 correntes - 20 dtmin.xls"
+		workbook = xlrd.open_workbook("9 correntes - 20 dtmin.xls")
+		arquivo = "9 correntes - 20 dtmin.xls"
 		# workbook = xlrd.open_workbook("25 correntes.xls")
 		# arquivo = "25 correntes.xls"
 		# workbook = xlrd.open_workbook("40 correntes - 3 dtmin.xls")
 		# arquivo = "40 correntes - 3 dtmin.xls"
-		workbook = xlrd.open_workbook("50 correntes.xls")
-		arquivo = "50 correntes.xls"
+		# workbook = xlrd.open_workbook("50 correntes.xls")
+		# arquivo = "50 correntes.xls"
 
 	worksheet = workbook.sheet_by_index(0)
 	k=0
@@ -144,8 +144,19 @@ def openfile_teste(pergunta=True):
 			item = dlg.tableWidget.item(i, j)
 			item.setTextAlignment(Qt.AlignCenter)
 
-def apertaradd() :
+def add_corrente() :
 	global n, ncold, nhot, correntes
+
+	if float(dlg.stream_supply.text().replace(",", ".")) < float(dlg.stream_target.text().replace(",", ".")):
+		tipo = "Cold"
+		ncold += 1
+	elif float(dlg.stream_supply.text().replace(",", ".")) > float(dlg.stream_target.text().replace(",", ".")):
+		tipo = "Hot"
+		nhot += 1
+	else:
+		mensagem_erro("Please avoid Tin = Tout. \nIf the stream is isothermal, you may use 1 K difference and assign the heat capacity flowrate (w.Cp) with the latent heat flowrate value (w.L). \nFor more accuracy, use, for instance, 0.001 K difference and w.L/0.001 as heat capacity flowrate.")
+		return
+
 	n += 1
 	dados_da_corrente = []
 	if n == 1:
@@ -155,13 +166,6 @@ def apertaradd() :
 		dlg.pelicula_unidade.setEnabled(False)
 		dlg.temp_unidade_util.setEnabled(False)
 		dlg.pelicula_unidade_util.setEnabled(False)
-
-	if float(dlg.stream_supply.text().replace(",", ".")) < float(dlg.stream_target.text().replace(",", ".")):
-		tipo = "Cold"
-		ncold += 1
-	else:
-		tipo = "Hot"
-		nhot += 1
 
 	dados_da_corrente.append(float(dlg.stream_supply.text().replace(",",".")))
 	dados_da_corrente.append(float(dlg.stream_target.text().replace(",", ".")))
@@ -188,17 +192,14 @@ def apertaradd() :
 
 def add_utilidade():
 	global n, n_util, ncold, nhot, correntes_util
-	dlg.donebutton.setEnabled(False)
-	dlg.botao_addstream.setEnabled(False)
-	dlg.remover_corrente.setEnabled(False)
-	# n += 1
-	n_util += 1
-	dados_da_corrente = []
 
 	if float(dlg.util_inlet.text().replace(",", ".")) < float(dlg.util_outlet.text().replace(",", ".")):
 		tipo = "Cold"
-	else:
+	elif float(dlg.util_inlet.text().replace(",", ".")) > float(dlg.util_outlet.text().replace(",", ".")):
 		tipo = "Hot"
+	else:
+		mensagem_erro("Please avoid Tin = Tout. \nIf the stream is isothermal, you may use 1 K difference and assign the heat capacity flowrate (w.Cp) with the latent heat flowrate value (w.L). \nFor more accuracy, use, for instance, 0.001 K difference and w.L/0.001 as heat capacity flowrate.")
+		return
 
 	if len(correntes_util) > 0:
 		if correntes_util[0][3] == tipo:
@@ -206,9 +207,14 @@ def add_utilidade():
 				QMessageBox.about(dlg, "Error!", "There's already a hot utility. You must input a cold one.")
 			else:
 				QMessageBox.about(dlg, "Error!", "There's already a cold utility. You must input a hot one.")
-			n_util -= 1
 			return
 
+	dlg.donebutton.setEnabled(False)
+	dlg.botao_addstream.setEnabled(False)
+	dlg.remover_corrente.setEnabled(False)
+	dados_da_corrente = []
+
+	n_util += 1
 	dados_da_corrente.append(float(dlg.util_inlet.text().replace(",", ".")))
 	dados_da_corrente.append(float(dlg.util_outlet.text().replace(",", ".")))
 	dados_da_corrente.append(1)
@@ -248,23 +254,33 @@ def editar_corrente(correntes, tip, tabela):
 		coluna = tabela.currentItem().column()
 		coluna_comp = coluna - tip
 		dado = tabela.currentItem().text()
+		dado_antigo = correntes[linha][3]
 
-		if coluna == 3 and dado != "Hot" and dado != "Cold":
-			QMessageBox.about(dlg, "Error!", "Not allowed to change this column. Change the temperatures instead.")
+		if coluna == 3 and dado != dado_antigo:
+			mensagem_erro("Not allowed to change this column. Change the temperatures instead.")
 			tabela.setItem(linha, coluna, QTableWidgetItem(correntes[linha][coluna]))
 			tabela.currentItem().setTextAlignment(Qt.AlignCenter)
 			return
 		elif coluna != 3:
-			correntes[linha][coluna_comp] = float(dado.replace(",", "."))
+			c = correntes[linha][:]
+			c[coluna_comp] = float(dado.replace(",", "."))
+			if c[0] == c[1]:
+				mensagem_erro("Please avoid Tin = Tout. \nIf the stream is isothermal, you may use 1 K difference and assign the heat capacity flowrate (w.Cp) with the latent heat flowrate value (w.L). \nFor more accuracy, use, for instance, 0.001 K difference and w.L/0.001 as heat capacity flowrate.")
+				tabela.setItem(linha, coluna, QTableWidgetItem(str(correntes[linha][coluna_comp])))
+				tabela.currentItem().setTextAlignment(Qt.AlignCenter)
+				return
+			else:
+				correntes[linha] = c[:]
 
 		tipo = QTableWidgetItem(correntes[linha][3])
 		if coluna_comp == 0 or coluna_comp == 1:
-			if correntes[linha][0] >= correntes[linha][1]:
+			if correntes[linha][0] > correntes[linha][1]:
 				correntes[linha][3] = "Hot"
 				tabela.setItem(linha, 3, tipo)
-			else:
+			elif correntes[linha][0] < correntes[linha][1]:
 				correntes[linha][3] = "Cold"
 				tabela.setItem(linha, 3, tipo)
+
 			tabela.item(linha, 3).setTextAlignment(Qt.AlignCenter)
 
 		if correntes_util[0][3] != correntes_util[1][3]:
@@ -335,6 +351,7 @@ def done_teste(libera=False):
 		dlg.donebutton.setEnabled(False)
 		dlg.botao_addstream.setEnabled(False)
 		dlg.remover_corrente.setEnabled(False)
+		dlg.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 		dlg.done.close()
 		if libera:
 			if arquivo == "9 correntes - 20 dtmin.xls":
@@ -347,6 +364,8 @@ def done_teste(libera=False):
 			e_utilidade.append(True)
 
 	def pinch_sem_util():
+		dlg.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+		dlg.tableWidget_5.setEditTriggers(QAbstractItemView.NoEditTriggers)
 		pinch_teste()
 		dlg.done.close()
 
@@ -375,13 +394,9 @@ def pinch_teste(desenha=True):
 
 	for util in correntes_util:
 		if util[3] == "Hot":
-			if util[0] == util[1]:
-				util[1] -= 1
 			util[2] = util_quente/(util[0] - util[1])
 			nhot += 1
 		else:
-			if util[0] == util[1]:
-				util[0] -= 1
 			util[2] = util_fria/(util[1] - util[0])
 			ncold += 1
 
@@ -470,6 +485,8 @@ def pinch_teste(desenha=True):
 	dlg.remover_utilidade.setEnabled(False)
 	dlg.remover_corrente.setEnabled(False)
 	dlg.donebutton.setEnabled(False)
+	dlg.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+	dlg.tableWidget_5.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 def correntesnoscombos(nhot,ncold):
 	for i in range(nhot):
@@ -2195,6 +2212,7 @@ def salvar_rede(subredes, onde, salva, tamanho, ensure):
 		turtle.bye()
 		# turtle.done()
 		TARGET_BOUNDS = [tamanho[0]*3, tamanho[1]*3]
+		# TARGET_BOUNDS = [tamanho[0], tamanho[1]]
 		if TARGET_BOUNDS[0] < 1280:
 			TARGET_BOUNDS[0] = 1280
 		if TARGET_BOUNDS[1] < 1280:
@@ -2216,7 +2234,10 @@ def salvar_rede(subredes, onde, salva, tamanho, ensure):
 			imagem = pic.crop((200, 0, pic.size[0], pic.size[1]))
 		else:
 			imagem = pic
+
 		imagem.save(onde + ".png")
+		pic.close()
+		imagem.close()
 
 	dlg.rede = QPixmap(onde + ".png")
 	if not subredes:#atualizando evolução
@@ -2260,6 +2281,8 @@ def atualizar_desenho(onde, botao=False):
 		else:
 			dlg.emdia_abaixo.setText("Drawing requires update.")
 			dlg.emdia_abaixo.setStyleSheet("QLabel {color: red}")
+
+
 
 
 
@@ -3101,21 +3124,14 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			nska = max(subestagio_trocador, subestagio_trocador_abaixo) + max(nhot, ncold)
 			receber_pinch_ev(Thf, Tcf, nhot, ncold, CPh, CPc, dTmin, pinchq, pinchf, Th0, Tc0, nska)
 			for i in range(len(matriz_acima)-1, -1, -1):
-				if len(matriz_acima[i]) > 2:
-					try:
-						ultimo_subestagio_acima = matriz_acima[i][4]
-					except:
-						ultimo_subestagio_acima = 1
-					break
+				ultimo_subestagio_acima = len(matriz_acima)
 
 			for i in range(len(matriz_acima)):
-				if len(matriz_acima[i]) > 2:
-					matriz_acima[i][4] = ultimo_subestagio_acima - i
+				matriz_acima[i][4] = ultimo_subestagio_acima - i
 
 			for trocador in matriz_abaixo:
-				if len(trocador) > 2:
-					# trocador[4] += ultimo_subestagio_acima
-					trocador[5] = 2
+				trocador[5] = 2
+
 			try:
 				remover_todos_ev()
 			except:
@@ -3130,13 +3146,11 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 			for i in range(len(divisoes)):
 				divisao_de_correntes_ev(divisoes[i][0], divisoes[i][1], divisoes[i][2], divisoes[i][3], divisoes[i][4])
 		else:
-			ultimo_subestagio_acima = matriz_acima[0][4]
 			remover_todos_ev()
 			for i in range(len(divisoes_ev)):
 				divisao_de_correntes_ev(divisoes_ev[i][0], divisoes_ev[i][1], divisoes_ev[i][2], divisoes_ev[i][3], divisoes_ev[i][4])
 
 		matriz_total = matriz_acima + matriz_abaixo
-
 		matriz_completa = inserir_trocador_ev(matriz_total)
 
 		try:
@@ -3519,7 +3533,10 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 	if jogar_evolucao:
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
+		# try:
 		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
+		# except:
+		# 	mensagem_erro("Subnetwork Error. \nOne of them may not exist.")
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
 		desenho_em_dia_ambas = False
@@ -3565,8 +3582,15 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 def editar_calor(matriz_naomuda, trocador, calor, path=False):
 	global desenho_em_dia_ambas, matriz_evolucao, n_quentes, n_frias, divisoes_ev
 	if calor == 0 and path:
-		QMessageBox.about(dlg, "Error!", "You must Specify a Heat Load greater than 0")
+		mensagem_erro("You must Specify a Heat Load greater than 0.")
 		return
+	if calor < 0:
+		mensagem_erro("You must Specify a Heat Load greater than 0.")
+		return
+	if matriz_naomuda[trocador][6] - calor < 0 and path:
+		mensagem_erro("Not able to remove more than the Heat Exchanger Heal Load.")
+		return
+
 	matriz = nao_sacrificar_matriz(matriz_naomuda)
 	remover_todos_ev()
 	ramo = [False, False]
@@ -4738,16 +4762,17 @@ def suprir_9_correntes():
 	matriz_trocadores_abaixo = inserir_todos_abaixo(abaixo)
 	matriz_armazenada = inserir_todos_acima(acima)
 
-	printar()
-	printar_abaixo()
-	testar_correntes(dlg)
-	testar_correntes_abaixo(dlg)
-	global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
-	desenho_em_dia = False
-	desenho_em_dia_abaixo = False
-	desenho_em_dia_ambas = False
-	evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True)
-	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+	# printar()
+	# printar_abaixo()
+	# testar_correntes(dlg)
+	# testar_correntes_abaixo(dlg)
+	# global desenho_em_dia, desenho_em_dia_abaixo, desenho_em_dia_ambas
+	# desenho_em_dia = False
+	# desenho_em_dia_abaixo = False
+	# desenho_em_dia_ambas = False
+	# evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True)
+	# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+
 
 def centralizar_combobox_teste(x):
 	x.setEditable(True)
@@ -4757,17 +4782,201 @@ def centralizar_combobox_teste(x):
 	for i in range(x.count()):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
 
+def vai():
+	global scroll
+
+	try:
+		dlg.desenho_lay.removeWidget(scroll)
+	except:
+		pass
+
+	desenho = Desenho(10)
+	desenho.setMinimumSize(3000, 3000)
+	scroll = QScrollArea()
+	scroll.setWidget(desenho)
+
+
+	dlg.desenho_lay.addWidget(scroll)
+
+	dlg.tabWidget.setCurrentIndex(5)
+
+class Desenho(QWidget):
+	def __init__(self, n):
+		super().__init__()
+		self.n = n
+
+	def paintEvent(self, event):
+		def corrente(painter, tipo, id, dividida, quantidade, comeco, fim, dados, tocapinch=True):
+			global localizacao_quente, localizacao_fria
+			valor = 15
+			espaco = 10
+			if tipo == "quente":
+				painter.setPen(QPen(QColor("red"), 3, Qt.SolidLine))
+				ponta = -valor
+				ramos = 1
+				localizacao = localizacao_quente
+				tin = comeco[0] - maior_temp - espaco
+			elif tipo == "fria":
+				painter.setPen(QPen(QColor("blue"), 3, Qt.SolidLine))
+				ponta = valor
+				ramos = -1
+				localizacao = localizacao_fria
+				tin = fim[0] - maior_temp - espaco
+			elif tipo == "quenteutil":
+				painter.setPen(QPen(QColor("orange"), 3, Qt.SolidLine))
+				ponta = -valor
+				ramos = 1
+				localizacao = localizacao_quente
+				tin = comeco[0] - maior_temp - espaco
+			elif tipo == "friautil":
+				painter.setPen(QPen(QColor("cyan"), 3, Qt.SolidLine))
+				ponta = valor
+				ramos = -1
+				localizacao = localizacao_fria
+				tin = fim[0] - maior_temp - espaco
+
+			painter.drawLine(comeco[0], comeco[1], fim[0], fim[1])
+			painter.drawLine(fim[0], fim[1], fim[0]+ponta, fim[1]+7)
+			painter.drawLine(fim[0], fim[1], fim[0]+ponta, fim[1]-7)
+
+			ramox = ramoy = 60
+			ramox = ramox*ramos
+
+			localizacao.append([comeco[1]])
+			if dividida:
+				for ramo in range(1, quantidade):
+					painter.drawLine(comeco[0]+ramox, comeco[1], comeco[0]+ramox, comeco[1]+ramoy*ramo)
+					painter.drawLine(comeco[0]+ramox, comeco[1]+ramoy*ramo, fim[0]-ramox, comeco[1]+ramoy*ramo)
+					painter.drawLine(fim[0]-ramox, comeco[1]+ramoy*ramo, fim[0]-ramox, fim[1])
+					localizacao[-1].append(comeco[1]+ramoy*ramo)
+
+
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(10)
+			painter.setFont(fonte)
+			painter.drawText(QRect(tin, comeco[1]-7, maior_temp, 30), Qt.AlignRight, dados[1])
+			painter.drawText(QRect(tin - espaco - maior_cp, comeco[1]-7, maior_cp, 15), Qt.AlignCenter, dados[0])
+			painter.drawText(QRect(tin - 5*espaco - maior_cp - maior_duty, comeco[1]-7, maior_duty, 15), Qt.AlignCenter, dados[3])
+
+
+		def trocador(painter, id, ondeq, ondef, calor, temperaturas):
+			raio_trocador = 35
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			painter.drawLine(int(ondeq[0] + raio_trocador/2), ondeq[1], int(ondef[0] + raio_trocador/2), ondef[1])
+			painter.drawEllipse(ondeq[0], int(ondeq[1] - raio_trocador/2), raio_trocador, raio_trocador)
+			painter.drawEllipse(ondef[0], int(ondef[1] - raio_trocador/2), raio_trocador, raio_trocador)
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(10)
+			painter.setFont(fonte)
+			painter.drawText(QRect(int(ondeq[0] - 8.5*len(temperaturas[0])), ondeq[1] + 1, int(8.5*len(temperaturas[0])), raio_trocador), Qt.AlignRight, temperaturas[0])
+			painter.drawText(QRect(ondeq[0] + raio_trocador + 1, ondeq[1] + 1, int(len(temperaturas[1])*8.5), raio_trocador), Qt.AlignLeft, temperaturas[1])
+			painter.drawText(QRect(int(ondef[0] - 8.5*len(temperaturas[2])), ondef[1] + 1, int(8.5*len(temperaturas[2])), raio_trocador), Qt.AlignRight, temperaturas[2])
+			painter.drawText(QRect(ondef[0] + raio_trocador + 1, ondef[1] + 1, int(len(temperaturas[3])*8.5), raio_trocador), Qt.AlignLeft, temperaturas[3])
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(True)
+			fonte.setPointSize(12)
+			painter.setFont(fonte)
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - len(calor)*8.5/2), int(ondeq[1]-1.3*raio_trocador), int(len(calor)*8.5), raio_trocador), Qt.AlignCenter, calor)
+			painter.drawText(QRect(ondeq[0], int(ondeq[1] - raio_trocador/2), raio_trocador, raio_trocador), Qt.AlignCenter, id)
+			painter.drawText(QRect(ondef[0], int(ondef[1] - raio_trocador/2), raio_trocador, raio_trocador), Qt.AlignCenter, id)
+
+		def pinch(painter, onde, temperaturas, header):
+			painter.setPen(QPen(Qt.black, 3, Qt.DotLine))
+			painter.drawLine(onde[0], onde[1], onde[2], onde[3])
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(10)
+			painter.setFont(fonte)
+			espaco = 10
+			painter.drawText(QRect(int(onde[0] - 8.5*len(temperaturas[0])/2), onde[1] - 25, int(8.5*len(temperaturas[0])), 15), Qt.AlignCenter, temperaturas[0])
+			painter.drawText(QRect(int(onde[2] - 8.5*len(temperaturas[0])/2), onde[3] + 10, int(8.5*len(temperaturas[1])), 15), Qt.AlignCenter, temperaturas[1])
+			fonte.setBold(True)
+			fonte.setPointSize(10)
+			painter.setFont(fonte)
+			painter.drawText(QRect(header[0] - maior_temp - 2*espaco - maior_cp, header[1] - 25, maior_cp, 15), Qt.AlignCenter, "Streams CP ({})".format(unidades_usadas[1]))
+			painter.drawText(QRect(header[0] - maior_temp - 9*espaco - maior_cp - maior_duty, header[1] - 25, maior_cp, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[1]))
+
+
+
+		painter = QPainter(self)
+		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
+		painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
+		painter.drawRect(0, 0, 3000, 3000)
+		painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+		tempet = []
+		cpe = []
+		dutye = []
+		for temp in Th0:
+			tempet.append(len(str(temp)))
+		for temp in Thf:
+			tempet.append(len(str(temp)))
+		for cp in CPh:
+			cpe.append(len(str(cp)))
+			dutye.append(len(str('{:.2f}'.format(round(cp*(Th0[CPh.index(cp)]-Thf[CPh.index(cp)]), 2)))))
+		for cp in CPc:
+			cpe.append(len(str(cp)))
+			dutye.append(len(str('{:.2f}'.format(round(cp*(Tc0[CPc.index(cp)]-Tcf[CPc.index(cp)]), 2)))))
+
+		dutye.append(len("Streams Duty ({})".format(unidades_usadas[2]))/2)
+		cpe.append(len("Streams CP ({})".format(unidades_usadas[1])))
+		maior_temp = int(max(tempet)*8.5)
+		maior_cp = int(max(cpe)*8.5)
+		maior_duty = int(max(dutye)*8.5)
+
+		global localizacao_quente, localizacao_fria
+		localizacao_quente = []
+		localizacao_fria = []
+		ramox = ramoy = 60
+		x_esquerda = 400
+		x_direita = 1200
+		comecary = y = 100
+		for i in range(len(correntes_quentes)):
+			if i != 0:
+				y = localizacao_quente[-1][-1]
+			dados = [str('{:.2f}'.format(round(CPh[i], 2))), str('{:.2f}'.format(round(Th0[i], 2))), str('{:.2f}'.format(round(Thf_acima[i], 2))), str('{:.2f}'.format(round(calor_atual_quente[i], 2)))]
+			corrente(painter, "quente", i, dividida_quente[i], quantidade_quente[i], [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados)
+
+		y += ramoy
+		for j in range(len(correntes_frias)):
+			if j != 0:
+				y = localizacao_fria[-1][-1]
+
+			dados = [str('{:.2f}'.format(round(CPc[j], 2))), str('{:.2f}'.format(round(Tcf[j], 2))), str('{:.2f}'.format(round(Tc0_acima[j], 2))), str('{:.2f}'.format(round(calor_atual_frio[j], 2)))]
+			corrente(painter, "fria", j, dividida_fria[j], quantidade_fria[j], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados)
+
+		pinch(painter, [x_direita + 1, comecary, x_direita + 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_esquerda, comecary])
+
+		espaco_trocadores = 80
+		for t in matriz_armazenada:
+			chot = t[0]-1
+			ccold = t[1]-1
+			sbhot = t[2]-1
+			sbcold = t[3]-1
+			sestagio = t[4]*espaco_trocadores
+			calor = str('{:.2f}'.format(round(t[6], 2)))
+			temperaturas = [str('{:.2f}'.format(round(t[7], 2))), str('{:.2f}'.format(round(t[9], 2))), str('{:.2f}'.format(round(t[8], 2))), str('{:.2f}'.format(round(t[10], 2)))]
+			trocador(painter, "E" + str(matriz_armazenada.index(t)+1), [x_direita - espaco_trocadores - sestagio, localizacao_quente[chot][sbhot]], [x_direita - espaco_trocadores - sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas)
+
+
 
 
 
 app = QApplication([])
 dlg = uic.loadUi("MPinch.ui")
 
+dlg.botaoo.clicked.connect(vai)
 
 #streams
 dlg.tableWidget.itemChanged.connect(lambda: editar_corrente(correntes, 0, dlg.tableWidget))
 dlg.tableWidget_5.itemChanged.connect(lambda: editar_corrente(correntes_util, 1, dlg.tableWidget_5))
-dlg.botao_addstream.clicked.connect(apertaradd) #add stream
+dlg.botao_addstream.clicked.connect(add_corrente) #add stream
 dlg.botao_addutility.clicked.connect(add_utilidade)
 dlg.remover_corrente.clicked.connect(lambda: remover_corrente(dlg.tableWidget.currentRow(), dlg.tableWidget, "corrente"))
 dlg.remover_utilidade.clicked.connect(lambda: remover_corrente(dlg.tableWidget_5.currentRow(), dlg.tableWidget_5, "utilidade"))
@@ -4877,6 +5086,8 @@ openfile_teste(False)
 done_teste(True)
 pinch_teste(False)
 suprir_9_correntes()
+
+vai()
 
 
 

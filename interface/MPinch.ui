@@ -7636,6 +7636,23 @@ QToolButton:focus{
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="desenho_aba">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_36">
+        <item>
+         <layout class="QVBoxLayout" name="desenho_lay"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botaoo">
+          <property name="text">
+           <string>PushButton</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
