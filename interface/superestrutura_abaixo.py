@@ -164,7 +164,7 @@ def receber_pinch_abaixo(matriz_quente, matriz_fria, nquentes, nfrias, CPquente,
 	nhot = nquentes
 	ncold = nfrias
 	dTmin = deltaTmin
-	nsk = sk*max(nhot, ncold)
+	nsk = sk*max(nhot, ncold) + 30
 	preparar_dados_e_rede2(sk)
 
 def verificar_trocador_estagio_abaixo(estagio, corrente, tipo):

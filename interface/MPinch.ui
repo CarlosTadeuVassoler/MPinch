@@ -1651,8 +1651,8 @@ QToolButton:focus{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>751</width>
-                   <height>460</height>
+                   <width>148</width>
+                   <height>33</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -1700,8 +1700,8 @@ QToolButton:focus{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>751</width>
-                   <height>460</height>
+                   <width>148</width>
+                   <height>33</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_35">
@@ -2503,8 +2503,8 @@ QToolButton:focus{
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>1471</width>
-                         <height>416</height>
+                         <width>98</width>
+                         <height>33</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_29">
@@ -5790,8 +5790,8 @@ QToolButton:focus{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>782</width>
-                   <height>443</height>
+                   <width>98</width>
+                   <height>33</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_38">
@@ -6382,8 +6382,8 @@ QToolButton:focus{
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1541</width>
-               <height>421</height>
+               <width>347</width>
+               <height>62</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -7638,7 +7638,7 @@ QToolButton:focus{
       </widget>
       <widget class="QWidget" name="desenho_aba">
        <attribute name="title">
-        <string>Page</string>
+        <string>acima</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_36">
         <item>
@@ -7650,6 +7650,26 @@ QToolButton:focus{
            <string>PushButton</string>
           </property>
          </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="desenho_aba2">
+       <attribute name="title">
+        <string>abaixo</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_40">
+        <item>
+         <layout class="QVBoxLayout" name="desenho_lay2"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="desenho_aba2">
+       <attribute name="title">
+        <string>ambas</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_41">
+        <item>
+         <layout class="QVBoxLayout" name="desenho_lay3"/>
         </item>
        </layout>
       </widget>
