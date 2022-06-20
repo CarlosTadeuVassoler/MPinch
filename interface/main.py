@@ -4820,14 +4820,13 @@ class Desenho(QWidget):
 
 	def paintEvent(self, event):
 		def corrente(painter, tipo, id, dividida, quantidade, comeco, fim, dados, toca):
-			global localizacao_quente, localizacao_fria, valor, espaco
 
 			if tipo == "quente":
 				painter.setPen(QPen(QColor("red"), 3, Qt.SolidLine))
 				ponta = -valor
 				ramos = 1
 				localizacao = localizacao_quente
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyq_sub[id]
 					fracoes = fracoesq[id]
 				texto = "Hot " + str(id+1)
@@ -4852,7 +4851,7 @@ class Desenho(QWidget):
 				ponta = valor
 				ramos = -1
 				localizacao = localizacao_fria
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyf_sub[id]
 					fracoes = fracoesf[id]
 				texto = "Cold " + str(id+1)
@@ -4877,7 +4876,7 @@ class Desenho(QWidget):
 				ponta = -valor
 				ramos = 1
 				localizacao = localizacao_quente
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyq_sub[id]
 					fracoes = fracoesq[id]
 				if self.subrede == "acima":
@@ -4904,7 +4903,7 @@ class Desenho(QWidget):
 				ponta = valor
 				ramos = -1
 				localizacao = localizacao_fria
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyq_sub[id]
 					fracoes = fracoesf[id]
 				if self.subrede == "acima":
@@ -4932,7 +4931,7 @@ class Desenho(QWidget):
 				ramos = 1
 				localizacao = localizacao_quente
 				tin = comeco[0] - maior_temp - espaco
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyq_sub[id]
 					fracoes = fracoesq[id]
 				if e_utilidade_quente[id]:
@@ -4952,7 +4951,7 @@ class Desenho(QWidget):
 				ramos = -1
 				localizacao = localizacao_fria
 				tin = fim[0] - maior_temp - espaco
-				if dividida:
+				if dividida and self.subrede != "ambas":
 					dados[3] = dutyf_sub[id]
 					fracoes = fracoesf[id]
 				if e_utilidade_fria[id]:
@@ -4971,20 +4970,21 @@ class Desenho(QWidget):
 			painter.drawLine(fim[0], fim[1], fim[0]+ponta, fim[1]+7)
 			painter.drawLine(fim[0], fim[1], fim[0]+ponta, fim[1]-7)
 
-			ramox = ramoy = 60
-
 			if self.subrede == "ambas":
-				tamanho_ramo = int((abs(fim[0] - comeco[0]) - 3*ramox)/2*ramos)
+				if tipo[0] == "q":
+					tamanho_ramo = [int(meio - comeco[0] - 2*ramox), int(fim[0] - meio - 2*ramox)]
+				else:
+					tamanho_ramo = [int(meio - fim[0] - 2*ramox), int(comeco[0] - meio - 2*ramox)]
 
-			ramox = ramox*ramos
+			ramoxx = ramox*ramos
 
 			if self.subrede != "ambas":
 				localizacao.append([comeco[1]])
 				if dividida:
 					for ramo in range(1, quantidade):
-						painter.drawLine(comeco[0]+ramox, comeco[1], comeco[0]+ramox, comeco[1]+ramoy*ramo)
-						painter.drawLine(comeco[0]+ramox, comeco[1]+ramoy*ramo, fim[0]-ramox, comeco[1]+ramoy*ramo)
-						painter.drawLine(fim[0]-ramox, comeco[1]+ramoy*ramo, fim[0]-ramox, fim[1])
+						painter.drawLine(comeco[0]+ramoxx, comeco[1], comeco[0]+ramoxx, comeco[1]+ramoy*ramo)
+						painter.drawLine(comeco[0]+ramoxx, comeco[1]+ramoy*ramo, fim[0]-ramoxx, comeco[1]+ramoy*ramo)
+						painter.drawLine(fim[0]-ramoxx, comeco[1]+ramoy*ramo, fim[0]-ramoxx, fim[1])
 						localizacao[-1].append(comeco[1]+ramoy*ramo)
 			else:
 				localizacao[0].append([comeco[1]])
@@ -4997,29 +4997,31 @@ class Desenho(QWidget):
 					segundo = 1
 				if dividida[primeiro]:
 					for ramo in range(1, quantidade[primeiro]):
-						painter.drawLine(comeco[0]+ramox, comeco[1], comeco[0]+ramox, comeco[1]+ramoy*ramo)
-						painter.drawLine(comeco[0]+ramox, comeco[1]+ramoy*ramo, comeco[0]+ramox+tamanho_ramo, comeco[1]+ramoy*ramo)
-						painter.drawLine(comeco[0]+ramox+tamanho_ramo, comeco[1]+ramoy*ramo, comeco[0]+ramox+tamanho_ramo, fim[1])
+						painter.drawLine(comeco[0]+ramoxx, comeco[1], comeco[0]+ramoxx, comeco[1]+ramoy*ramo)
+						painter.drawLine(comeco[0]+ramoxx, comeco[1]+ramoy*ramo, comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos, comeco[1]+ramoy*ramo)
+						painter.drawLine(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos, comeco[1]+ramoy*ramo, comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos, fim[1])
 						localizacao[primeiro][-1].append(comeco[1]+ramoy*ramo)
 				if dividida[segundo]:
 					for ramo in range(1, quantidade[segundo]):
-						painter.drawLine(comeco[0]+2*ramox+tamanho_ramo, comeco[1], comeco[0]+2*ramox+tamanho_ramo, comeco[1]+ramoy*ramo)
-						painter.drawLine(comeco[0]+2*ramox+tamanho_ramo, comeco[1]+ramoy*ramo, comeco[0]+2*ramox+2*tamanho_ramo, comeco[1]+ramoy*ramo)
-						painter.drawLine(comeco[0]+2*ramox+2*tamanho_ramo, comeco[1]+ramoy*ramo, comeco[0]+2*ramox+2*tamanho_ramo, fim[1])
+						painter.drawLine(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos, comeco[1], comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos, comeco[1]+ramoy*ramo)
+						painter.drawLine(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos, comeco[1]+ramoy*ramo, comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos, comeco[1]+ramoy*ramo)
+						painter.drawLine(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos, comeco[1]+ramoy*ramo, comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos, fim[1])
 						localizacao[segundo][-1].append(comeco[1]+ramoy*ramo)
 
 			fonte = painter.font()
 			fonte.setBold(True)
 			fonte.setFamily("Arial")
-			fonte.setPointSize(12)
+			fonte.setPointSize(fonte_calor)
 			painter.setFont(fonte)
 			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
 			if self.subrede == "acima":
 				alinha_in = Qt.AlignRight
 				alinha_toca = Qt.AlignLeft
+				alinha_iden = Qt.AlignLeft
 			elif self.subrede == "abaixo":
 				alinha_in = Qt.AlignLeft
 				alinha_toca = Qt.AlignRight
+				alinha_iden = Qt.AlignRight
 			elif self.subrede == "ambas":
 				if tipo[0] == "q":
 					alinha_in = Qt.AlignRight
@@ -5027,13 +5029,18 @@ class Desenho(QWidget):
 				else:
 					alinha_in = Qt.AlignLeft
 					alinha_toca = Qt.AlignRight
-			painter.drawText(QRect(iden, comeco[1]-8, int(len(texto)*w_string), 20), alinha_toca, texto)
+				alinha_iden = Qt.AlignLeft
+
+			if self.subrede != "abaixo":
+				painter.drawText(QRect(iden + espaco, comeco[1]-8, int(len(texto)*w_string + 2*espaco), 20), alinha_iden, texto)
+			else:
+				painter.drawText(QRect(iden - 2*espaco, comeco[1]-8, int(len(texto)*w_string + 2*espaco), 20), alinha_iden, texto)
 
 			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
 			fonte = painter.font()
 			fonte.setFamily("Arial")
 			fonte.setBold(False)
-			fonte.setPointSize(10)
+			fonte.setPointSize(fonte_temp)
 			painter.setFont(fonte)
 			painter.drawText(QRect(tin, comeco[1]-7, int(w_string*len(dados[1])), 30), alinha_in, dados[1])
 			if not toca or self.subrede == "ambas":
@@ -5055,6 +5062,16 @@ class Desenho(QWidget):
 						elif self.subrede == "abaixo":
 							painter.drawText(QRect(tin + maior_temp + 2*espaco, comeco[1] - 7 + ramo*(ramoy - 7), maior_cp, 15), Qt.AlignCenter, str('{:.2f}'.format(round(float(dados[0])*fracoes[ramo], 2))))
 							painter.drawText(QRect(tin + maior_temp + 4*espaco + maior_cp, comeco[1] - 7 + ramo*(ramoy - 7), maior_duty, 15), Qt.AlignCenter, str('{:.2f}'.format(round(dados[3][ramo], 2))))
+			else:
+				if tipo[0] == "q":
+					painter.drawText(QRect(tin - 2*espaco - maior_duty, comeco[1]-7, maior_duty, 15), Qt.AlignCenter, dados[3])
+					if id == 0:
+						fonte = painter.font()
+						fonte.setBold(True)
+						painter.setFont(fonte)
+						painter.drawText(QRect(tin - 3*espaco - maior_duty, comeco[1]-ramoy-7, maior_duty+espaco, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+				else:
+					painter.drawText(QRect(lugar - 2*espaco - maior_duty, comeco[1]-7, maior_duty, 15), Qt.AlignCenter, dados[3])
 
 		def trocador(painter, id, ondeq, ondef, calor, temperaturas, regras_temp):
 			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
@@ -5064,7 +5081,7 @@ class Desenho(QWidget):
 			fonte = painter.font()
 			fonte.setFamily("Arial")
 			fonte.setBold(False)
-			fonte.setPointSize(10)
+			fonte.setPointSize(fonte_temp)
 			painter.setFont(fonte)
 
 			duas_quente = regras_temp[0][0]
@@ -5150,9 +5167,9 @@ class Desenho(QWidget):
 			fonte = painter.font()
 			fonte.setFamily("Arial")
 			fonte.setBold(True)
-			fonte.setPointSize(12)
+			fonte.setPointSize(fonte_calor)
 			painter.setFont(fonte)
-			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - len(calor)*w_string/2), int(ondeq[1]-1.3*raio_trocador), int(len(calor)*w_string), raio_trocador), Qt.AlignCenter, calor)
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - len(calor)*w_string), int(ondeq[1]-1.3*raio_trocador), int(len(calor)*2*w_string), raio_trocador), Qt.AlignCenter, calor)
 			painter.drawText(QRect(ondeq[0], int(ondeq[1] - raio_trocador/2), raio_trocador, raio_trocador), Qt.AlignCenter, id)
 			painter.drawText(QRect(ondef[0], int(ondef[1] - raio_trocador/2), raio_trocador, raio_trocador), Qt.AlignCenter, id)
 
@@ -5162,23 +5179,23 @@ class Desenho(QWidget):
 			fonte = painter.font()
 			fonte.setFamily("Arial")
 			fonte.setBold(False)
-			fonte.setPointSize(10)
+			fonte.setPointSize(fonte_temp)
 			painter.setFont(fonte)
 			espaco = 10
-			painter.drawText(QRect(int(onde[0] - w_string*len(temperaturas[0])/2), onde[1] - 25, int(w_string*len(temperaturas[0])), 15), Qt.AlignCenter, temperaturas[0])
-			painter.drawText(QRect(int(onde[2] - w_string*len(temperaturas[0])/2), onde[3] + 10, int(w_string*len(temperaturas[1])), 15), Qt.AlignCenter, temperaturas[1])
+			painter.drawText(QRect(int(onde[0] - w_string*2*len(temperaturas[0])/2), onde[1] - 25, int(w_string*2*len(temperaturas[0])), 15), Qt.AlignCenter, temperaturas[0])
+			painter.drawText(QRect(int(onde[2] - w_string*2*len(temperaturas[0])/2), onde[3] + 10, int(w_string*2*len(temperaturas[1])), 15), Qt.AlignCenter, temperaturas[1])
 			fonte.setBold(True)
-			fonte.setPointSize(10)
+			fonte.setPointSize(fonte_temp)
 			painter.setFont(fonte)
 			if self.subrede == "acima":
-				painter.drawText(QRect(header[0] - maior_temp - 3*espaco - maior_cp, header[1] - 25, maior_cp, 15), Qt.AlignCenter, "Streams CP ({})".format(unidades_usadas[1]))
-				painter.drawText(QRect(header[0] - maior_temp - 5*espaco - maior_cp - maior_duty, header[1] - 25, maior_duty, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+				painter.drawText(QRect(header[0] - maior_temp - 4*espaco - maior_cp, header[1] - 25, maior_cp+espaco, 15), Qt.AlignCenter, "Streams CP ({})".format(unidades_usadas[1]))
+				painter.drawText(QRect(header[0] - maior_temp - 7*espaco - maior_cp - maior_duty, header[1] - 25, maior_duty+2*espaco, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[2]))
 			elif self.subrede == "abaixo":
-				painter.drawText(QRect(header[0] + maior_temp + 3*espaco, header[1] - 25, maior_cp, 15), Qt.AlignCenter, "Streams CP ({})".format(unidades_usadas[1]))
-				painter.drawText(QRect(header[0] + maior_temp + 5*espaco + maior_cp, header[1] - 25, maior_duty, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+				painter.drawText(QRect(header[0] + maior_temp + 2*espaco, header[1] - 25, maior_cp+espaco, 15), Qt.AlignCenter, "Streams CP ({})".format(unidades_usadas[1]))
+				painter.drawText(QRect(header[0] + maior_temp + 4*espaco + maior_cp, header[1] - 25, maior_duty+2*espaco, 15), Qt.AlignCenter, "Streams Duty ({})".format(unidades_usadas[2]))
 
 
-		global localizacao_quente, localizacao_fria, valor, espaco
+		global localizacao_quente, localizacao_fria, valor, espaco, fonte_temp, fonte_calor, ramox, ramoy, meio
 		painter = QPainter(self)
 		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
 		painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
@@ -5236,15 +5253,17 @@ class Desenho(QWidget):
 			cpe.append(len(str(cp)))
 			dutye.append(len(str('{:.2f}'.format(round(cp*(Tc0[CPc.index(cp)]-Tcf[CPc.index(cp)]), 2)))))
 
-		w_string = 6
+		w_string = 7
+		fonte_calor = 10
+		fonte_temp = 8
 		dutye.append(len("Streams Duty ({})".format(unidades_usadas[2])))
 		cpe.append(len("Streams CP ({})".format(unidades_usadas[1])))
 		maior_temp = int(max(tempet)*w_string)
 		maior_cp = int(max(cpe)*w_string)
 		maior_duty = int(max(dutye)*w_string)
 
-		espaco_trocadores = 2* maior_temp
-		raio_trocador = 35
+		espaco_trocadores = 2*maior_temp
+		raio_trocador = 30
 		valor = 15 #tamanho das pontas das setas
 		espaco = 10
 
@@ -5267,9 +5286,15 @@ class Desenho(QWidget):
 					t_acima += 2
 				else:
 					t_abaixo += 2
-		ramox = ramoy = 60
-		x_esquerda = 400
-		x_direita = max(800, x_esquerda + (max(t_acima, t_abaixo)) * espaco_trocadores)
+		ramox = ramoy = 45
+		if self.subrede == "acima":
+			x_esquerda = 30 + maior_temp + maior_cp + maior_duty + 3*espaco
+		if self.subrede == "abaixo":
+			x_esquerda  = 30 + maior_duty
+		if self.subrede == "ambas":
+			x_esquerda = 30 + maior_duty + maior_temp + 3*espaco
+		x_direita = max(800, x_esquerda + (len(trocadores)+4) * espaco_trocadores)
+		meio = x_esquerda + t_acima/2 * espaco_trocadores
 		comecary = y = 100
 
 
@@ -5427,7 +5452,6 @@ class Desenho(QWidget):
 			elif self.subrede == "abaixo":
 				trocador(painter, "E" + str(trocadores.index(t)+1), [x_esquerda + espaco_trocadores + sestagio, localizacao_quente[chot][sbhot]], [x_esquerda + espaco_trocadores + sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp)
 			elif self.subrede == "ambas":
-				meio = int((x_direita + x_esquerda)/2)
 				if t[5] == 1:
 					trocador(painter, "E" + str(trocadores.index(t)+1), [meio - sestagio, localizacao_quente[0][chot][sbhot]], [meio - sestagio, localizacao_fria[0][ccold][sbcold]], calor, temperaturas, regras_temp)
 				else:
