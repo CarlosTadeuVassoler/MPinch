@@ -472,9 +472,9 @@ def pinch_teste(desenha=True):
 	correntesnoscombos(nhot,ncold)
 	testar_correntes(dlg, True)
 	testar_correntes_abaixo(dlg)
-	if desenha:
-		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
-		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	# if desenha:
+	# 	desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+	# 	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 	desenho_em_dia = desenho_em_dia_abaixo = desenho_em_dia_ambas = False
 
 	#libera botões e coisas
@@ -2271,7 +2271,8 @@ def atualizar_desenho(onde, botao=False):
 				print(trocador)
 	if onde == "acima" or onde == "above":
 		if dlg.tab_acima.currentIndex() == 0:
-			desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+			# desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+			wid_acima.desenho.update()
 			dlg.emdia_acima.setText("Up to date drawing.")
 			dlg.emdia_acima.setStyleSheet("QLabel {color: green}")
 		else:
@@ -2279,7 +2280,7 @@ def atualizar_desenho(onde, botao=False):
 			dlg.emdia_acima.setStyleSheet("QLabel {color: red}")
 	elif onde == "abaixo" or onde == "below":
 		if dlg.tab_abaixo.currentIndex() == 0:
-			desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+			# desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 			dlg.emdia_abaixo.setText("Up to date drawing.")
 			dlg.emdia_abaixo.setStyleSheet("QLabel {color: green}")
 		else:
@@ -3493,7 +3494,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				divisoes_ev = nao_sacrificar_matriz(novas_divisoes)
 				dlg.dividir_calor.close()
 				desenho_em_dia_ambas = False
-				desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+				# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 				dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
 				dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
 				if todos:
@@ -3545,7 +3546,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		trocadores, n_quentes, n_frias = criar_matriz(matriz_acima, matriz_abaixo)
 		desenho_em_dia_ambas = False
 		divisoes_ev = nao_sacrificar_matriz(divisoes)
-		desenhar_rede(correntes_quentes, correntes_frias, "ambas", ensure=True)
+		# desenhar_rede(correntes_quentes, correntes_frias, "ambas", ensure=True)
 		if dlg.trocador_editar.count() > 0:
 			dlg.trocador_editar.clear()
 			dlg.trocador_path.clear()
@@ -3626,7 +3627,7 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
 			dlg.trocador_editar.addItem("E" + str(dlg.trocador_editar.count()+1))
 
-	desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+	# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 	global matriz_evolucao, n_quentes, n_frias, desenho_em_dia_ambas
@@ -3730,7 +3731,7 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 	else:
 		desenho_em_dia_ambas = False
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
-		desenhar_rede(correntes_quentes, correntes_frias, "ambas")
+		# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 		dlg.trocador_editar.addItem("E" + str(dlg.trocador_editar.count()+1))
 		dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
 
@@ -4052,8 +4053,8 @@ def utilidade_teste_acima():
 	dlg.trocador_acima.setCurrentIndex(dlg.trocador_acima.count()-1)
 	desenho_em_dia = False
 	desenho_em_dia_ambas = False
-	if dlg.tab_acima.currentIndex() == 0:
-		desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
+	# if dlg.tab_acima.currentIndex() == 0:
+		# desenhar_rede(correntes_quentes, correntes_frias, "acima", True)
 
 def calcular_calor_teste():
 	dlg.TempLoadAbove=uic.loadUi("TempLoad.ui")
@@ -4366,8 +4367,8 @@ def utilidade_teste_abaixo():
 	dlg.trocador_abaixo.setCurrentIndex(dlg.trocador_abaixo.count()-1)
 	desenho_em_dia_abaixo = False
 	desenho_em_dia_ambas = False
-	if dlg.tab_abaixo.currentIndex() == 0:
-		desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
+	# if dlg.tab_abaixo.currentIndex() == 0:
+	# 	desenhar_rede(correntes_quentes, correntes_frias, "abaixo", True)
 
 def calcular_calor_abaixo():
 	dlg.TempLoadBelow = uic.loadUi("TempLoad.ui")
@@ -4772,7 +4773,7 @@ def suprir_9_correntes():
 	# desenho_em_dia = False
 	# desenho_em_dia_abaixo = False
 	# desenho_em_dia_ambas = False
-	evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True)
+	# evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True)
 	# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 
 def centralizar_combobox_teste(x):
@@ -4784,7 +4785,7 @@ def centralizar_combobox_teste(x):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
 
 def vai():
-	global scroll_acima, scroll_abaixo
+	global scroll_acima, scroll_abaixo, wid_acima
 
 	try:
 		dlg.desenho_lay.removeWidget(scroll_acima)
@@ -4793,10 +4794,17 @@ def vai():
 	except:
 		pass
 
-	desenho_acima = Desenho([10000, 10000], "acima")
-	scroll_acima = QScrollArea()
-	scroll_acima.setWidget(desenho_acima)
-	dlg.desenho_lay.addWidget(scroll_acima)
+	# desenho_acima = Desenho([10000, 10000], "acima")
+	# scroll_acima = QScrollArea()
+	# scroll_acima.setWidget(desenho_acima)
+	# dlg.desenho_lay.addWidget(scroll_acima)
+	# desenho_acima.tamanho_salvar = [1280, 720]
+	# desenho_acima.salvar()
+	wid_acima = wid_zoom([10000, 10000])
+	# dlg.desenho_lay.addWidget(wid_acima)
+	dlg.hen_acima.addWidget(wid_acima)
+	# dlg.desenho_wid.setLayout(lay)
+
 
 	desenho_abaixo = Desenho([10000, 10000], "abaixo")
 	scroll_abaixo = QScrollArea()
@@ -4814,7 +4822,6 @@ def vai():
 class Desenho(QWidget):
 	def __init__(self, tamanho, subrede):
 		super().__init__()
-		self.setMinimumSize(tamanho[0], tamanho[1])
 		self.tamanho = tamanho
 		self.subrede = subrede
 
@@ -5201,7 +5208,6 @@ class Desenho(QWidget):
 				painter.drawText(QRect(int(header[0] + maior_temp + 2*espaco), int(header[1] - 25), int(maior_cp+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams CP ({})".format(unidades_usadas[1]))
 				painter.drawText(QRect(int(header[0] + maior_temp + 4*espaco + maior_cp), int(header[1] - 25), int(maior_duty+2*espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
 
-
 		global localizacao_quente, localizacao_fria, valor, espaco, fonte_temp, fonte_calor, ramox, ramoy, meio, w_string, h_string, h_seta
 		painter = QPainter(self)
 		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
@@ -5334,9 +5340,6 @@ class Desenho(QWidget):
 
 		meio = x_esquerda + t_acima/2 * espaco_trocadores
 		comecary = y = 100
-
-
-
 
 		#criar correntes quentes
 		for i in range(len(correntes_quentes)):
@@ -5503,9 +5506,56 @@ class Desenho(QWidget):
 				else:
 					trocador(painter, "E" + str(trocadores.index(t)+1), [meio + sestagio, localizacao_quente[1][chot][sbhot]], [meio + sestagio, localizacao_fria[1][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
 
+	def salvar(self):
+		self.grab(QRect(0, 0, self.tamanho_salvar[0], self.tamanho_salvar[1])).save(self.subrede + ".png")
 
+class wid_zoom(QtWidgets.QMainWindow):
+	factor = 1.5
 
+	def __init__(self, tamanho, parent=None):
+		super(wid_zoom, self).__init__(parent)
 
+		self._scene = QtWidgets.QGraphicsScene(self)
+		self._view = QtWidgets.QGraphicsView(self._scene)
+
+		self.desenho = Desenho([tamanho[0], tamanho[1]], "acima")
+		self.desenho.setFixedSize(tamanho[0], tamanho[1])
+		self._scene.addWidget(self.desenho)
+
+		self.setCentralWidget(self._view)
+
+		QtWidgets.QShortcut(
+			QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn),
+			self._view,
+			context=Qt.WidgetShortcut,
+			activated=self.zoom_in,
+		)
+
+		QtWidgets.QShortcut(
+			QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut),
+			self._view,
+			context=Qt.WidgetShortcut,
+			activated=self.zoom_out,
+		)
+
+	@pyqtSlot()
+	def zoom_in(self):
+		scale_tr = QtGui.QTransform()
+		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+
+		tr = self._view.transform() * scale_tr
+		self._view.setTransform(tr)
+
+	@pyqtSlot()
+	def zoom_out(self):
+		scale_tr = QtGui.QTransform()
+		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+
+		scale_inverted, invertible = scale_tr.inverted()
+
+		if invertible:
+			tr = self._view.transform() * scale_inverted
+			self._view.setTransform(tr)
 
 
 app = QApplication([])
