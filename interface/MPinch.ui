@@ -24,7 +24,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -580,7 +580,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -598,7 +598,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderCascadingSectionResizes">
              <bool>true</bool>
@@ -1270,7 +1270,7 @@
              <bool>false</bool>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>
@@ -3868,37 +3868,7 @@ QToolButton:focus{
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_30">
                     <item>
-                     <widget class="QScrollArea" name="scroll_abaixo">
-                      <property name="widgetResizable">
-                       <bool>true</bool>
-                      </property>
-                      <widget class="QWidget" name="bbbb">
-                       <property name="geometry">
-                        <rect>
-                         <x>0</x>
-                         <y>0</y>
-                         <width>63</width>
-                         <height>33</height>
-                        </rect>
-                       </property>
-                       <layout class="QVBoxLayout" name="verticalLayout_32">
-                        <item>
-                         <layout class="QVBoxLayout" name="lay_abaixo">
-                          <item>
-                           <widget class="QLabel" name="hen_abaixo">
-                            <property name="text">
-                             <string>-</string>
-                            </property>
-                            <property name="alignment">
-                             <set>Qt::AlignCenter</set>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
-                        </item>
-                       </layout>
-                      </widget>
-                     </widget>
+                     <layout class="QVBoxLayout" name="hen_abaixo"/>
                     </item>
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_50">
@@ -6341,73 +6311,44 @@ QToolButton:focus{
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
         <item row="1" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout_11">
+         <layout class="QVBoxLayout" name="hen_ambas">
           <item>
-           <widget class="QScrollArea" name="ambasScroll">
-            <property name="widgetResizable">
-             <bool>true</bool>
+           <widget class="QPushButton" name="botao_evolucao">
+            <property name="text">
+             <string>Generate / Reset Network</string>
             </property>
-            <widget class="QWidget" name="scroll">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>1541</width>
-               <height>421</height>
-              </rect>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_16">
-              <item>
-               <widget class="QPushButton" name="botao_evolucao">
-                <property name="text">
-                 <string>Generate / Reset Network</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10">
-                <item>
-                 <widget class="QLabel" name="label_teste">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>Click the &quot;Generate / Reset Network&quot; button to see the full network.</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
            </widget>
+          </item>
+          <item>
+           <spacer name="primeirospacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="Line" name="line_16">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="Line" name="line_17">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <layout class="QVBoxLayout" name="verticalLayout_17">
           <item>
            <layout class="QHBoxLayout" name="manipulacoes">
@@ -7603,53 +7544,6 @@ QToolButton:focus{
            </layout>
           </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="desenho_aba">
-       <attribute name="title">
-        <string>acima</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_36">
-        <item>
-         <layout class="QVBoxLayout" name="desenho_lay"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="botaoo">
-          <property name="text">
-           <string>PushButton</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="desenho_aba2">
-       <attribute name="title">
-        <string>abaixo</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_40">
-        <item>
-         <layout class="QVBoxLayout" name="desenho_lay2"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="desenho_aba2">
-       <attribute name="title">
-        <string>ambas</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_41">
-        <item>
-         <layout class="QVBoxLayout" name="desenho_lay3"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_5">
-       <attribute name="title">
-        <string>Page</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_39">
-        <item>
-         <widget class="QWidget" name="desenho_wid" native="true"/>
         </item>
        </layout>
       </widget>

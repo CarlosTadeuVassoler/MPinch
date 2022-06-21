@@ -49,7 +49,7 @@ def declarar_np(*args):
 	x.resize(args)
 	return x
 
-def preparar_dados_e_rede(sk=2):
+def preparar_dados_e_rede():
 	global Qtotalh01, Qtotalc01, Qtotalh0, Qtotalc0
 	global Thski, Thki, Thskf, Thkf, Tcski, Tcki, Tcskf, Tckf
 	global Fharr, Fcarr, Q
@@ -68,68 +68,65 @@ def preparar_dados_e_rede(sk=2):
 		subq_usadas[i].clear()
 		for j in range(len(subf_usadas)):
 			subf_usadas[j].clear()
-	if sk == 4:
-		linha_interface_ev.clear()
 
-	else:
-		Qtotalh0 = declarar_np(nhot, ncold+2, nstages)
-		Qtotalc0 = declarar_np(ncold, nhot+2, nstages)
-		Thki = declarar_np(nhot, nstages)
-		Thkf = declarar_np(nhot, nstages)
-		Tckf = declarar_np(ncold, nstages)
-		Tcki = declarar_np(ncold, nstages)
-		Fharr = declarar_np(nstages, nhot, ncold+2)
-		Fcarr = declarar_np(nstages, ncold, nhot+2)
+	Qtotalh0 = declarar_np(nhot, ncold+2, nstages)
+	Qtotalc0 = declarar_np(ncold, nhot+2, nstages)
+	Thki = declarar_np(nhot, nstages)
+	Thkf = declarar_np(nhot, nstages)
+	Tckf = declarar_np(ncold, nstages)
+	Tcki = declarar_np(ncold, nstages)
+	Fharr = declarar_np(nstages, nhot, ncold+2)
+	Fcarr = declarar_np(nstages, ncold, nhot+2)
 
-		for quente in range(nhot):
-			temperatura_atual_quente_ev.append([])
-			temperatura_atual_quente_ev_mesclada.append(Th0[quente])
-			temp_misturador_quente.append(0)
-			calor_atual_quente_ev_sub.append([])
-			dividida_quente_ev_acima.append(False)
-			dividida_quente_ev_abaixo.append(False)
-			fechar_corrente_ev_abaixo.append(False)
-			quantidade_quente_ev_acima.append(1)
-			quantidade_quente_ev_abaixo.append(1)
-			fracoes_quentes_ev_acima.append([])
-			fracoes_quentes_ev_abaixo.append([])
-			subq_usadas.append([])
-			for sub in range(ncold+2):
-				calor_atual_quente_ev_sub[quente].append(0)
-				temperatura_atual_quente_ev[quente].append(Th0[quente])
-		for fria in range(ncold):
-			temperatura_atual_fria_ev.append([])
-			temperatura_atual_fria_ev_mesclada.append(Tc0[fria])
-			temp_misturador_frio.append(0)
-			calor_atual_frio_ev_sub.append([])
-			calor_sub_sem_utilidade_ev.append([])
-			dividida_fria_ev_acima.append(False)
-			dividida_fria_ev_abaixo.append(False)
-			fechar_corrente_ev.append(False)
-			quantidade_fria_ev_acima.append(1)
-			quantidade_fria_ev_abaixo.append(1)
-			fracoes_frias_ev_acima.append([])
-			fracoes_frias_ev_abaixo.append([])
-			subf_usadas.append([])
-			for sub in range(nhot+2):
-				calor_atual_frio_ev_sub[fria].append(0)
-				temperatura_atual_fria_ev[fria].append(Tc0[fria])
+	for quente in range(nhot):
+		temperatura_atual_quente_ev.append([])
+		temperatura_atual_quente_ev_mesclada.append(Th0[quente])
+		temp_misturador_quente.append(0)
+		calor_atual_quente_ev_sub.append([])
+		dividida_quente_ev_acima.append(False)
+		dividida_quente_ev_abaixo.append(False)
+		fechar_corrente_ev_abaixo.append(False)
+		quantidade_quente_ev_acima.append(1)
+		quantidade_quente_ev_abaixo.append(1)
+		fracoes_quentes_ev_acima.append([])
+		fracoes_quentes_ev_abaixo.append([])
+		subq_usadas.append([])
+		for sub in range(ncold+2):
+			calor_atual_quente_ev_sub[quente].append(0)
+			temperatura_atual_quente_ev[quente].append(Th0[quente])
+	for fria in range(ncold):
+		temperatura_atual_fria_ev.append([])
+		temperatura_atual_fria_ev_mesclada.append(Tc0[fria])
+		temp_misturador_frio.append(0)
+		calor_atual_frio_ev_sub.append([])
+		calor_sub_sem_utilidade_ev.append([])
+		dividida_fria_ev_acima.append(False)
+		dividida_fria_ev_abaixo.append(False)
+		fechar_corrente_ev.append(False)
+		quantidade_fria_ev_acima.append(1)
+		quantidade_fria_ev_abaixo.append(1)
+		fracoes_frias_ev_acima.append([])
+		fracoes_frias_ev_abaixo.append([])
+		subf_usadas.append([])
+		for sub in range(nhot+2):
+			calor_atual_frio_ev_sub[fria].append(0)
+			temperatura_atual_fria_ev[fria].append(Tc0[fria])
 
-		#calores totais
-		for i in range(nhot):
-			Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
-			calor_atual_quente_ev.append(CPh[i] * (Th0[i] - Thf[i]))
-			calor_atual_quente_ev_sub[i][0] = CPh[i] * (Th0[i] - Thf[i])
+	#calores totais
+	for i in range(nhot):
+		Qtotalh01.append(CPh[i] * (Th0[i] - Thf[i]))
+		calor_atual_quente_ev.append(CPh[i] * (Th0[i] - Thf[i]))
+		calor_atual_quente_ev_sub[i][0] = CPh[i] * (Th0[i] - Thf[i])
+	for j in range(ncold):
+		Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
+		calor_atual_frio_ev.append(CPc[j] * (Tcf[j] - Tc0[j]))
+		calor_atual_frio_ev_sub[j][0] = CPc[j] * (Tcf[j] - Tc0[j])
+
+	for i in range(nhot):
 		for j in range(ncold):
-			Qtotalc01.append(CPc[j] * (Tcf[j] - Tc0[j]))
-			calor_atual_frio_ev.append(CPc[j] * (Tcf[j] - Tc0[j]))
-			calor_atual_frio_ev_sub[j][0] = CPc[j] * (Tcf[j] - Tc0[j])
-
-		for i in range(nhot):
-			for j in range(ncold):
-				for k in range(nstages):
-					Qtotalh0[i][0][k] = Qtotalh01[i]
-					Qtotalc0[j][0][k] = Qtotalc01[j]
+			for k in range(nstages):
+				Qtotalh0[i][0][k] = Qtotalh01[i]
+				Qtotalc0[j][0][k] = Qtotalc01[j]
 
 	for i in range(nhot):
 		for si in range(ncold+2):
