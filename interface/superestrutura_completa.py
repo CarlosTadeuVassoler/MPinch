@@ -8,6 +8,7 @@ frias_usadas = []
 subq_usadas = []
 subf_usadas = []
 linha_interface_ev = []
+utilidades_ev = [[], []]
 
 #VARIÁVEIS DE CALOR
 Qtotalh01 = []
@@ -68,6 +69,44 @@ def preparar_dados_e_rede():
 		subq_usadas[i].clear()
 		for j in range(len(subf_usadas)):
 			subf_usadas[j].clear()
+
+	if True:
+		linha_interface_ev.clear()
+		utilidades_ev[0].clear()
+		utilidades_ev[1].clear()
+		Qtotalh01.clear()
+		Qtotalc01.clear()
+		calor_atual_quente_ev.clear()
+		calor_atual_frio_ev.clear()
+		calor_atual_quente_ev_sub.clear()
+		calor_atual_frio_ev_sub.clear()
+		calor_sub_sem_utilidade_ev.clear()
+
+		#VARIÁVEIS DE TEMPERATURAS QUENTES
+		temperatura_atual_quente_ev.clear()
+		temperatura_atual_quente_ev_mesclada.clear()
+		temp_misturador_quente.clear()
+
+		#VARIÁVEIS DE TEMPERATURAS FRIAS
+		temperatura_atual_fria_ev.clear()
+		temperatura_atual_fria_ev_mesclada.clear()
+		temp_misturador_frio.clear()
+
+		#OUTRAS VARIÁVEIS
+		dividida_quente_ev_acima.clear()
+		dividida_quente_ev_abaixo.clear()
+		dividida_fria_ev_acima.clear()
+		dividida_fria_ev_abaixo.clear()
+		quantidade_quente_ev_acima.clear()
+		quantidade_quente_ev_abaixo.clear()
+		quantidade_fria_ev_acima.clear()
+		quantidade_fria_ev_abaixo.clear()
+		fracoes_quentes_ev_acima.clear()
+		fracoes_quentes_ev_abaixo.clear()
+		fracoes_frias_ev_acima.clear()
+		fracoes_frias_ev_abaixo.clear()
+		fechar_corrente_ev.clear()
+		fechar_corrente_ev_abaixo.clear()
 
 	Qtotalh0 = declarar_np(nhot, ncold+2, nstages)
 	Qtotalc0 = declarar_np(ncold, nhot+2, nstages)
@@ -619,3 +658,14 @@ def calcular_recomendado_violacao(dlg, trocador):
 				break
 	dlg.calor_path.clear()
 	dlg.calor_path.setPlaceholderText("ΔT > 0: " + x[0] + ", ΔT > ΔTmin: " + x[1])
+
+def adicionar_utilidade_ev(tipo, corrente):
+	if tipo == "quente":
+		utilidades_ev[0].append([corrente, calor_atual_frio_ev[corrente-1]])
+		# temp_misturador_frio[corrente-1] = temperatura_atual_fria_mesclada[corrente-1]
+		# temperatura_atual_fria_mesclada[corrente-1] = Tcf[corrente-1]
+		calor_atual_frio_ev[corrente-1] = 0.0
+		# fechar_corrente[corrente-1] = True
+	elif tipo == "fria":
+		utilidades_ev[1].append([corrente, calor_atual_quente_ev[corrente-1]])
+		calor_atual_quente_ev[corrente-1] = 0.0

@@ -3452,31 +3452,15 @@ QToolButton:focus{
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="emdia_acima">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                 <widget class="QPushButton" name="completa_acima">
                   <property name="minimumSize">
                    <size>
-                    <width>150</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>35</height>
                    </size>
                   </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
                   <property name="text">
-                   <string>Up to date drawing.</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <string>Full Network</string>
                   </property>
                  </widget>
                 </item>
@@ -3501,7 +3485,7 @@ QToolButton:focus{
                    </size>
                   </property>
                   <property name="text">
-                   <string>Update Subnetwork</string>
+                   <string>Save Subnetwork Image</string>
                   </property>
                  </widget>
                 </item>
@@ -4778,31 +4762,15 @@ QToolButton:focus{
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="emdia_abaixo">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                 <widget class="QPushButton" name="completa_abaixo">
                   <property name="minimumSize">
                    <size>
-                    <width>150</width>
-                    <height>0</height>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
                   <property name="text">
-                   <string>Up to date drawing.</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <string>Full Network</string>
                   </property>
                  </widget>
                 </item>
@@ -4821,7 +4789,7 @@ QToolButton:focus{
                    </size>
                   </property>
                   <property name="text">
-                   <string>Update Subnetwork</string>
+                   <string>Save Subnetwork Image</string>
                   </property>
                  </widget>
                 </item>
