@@ -2234,6 +2234,810 @@ def salvar_rede(subredes, onde, salva, tamanho, ensure):
 			dlg.lay_abaixo.setContentsMargins(0, 0, 0, 0)
 			dlg.hen_abaixo.setPixmap(QtGui.QPixmap(onde + ".png"))
 
+def vai():
+	global scroll_acima, scroll_abaixo, wid_acima, wid_abaixo, wid_ambas
+
+	wid_acima = wid_zoom([10000, 10000], "acima")
+	dlg.hen_acima.addWidget(wid_acima)
+	wid_abaixo = wid_zoom([10000, 10000], "abaixo")
+	dlg.hen_abaixo.addWidget(wid_abaixo)
+
+class Desenho(QWidget):
+	def __init__(self, tamanho, subrede):
+		super().__init__()
+		self.tamanho = tamanho
+		self.subrede = subrede
+
+		self.w = 0
+		self.h = 0
+
+	def paintEvent(self, event):
+		def corrente(painter, tipo, id, dividida, quantidade, comeco, fim, dados, toca):
+
+			if tipo == "quente":
+				painter.setPen(QPen(QColor("red"), grossura_seta, Qt.SolidLine))
+				ponta = -valor
+				ramos = 1
+				localizacao = localizacao_quente
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyq_sub[id]
+					fracoes = fracoesq[id]
+				texto = "Hot " + str(id+1)
+				if self.subrede == "acima":
+					tin = comeco[0] - maior_temp - 2*espaco
+					iden = fim[0] + 2*espaco
+					if not toca:
+						fim[0] -= (maior_temp + espaco)
+						lugar = fim[0] + 5
+				elif self.subrede == "abaixo":
+					tin = fim[0] + espaco
+					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
+					if not toca:
+						comeco[0] += (maior_temp + espaco)
+						lugar = int(comeco[0] - len(dados[2])*w_string - espaco/2)
+				elif self.subrede == "ambas":
+					tin = comeco[0] - maior_temp - 2*espaco
+					iden = fim[0] + maior_temp + 5*espaco
+					lugar = fim[0] + espaco
+			elif tipo == "fria":
+				painter.setPen(QPen(QColor("blue"), grossura_seta, Qt.SolidLine))
+				ponta = valor
+				ramos = -1
+				localizacao = localizacao_fria
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyf_sub[id]
+					fracoes = fracoesf[id]
+				texto = "Cold " + str(id+1)
+				if self.subrede == "acima":
+					tin = fim[0] - maior_temp - 2*espaco
+					iden = comeco[0] + 2*espaco
+					if not toca:
+						comeco[0] -= (maior_temp + espaco)
+						lugar = comeco[0] + 5
+				elif self.subrede == "abaixo":
+					tin = comeco[0] + espaco
+					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
+					if not toca:
+						fim[0] += (maior_temp + espaco)
+						lugar = int(fim[0] - len(dados[2])*w_string - espaco/2)
+				elif self.subrede == "ambas":
+					tin = comeco[0] + espaco
+					iden = comeco[0] + maior_temp + 5*espaco
+					lugar = fim[0] - maior_temp - 2*espaco
+			elif tipo == "quenteutil":
+				painter.setPen(QPen(QColor("orange"), grossura_seta, Qt.SolidLine))
+				ponta = -valor
+				ramos = 1
+				localizacao = localizacao_quente
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyq_sub[id]
+					fracoes = fracoesq[id]
+				if self.subrede == "acima":
+					tin = comeco[0] - maior_temp - 2*espaco
+					iden = fim[0] + 2*espaco
+					texto = "Hot " + str(id+1) + " (utility)"
+					if not toca:
+						fim[0] -= (maior_temp + espaco)
+						lugar = fim[0] + 5
+				elif self.subrede == "abaixo":
+					tin = fim[0] + espaco
+					texto = "(utility) Hot " + str(id+1)
+					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
+					if not toca:
+						comeco[0] += (maior_temp + espaco)
+						lugar = int(comeco[0] - len(dados[2])*w_string - espaco/2)
+				elif self.subrede == "ambas":
+					tin = comeco[0] - maior_temp - 2*espaco
+					iden = fim[0] + maior_temp + 5*espaco
+					lugar = fim[0] + espaco
+					texto = "Hot " + str(id+1) + " (utility)"
+			elif tipo == "friautil":
+				painter.setPen(QPen(QColor("cyan"), grossura_seta, Qt.SolidLine))
+				ponta = valor
+				ramos = -1
+				localizacao = localizacao_fria
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyf_sub[id]
+					fracoes = fracoesf[id]
+				if self.subrede == "acima":
+					tin = fim[0] - maior_temp - 2*espaco
+					texto = "Cold " + str(id+1) + " (utility)"
+					iden = comeco[0] + 2*espaco
+					if not toca:
+						comeco[0] -= (maior_temp + espaco)
+						lugar = comeco[0] + 5
+				elif self.subrede == "abaixo":
+					tin = comeco[0] + espaco
+					texto = "(utility) Cold " + str(id+1)
+					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
+					if not toca:
+						fim[0] += (maior_temp + espaco)
+						lugar = int(fim[0] - len(dados[2])*w_string - espaco/2)
+				elif self.subrede == "ambas":
+					tin = comeco[0] + espaco
+					iden = comeco[0] + maior_temp + 5*espaco
+					lugar = fim[0] - maior_temp - 2*espaco
+					texto = "Cold " + str(id+1) + " (utility)"
+			elif tipo == "quentefora":
+				painter.setPen(QPen(QColor("white"), grossura_seta, Qt.SolidLine))
+				ponta = -valor
+				ramos = 1
+				localizacao = localizacao_quente
+				tin = comeco[0] - maior_temp - espaco
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyq_sub[id]
+					fracoes = fracoesq[id]
+				if e_utilidade_quente_a[id]:
+					if self.subrede == "acima":
+						texto = "Hot " + str(id+1) + " (utility)"
+					elif self.subrede == "abaixo":
+						texto = "(utility) Hot " + str(id+1)
+				else:
+					texto = "Hot " + str(id+1)
+				if self.subrede == "acima":
+					iden = fim[0] + 2*espaco
+				elif self.subrede == "abaixo":
+					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
+			elif tipo == "friafora":
+				painter.setPen(QPen(QColor("white"), grossura_seta, Qt.SolidLine))
+				ponta = valor
+				ramos = -1
+				localizacao = localizacao_fria
+				tin = fim[0] - maior_temp - espaco
+				if dividida and self.subrede != "ambas":
+					dados[3] = dutyf_sub[id]
+					fracoes = fracoesf[id]
+				if e_utilidade_fria_a[id]:
+					if self.subrede == "acima":
+						texto = "Cold " + str(id+1) + " (utility)"
+					elif self.subrede == "abaixo":
+						texto = "(utility) Cold " + str(id+1)
+				else:
+					texto = "Cold " + str(id+1)
+				if self.subrede == "acima":
+					iden = comeco[0] + 2*espaco
+				elif self.subrede == "abaixo":
+					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
+
+			painter.drawLine(int(comeco[0]), int(comeco[1]), int(fim[0]), int(fim[1]))
+			painter.drawLine(int(fim[0]), int(fim[1]), int(fim[0]+ponta), int(fim[1]+h_seta))
+			painter.drawLine(int(fim[0]), int(fim[1]), int(fim[0]+ponta), int(fim[1]-h_seta))
+
+			if self.subrede == "ambas":
+				if tipo[0] == "q":
+					tamanho_ramo = [int(meio - comeco[0] - 2*ramox), int(fim[0] - meio - 2*ramox)]
+				else:
+					tamanho_ramo = [int(meio - fim[0] - 2*ramox), int(comeco[0] - meio - 2*ramox)]
+
+			ramoxx = ramox*ramos
+
+			if self.subrede != "ambas":
+				localizacao.append([comeco[1]])
+				if dividida:
+					for ramo in range(1, quantidade):
+						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]), int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo), int(fim[0]-ramoxx), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(fim[0]-ramoxx), int(comeco[1]+ramoy*ramo), int(fim[0]-ramoxx), int(fim[1]))
+						localizacao[-1].append(int(comeco[1]+ramoy*ramo))
+			else:
+				localizacao[0].append([comeco[1]])
+				localizacao[1].append([comeco[1]])
+				if tipo[:4] == "fria":
+					primeiro = 1
+					segundo = 0
+				else:
+					primeiro = 0
+					segundo = 1
+				if dividida[primeiro]:
+					for ramo in range(1, quantidade[primeiro]):
+						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]), int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo), int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(fim[1]))
+						localizacao[primeiro][-1].append(int(comeco[1]+ramoy*ramo))
+				if dividida[segundo]:
+					for ramo in range(1, quantidade[segundo]):
+						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]), int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(fim[1]))
+						localizacao[segundo][-1].append(int(comeco[1]+ramoy*ramo))
+
+			fonte = painter.font()
+			fonte.setBold(True)
+			fonte.setFamily("Arial")
+			fonte.setPointSize(fonte_calor)
+			painter.setFont(fonte)
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			if self.subrede == "acima":
+				alinha_in = Qt.AlignRight
+				alinha_toca = Qt.AlignLeft
+				alinha_iden = Qt.AlignLeft
+			elif self.subrede == "abaixo":
+				alinha_in = Qt.AlignLeft
+				alinha_toca = Qt.AlignRight
+				alinha_iden = Qt.AlignRight
+			elif self.subrede == "ambas":
+				if tipo[0] == "q":
+					alinha_in = Qt.AlignRight
+					alinha_toca = Qt.AlignLeft
+				else:
+					alinha_in = Qt.AlignLeft
+					alinha_toca = Qt.AlignRight
+				alinha_iden = Qt.AlignLeft
+
+			if self.subrede != "abaixo":
+				painter.drawText(QRect(int(iden + espaco), int(comeco[1]-h_string), int(len(texto)*w_string + 2*espaco), int(h_string*3)), alinha_iden, texto)
+			else:
+				painter.drawText(QRect(int(iden - 2*espaco), int(comeco[1]-h_string), int(len(texto)*w_string + 2*espaco), int(h_string*3)), alinha_iden, texto)
+
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(fonte_calor)
+			painter.setFont(fonte)
+			painter.drawText(QRect(int(tin), int(comeco[1]-h_string), int(w_string*len(dados[1])), int(h_string*3)), alinha_in, dados[1])
+			if not toca or self.subrede == "ambas":
+				painter.drawText(QRect(int(lugar), int(comeco[1]-h_string), int(w_string*len(dados[2])), int(h_string*3)), alinha_toca, dados[2])
+			if self.subrede != "ambas":
+				if not dividida:
+					if self.subrede == "acima":
+						painter.drawText(QRect(int(tin - 2*espaco - maior_cp), int(comeco[1]-h_string), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, dados[0])
+						painter.drawText(QRect(int(tin - 4*espaco - maior_cp - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
+					elif self.subrede == "abaixo":
+						painter.drawText(QRect(int(tin + maior_temp + 2*espaco), int(comeco[1]-h_string), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, dados[0])
+						painter.drawText(QRect(int(tin + maior_temp + 4*espaco + maior_cp), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
+
+				else:
+					for ramo in range(quantidade):
+						if self.subrede == "acima":
+							painter.drawText(QRect(int(tin - 2*espaco - maior_cp), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(float(dados[0])*fracoes[ramo], 2))))
+							painter.drawText(QRect(int(tin - 4*espaco - maior_cp - maior_duty), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(dados[3][ramo], 2))))
+						elif self.subrede == "abaixo":
+							painter.drawText(QRect(int(tin + maior_temp + 2*espaco), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(float(dados[0])*fracoes[ramo], 2))))
+							painter.drawText(QRect(int(tin + maior_temp + 4*espaco + maior_cp), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(dados[3][ramo], 2))))
+			else:
+				if tipo[0] == "q":
+					painter.drawText(QRect(int(tin - 2*espaco - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
+					if id == 0:
+						fonte = painter.font()
+						fonte.setBold(True)
+						fonte.setPointSize(fonte_calor)
+						painter.setFont(fonte)
+						painter.drawText(QRect(int(tin - 3*espaco - maior_duty), int(comeco[1]-ramoy-h_string), int(maior_duty+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+				else:
+					painter.drawText(QRect(int(lugar - 2*espaco - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
+
+		def trocador(painter, id, ondeq, ondef, calor, temperaturas, regras_temp, util=False, tipo=""):
+			painter.setPen(QPen(Qt.black, grossura_seta, Qt.SolidLine))
+			if util:
+				if tipo == "quente":
+					painter.setBrush(QColor("orange"))
+				elif tipo == "fria":
+					painter.setBrush(QColor("cyan"))
+			else:
+				painter.setBrush(QColor("white"))
+			painter.drawLine(int(ondeq[0] + raio_trocador/2), int(ondeq[1]), int(ondef[0] + raio_trocador/2), int(ondef[1]))
+			painter.drawEllipse(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
+			painter.drawEllipse(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(fonte_temp)
+			painter.setFont(fonte)
+
+			duas_quente = regras_temp[0][0]
+			duas_fria = regras_temp[0][1]
+			viola_quente = regras_temp[1][0]
+			viola_frio = regras_temp[1][1]
+			termo_quente = regras_temp[1][2]
+			termo_frio = regras_temp[1][3]
+			anterior_quente = regras_temp[2][0]
+			anterior_fria = regras_temp[2][1]
+			anterior_termo_quente = regras_temp[2][2]
+			anterior_termo_fria = regras_temp[2][3]
+
+			#tqin
+			#sempre abaixo e ambas, duas_temp acima
+			if duas_quente or self.subrede != "acima":
+				if viola_quente or (self.subrede != "acima" and anterior_quente):
+					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+				else:
+					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+				fonte = painter.font()
+				if termo_quente or (self.subrede != "acima" and anterior_termo_quente):
+					temp = temperaturas[0] + "**"
+					fonte.setBold(True)
+				else:
+					temp = temperaturas[0]
+					fonte.setBold(False)
+				painter.setFont(fonte)
+				painter.drawText(QRect(int(ondeq[0] - w_string*len(temp) - 1), int(ondeq[1] + 1), int(w_string*len(temp)), int(raio_trocador)), Qt.AlignRight, temp)
+
+			#tqout
+			#sempre acima, duas_temp abaixo e ambas
+			if duas_quente or self.subrede == "acima":
+				if viola_frio or (self.subrede == "acima" and anterior_quente):
+					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+				else:
+					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+				fonte = painter.font()
+				if termo_frio or (self.subrede == "acima" and anterior_termo_quente):
+					temp = temperaturas[1] + "**"
+					fonte.setBold(True)
+				else:
+					temp = temperaturas[1]
+					fonte.setBold(False)
+				painter.setFont(fonte)
+				painter.drawText(QRect(int(ondeq[0] + raio_trocador + 1), int(ondeq[1] + 1), int(len(temp)*w_string), int(raio_trocador)), Qt.AlignLeft, temp)
+
+			#tfout
+			#sempre abaixo e ambas, duas_temp acima
+			if duas_fria or self.subrede != "acima":
+				if viola_quente or (self.subrede != "acima" and anterior_fria):
+					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+				else:
+					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+				fonte = painter.font()
+				if termo_quente or (self.subrede != "acima" and anterior_termo_fria):
+					temp = temperaturas[2] + "**"
+					fonte.setBold(True)
+				else:
+					temp = temperaturas[2]
+					fonte.setBold(False)
+				painter.setFont(fonte)
+				painter.drawText(QRect(int(ondef[0] - w_string*len(temp) - 1), int(ondef[1] + 1), int(w_string*len(temp)), int(raio_trocador)), Qt.AlignRight, temp)
+
+			#tfin
+			#sempre acima, duas_temp abaixo e ambas
+			if duas_fria or self.subrede == "acima":
+				if viola_frio or (self.subrede == "acima" and anterior_fria):
+					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+				else:
+					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+				fonte = painter.font()
+				if termo_frio or (self.subrede == "acima" and anterior_termo_fria):
+					temp = temperaturas[3] + "**"
+					fonte.setBold(True)
+				else:
+					temp = temperaturas[3]
+					fonte.setBold(False)
+				painter.setFont(fonte)
+				painter.drawText(QRect(int(ondef[0] + raio_trocador + 1), int(ondef[1] + 1), int(len(temp)*w_string), int(raio_trocador)), Qt.AlignLeft, temp)
+
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(True)
+			fonte.setPointSize(fonte_calor)
+			painter.setFont(fonte)
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - len(calor)*w_string), int(ondeq[1]-raio_trocador-1), int(len(calor)*2*w_string), int(h_string*3)), Qt.AlignHCenter, calor)
+			painter.drawText(QRect(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
+			painter.drawText(QRect(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
+
+		def pinch(painter, onde, temperaturas, header):
+			painter.setPen(QPen(Qt.black, grossura_seta, Qt.DotLine))
+			painter.drawLine(int(onde[0]), int(onde[1]), int(onde[2]), int(onde[3]))
+			fonte = painter.font()
+			fonte.setFamily("Arial")
+			fonte.setBold(False)
+			fonte.setPointSize(fonte_calor)
+			painter.setFont(fonte)
+			painter.drawText(QRect(int(onde[0] - w_string*2*len(temperaturas[0])/2), int(onde[1] - 25), int(w_string*2*len(temperaturas[0])), int(h_string*3)), Qt.AlignHCenter, temperaturas[0])
+			painter.drawText(QRect(int(onde[2] - w_string*2*len(temperaturas[0])/2), int(onde[3] + 10), int(w_string*2*len(temperaturas[1])), int(h_string*3)), Qt.AlignHCenter, temperaturas[1])
+			fonte.setBold(True)
+			fonte.setPointSize(fonte_calor)
+			painter.setFont(fonte)
+			if self.subrede == "acima":
+				painter.drawText(QRect(int(header[0] - maior_temp - 4*espaco - maior_cp), int(header[1] - 25), int(maior_cp+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams CP ({})".format(unidades_usadas[1]))
+				painter.drawText(QRect(int(header[0] - maior_temp - 7*espaco - maior_cp - maior_duty), int(header[1] - 25), int(maior_duty+2*espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+			elif self.subrede == "abaixo":
+				painter.drawText(QRect(int(header[0] + maior_temp + 2*espaco), int(header[1] - 25), int(maior_cp+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams CP ({})".format(unidades_usadas[1]))
+				painter.drawText(QRect(int(header[0] + maior_temp + 4*espaco + maior_cp), int(header[1] - 25), int(maior_duty+2*espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
+
+		def utilidade(painter, onde, calor, tipo, id):
+			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
+			if tipo == "quente":
+				painter.setBrush(QColor("orange"))
+			else:
+				painter.setBrush(QColor("cyan"))
+
+			painter.drawEllipse(int(onde[0]), int(onde[1]-raio_trocador/2), int(raio_trocador), int(raio_trocador))
+			painter.drawText(QRect(int(onde[0] + raio_trocador/2 - len(calor)*w_string), int(onde[1]-raio_trocador-1), int(len(calor)*2*w_string), int(h_string*3)), Qt.AlignHCenter, calor)
+			painter.drawText(QRect(int(onde[0]), int(onde[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
+
+		global localizacao_quente, localizacao_fria, valor, espaco, fonte_temp, fonte_calor, ramox, ramoy, meio, w_string, h_string, h_seta
+		painter = QPainter(self)
+		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
+		painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
+		painter.drawRect(0, 0, self.tamanho[0], self.tamanho[1])
+
+		#designando variaveis
+		if self.subrede == "acima":
+			trocadores = matriz_armazenada
+			uteis = utilidades
+			quente_presente = corrente_quente_presente_acima
+			fria_presente = corrente_fria_presente_acima
+			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
+			thtoca, tctoca = Thf_acima, Tc0_acima
+			thcomeco, tccomeco = Th0, Tcf
+			CPha, CPca = CPh, CPc
+			correntes_quentes_a, correntes_frias_a = correntes_quentes, correntes_frias
+			dutyq, dutyf = calor_atual_quente, calor_atual_frio
+			dutyq_sub, dutyf_sub = calor_atual_quente_sub, calor_atual_frio_sub
+			divididaq, divididaf = dividida_quente, dividida_fria
+			quantidadeq, quantidadef = quantidade_quente, quantidade_fria
+			fracoesq, fracoesf = fracoes_quentes, fracoes_frias
+		elif self.subrede == "abaixo":
+			trocadores = matriz_trocadores_abaixo
+			uteis = utilidades_abaixo
+			quente_presente = corrente_quente_presente_abaixo
+			fria_presente = corrente_fria_presente_abaixo
+			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
+			thtoca, tctoca = Th0_abaixo, Tcf_abaixo
+			thcomeco, tccomeco = Thf, Tc0
+			CPha, CPca = CPh, CPc
+			correntes_quentes_a, correntes_frias_a = correntes_quentes, correntes_frias
+			dutyq, dutyf = calor_atual_quente_abaixo, calor_atual_frio_abaixo
+			dutyq_sub, dutyf_sub = calor_atual_quente_sub_abaixo, calor_atual_frio_sub_abaixo
+			divididaq, divididaf = dividida_quente_abaixo, dividida_fria_abaixo
+			quantidadeq, quantidadef = quantidade_quente_abaixo, quantidade_fria_abaixo
+			fracoesq, fracoesf = fracoes_quentes_abaixo, fracoes_frias_abaixo
+		elif self.subrede == "ambas":
+			trocadores = matriz_evolucao
+			uteis = utilidades_ev
+			quente_presente, fria_presente = [[True]]*(nhot+1), [[True]]*(ncold+1)
+			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
+			e_utilidade_quente_a.append(True)
+			e_utilidade_fria_a.append(True)
+			thtoca, tctoca = Thf_fake, Tcf_fake
+			thcomeco, tccomeco = Th0_fake, Tc0_fake
+			CPha, CPca = CPh_fake, CPc_fake
+			correntes_quentes_a, correntes_frias_a = correntes_quentes_fake, correntes_frias_fake
+			dutyq, dutyf = calor_atual_quente_ev, calor_atual_frio_ev
+			dutyq_sub, dutyf_sub = calor_atual_quente_ev, calor_atual_frio_ev
+			divq_acima, divq_abaixo, divf_acima, divf_abaixo = dividida_quente_ev_acima, dividida_quente_ev_abaixo, dividida_fria_ev_acima, dividida_fria_ev_abaixo
+			quantq_acima, quantq_abaixo, quantf_acima, quantf_abaixo = quantidade_quente_ev_acima, quantidade_quente_ev_abaixo, quantidade_fria_ev_acima, quantidade_fria_ev_abaixo
+			fracoesq, fracoesf = fracoes_quentes, fracoes_frias
+
+
+		#determinando medidas
+		tempet = []
+		cpe = []
+		dutye = []
+		for temp in Th0:
+			tempet.append(len(str(temp)))
+		for temp in Thf:
+			tempet.append(len(str(temp)))
+		for cp in CPha:
+			cpe.append(len(str(cp)))
+			dutye.append(len(str('{:.2f}'.format(round(cp*(thcomeco[CPha.index(cp)]-thtoca[CPha.index(cp)]), 2)))))
+		for cp in CPca:
+			cpe.append(len(str(cp)))
+			dutye.append(len(str('{:.2f}'.format(round(cp*(tccomeco[CPca.index(cp)]-tctoca[CPca.index(cp)]), 2)))))
+
+		w_string = 7
+		h_string = 7
+		h_seta = 7
+		grossura_seta = 3
+		fonte_calor = 10
+		fonte_temp = 8
+		raio_trocador = 30
+		valor = 15 #tamanho das pontas das setas
+		espaco = 10
+		ramox = ramoy = 45
+		tamanho_minimo = 800
+
+		dutye.append(len("Streams Duty ({})".format(unidades_usadas[2])))
+		cpe.append(len("Streams CP ({})".format(unidades_usadas[1])))
+		maior_temp = int(max(tempet)*w_string)
+		maior_cp = int(max(cpe)*w_string)
+		maior_duty = int(max(dutye)*w_string)
+
+		espaco_trocadores = 2*maior_temp
+
+		if self.subrede != "ambas":
+			localizacao_quente = []
+			localizacao_fria = []
+			if self.subrede == "acima":
+				t_acima = len(trocadores) + 3
+				t_abaixo = 0
+			else:
+				t_abaixo = len(trocadores) + 3
+				t_acima = 0
+		else:
+			localizacao_quente = [[], []]
+			localizacao_fria = [[], []]
+			t_acima = 4 + len(uteis[0])*2
+			t_abaixo = 4 + len(uteis[1])*2
+			for t in range(len(trocadores)):
+				if trocadores[t][5] == 1:
+					t_acima += 2
+				else:
+					t_abaixo += 2
+		if self.subrede == "acima":
+			x_esquerda = 30 + maior_temp + maior_cp + maior_duty + 4*espaco
+		if self.subrede == "abaixo":
+			x_esquerda  = 30 + maior_duty
+		if self.subrede == "ambas":
+			x_esquerda = 30 + maior_duty + maior_temp + 3*espaco
+			x_direita = max(tamanho_minimo, x_esquerda + (len(trocadores)+len(uteis[0])+len(uteis[1])+4) * espaco_trocadores)
+		else:
+			x_direita = max(tamanho_minimo, x_esquerda + (len(trocadores)+len(uteis)+4) * espaco_trocadores)
+
+		meio = x_esquerda + t_acima/2 * espaco_trocadores
+		comecary = y = 100
+
+		#criar correntes quentes
+		for i in range(len(correntes_quentes_a)):
+			if quente_presente[i]:
+				if len(localizacao_quente) != 0 and self.subrede != "ambas":
+					y = localizacao_quente[-1][-1]
+				if self.subrede == "ambas":
+					if len(localizacao_quente[0]) != 0:
+						y = max(localizacao_quente[0][-1][-1], localizacao_quente[1][-1][-1])
+
+				if e_utilidade_quente_a[i]:
+					tipo = "quenteutil"
+				else:
+					tipo = "quente"
+
+				if thtoca[i] != pinchq and self.subrede != "ambas":
+					toca = False
+				else:
+					toca = True
+
+				dados = [str('{:.2f}'.format(round(CPha[i], 2))), str('{:.2f}'.format(round(thcomeco[i], 2))), str('{:.2f}'.format(round(thtoca[i], 2))), str('{:.2f}'.format(round(dutyq[i], 2)))]
+				if self.subrede != "ambas":
+					corrente(painter, tipo, i, divididaq[i], quantidadeq[i], [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, toca)
+				else:
+					corrente(painter, tipo, i, [divq_acima[i], divq_abaixo[i]], [quantq_acima[i], quantq_abaixo[i]], [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, toca)
+
+			else:
+				if len(localizacao_quente) != 0:
+					y = localizacao_quente[-1][-1]
+				else:
+					y = comecary
+
+				dados = ["", "", "", ""]
+				corrente(painter, "quentefora", i, False, False, [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, True)
+
+		#criar correntes frias
+		if self.subrede != "ambas":
+			y = localizacao_quente[-1][-1]
+		else:
+			y = max(localizacao_quente[0][-1][-1], localizacao_quente[1][-1][-1])
+		for j in range(len(correntes_frias_a)):
+			if fria_presente[j]:
+				if len(localizacao_fria) != 0 and self.subrede != "ambas":
+					y = localizacao_fria[-1][-1]
+				if self.subrede == "ambas":
+					if len(localizacao_fria[0]) != 0:
+						y = max(localizacao_fria[0][-1][-1], localizacao_fria[1][-1][-1])
+
+				if e_utilidade_fria_a[j]:
+					tipo = "friautil"
+				else:
+					tipo = "fria"
+
+				if tctoca[j] != pinchf and self.subrede != "ambas":
+					toca = False
+				else:
+					toca = True
+
+				dados = [str('{:.2f}'.format(round(CPca[j], 2))), str('{:.2f}'.format(round(tccomeco[j], 2))), str('{:.2f}'.format(round(tctoca[j], 2))), str('{:.2f}'.format(round(dutyf[j], 2)))]
+				if self.subrede != "ambas":
+					corrente(painter, tipo, j, divididaf[j], quantidadef[j], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, toca)
+				else:
+					corrente(painter, tipo, j, [divf_acima[j], divf_abaixo[j]], [quantf_acima[j], quantf_abaixo[j]], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, toca)
+
+			else:
+				if len(localizacao_fria) != 0:
+					y = localizacao_fria[-1][-1]
+				dados = ["", "", "", ""]
+				corrente(painter, "friafora", j, divididaf[j], quantidadef[j], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, True)
+
+		#criar a linha do pinch e cabeçalhos
+		if self.subrede == "acima":
+			pinch(painter, [x_direita + 1, comecary, x_direita + 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_esquerda, comecary])
+		elif self.subrede == "abaixo":
+			pinch(painter, [x_esquerda - 1, comecary, x_esquerda - 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_direita, comecary])
+
+		#criar os trocadores
+		for t in trocadores:
+			chot = t[0]-1
+			ccold = t[1]-1
+			sbhot = t[2]-1
+			sbcold = t[3]-1
+			if self.subrede != "ambas" or t[5] == 2:
+				sestagio = t[4]*espaco_trocadores
+			else:
+				sestagio = (trocadores.index(t)+1)*espaco_trocadores
+			calor = str('{:.2f}'.format(round(t[6], 2)))
+
+			util = False
+			if e_utilidade_quente_a[chot]:
+				util = True
+				tipo = "quente"
+
+			if e_utilidade_fria_a[ccold]:
+				util = True
+				tipo = "fria"
+
+			if self.subrede == "acima":
+				tqin, tqout, tfout, tfin = t[7], t[9], t[8], t[10]
+				x, y = 7, 8
+				f = 1
+			elif self.subrede == "abaixo":
+				tqin, tqout, tfout, tfin = t[9], t[7], t[10], t[8]
+				x, y = 7, 8
+				f = 1
+			elif self.subrede == "ambas":
+				tqin, tfout, tqout, tfin = t[7], t[8], t[9], t[10]
+				if t[5] == 1:
+					f = -1
+					x, y = 7, 8
+				else:
+					f = 1
+					x, y = 9, 10
+
+			duas_temp_quente = True
+			duas_temp_fria = True
+			viola_quente, viola_frio = False, False
+			termo_quente, termo_frio = False, False
+			viola_anterior_quente, viola_anterior_fria = False, False
+
+			if tqin - tfout < dTmin:
+				viola_quente = True
+				if tqin - tfout < 0:
+					termo_quente = True
+			if tqout - tfin < dTmin:
+				viola_frio = True
+				if tqout - tfin < 0:
+					termo_frio = True
+			try:
+				if trocadores[trocadores.index(t)+f][0] == t[0] and trocadores[trocadores.index(t)+f][2] == t[2]:
+					duas_temp_quente = False
+				if trocadores[trocadores.index(t)+f][1] == t[1] and trocadores[trocadores.index(t)+f][3] == t[3]:
+					duas_temp_fria = False
+				if self.subrede == "ambas":
+					if trocadores[trocadores.index(t)+f][5] == 2 and t[5] == 1:
+						duas_temp_quente = True
+						duas_temp_fria = True
+			except:
+				pass
+			try:
+				termo, termo_quente_anterior, termo_fria_anterior = False, False, False
+				if (trocadores[trocadores.index(t)-f][x] - trocadores[trocadores.index(t)-f][y]) < dTmin and trocadores.index(t) != 0:
+					if (trocadores[trocadores.index(t)-f][x] - trocadores[trocadores.index(t)-f][y]) < 0 and trocadores.index(t) != 0:
+						termo = True
+					if trocadores[trocadores.index(t)-f][0] == t[0] and trocadores[trocadores.index(t)-f][2] == t[2]:
+						viola_anterior_quente = True
+						if termo:
+							termo_quente_anterior = True
+					if trocadores[trocadores.index(t)-f][1] == t[1] and trocadores[trocadores.index(t)-f][3] == t[3]:
+						viola_anterior_fria = True
+						if termo:
+							termo_fria_anterior = True
+			except:
+				pass
+
+			temperaturas = [str('{:.2f}'.format(round(tqin, 2))), str('{:.2f}'.format(round(tqout, 2))), str('{:.2f}'.format(round(tfout, 2))), str('{:.2f}'.format(round(tfin, 2)))]
+			regras_temp = [[duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, termo_quente, termo_frio], [viola_anterior_quente, viola_anterior_fria, termo_quente_anterior, termo_fria_anterior]]
+			if self.subrede == "acima":
+				trocador(painter, "E" + str(trocadores.index(t)+1), [x_direita - espaco_trocadores - sestagio, localizacao_quente[chot][sbhot]], [x_direita - espaco_trocadores - sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+			elif self.subrede == "abaixo":
+				trocador(painter, "E" + str(trocadores.index(t)+1), [x_esquerda + espaco_trocadores + sestagio, localizacao_quente[chot][sbhot]], [x_esquerda + espaco_trocadores + sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+			elif self.subrede == "ambas":
+				if t[5] == 1:
+					trocador(painter, "E" + str(trocadores.index(t)+1), [meio - sestagio, localizacao_quente[0][chot][sbhot]], [meio - sestagio, localizacao_fria[0][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+				else:
+					trocador(painter, "E" + str(trocadores.index(t)+1), [meio + sestagio, localizacao_quente[1][chot][sbhot]], [meio + sestagio, localizacao_fria[1][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+
+		#criar utilidades em caso de subredes
+		if self.subrede != "ambas":
+			for u in uteis:
+				corrente = u[0]-1
+				calor = str('{:.2f}'.format(round(u[1], 2)))
+				if self.subrede == "acima":
+					tipo = "quente"
+					id = "H" + str(uteis.index(u)+1)
+					onde = localizacao_fria[corrente][0]
+					v = -1
+					x = x_direita
+				elif self.subrede == "abaixo":
+					tipo = "fria"
+					id = "C" + str(uteis.index(u)+1)
+					onde = localizacao_quente[corrente][0]
+					v = 1
+					x = x_esquerda
+
+				ondex = (trocadores[-1][4] + uteis.index(u)+2) * espaco_trocadores
+				utilidade(painter, [x + v*ondex, onde], calor, tipo, id)
+		else:
+			for u in uteis[0]:
+				corrente = u[0]-1
+				calor = str('{:.2f}'.format(round(u[1], 2)))
+				tipo = "quente"
+				id = "H" + str(uteis[0].index(u)+1)
+				onde = localizacao_fria[0][corrente][0]
+
+				ondex = (trocadores[0][4] + uteis[0].index(u)+1) * espaco_trocadores
+				utilidade(painter, [meio - ondex, onde], calor, tipo, id)
+			for u in uteis[1]:
+				corrente = u[0]-1
+				calor = str('{:.2f}'.format(round(u[1], 2)))
+				tipo = "fria"
+				id = "C" + str(uteis[1].index(u)+1)
+				onde = localizacao_quente[1][corrente][0]
+
+				ondex = (trocadores[-1][4] + uteis[1].index(u)+1) * espaco_trocadores
+				utilidade(painter, [meio + ondex, onde], calor, tipo, id)
+
+		painter.end()
+
+		if self.subrede == "acima":
+			self.w = x_direita + maior_duty + 2*espaco
+		elif self.subrede == "abaixo":
+			self.w = x_direita + maior_temp + maior_cp + maior_duty + 6*espaco
+		elif self.subrede == "ambas":
+			self.w = x_direita + 2*maior_duty + 2*espaco
+			self.h = max(localizacao_fria[0][-1][-1], localizacao_fria[1][-1][-1]) + 10*espaco
+
+		if self.subrede != "ambas":
+			self.h = localizacao_fria[-1][-1] + 10*espaco
+
+	def salvar(self):
+		self.grab(QRect(0, 0, self.w, self.h)).save(self.subrede + ".png")
+
+class wid_zoom(QtWidgets.QMainWindow):
+	factor = 1.5
+
+	def __init__(self, tamanho, subrede, parent=None):
+		super(wid_zoom, self).__init__(parent)
+
+		self._scene = QtWidgets.QGraphicsScene(self)
+		self._view = QtWidgets.QGraphicsView(self._scene)
+
+		self.desenho = Desenho([tamanho[0], tamanho[1]], subrede)
+		self.desenho.setFixedSize(tamanho[0], tamanho[1])
+		self._scene.addWidget(self.desenho)
+
+		self.setCentralWidget(self._view)
+
+		QtWidgets.QShortcut(
+			QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn),
+			self._view,
+			context=Qt.WidgetShortcut,
+			activated=self.zoom_in,
+		)
+
+		QtWidgets.QShortcut(
+			QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut),
+			self._view,
+			context=Qt.WidgetShortcut,
+			activated=self.zoom_out,
+		)
+
+	@pyqtSlot()
+	def zoom_in(self):
+		scale_tr = QtGui.QTransform()
+		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+
+		tr = self._view.transform() * scale_tr
+		self._view.setTransform(tr)
+
+	@pyqtSlot()
+	def zoom_out(self):
+		scale_tr = QtGui.QTransform()
+		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+
+		scale_inverted, invertible = scale_tr.inverted()
+
+		if invertible:
+			tr = self._view.transform() * scale_inverted
+			self._view.setTransform(tr)
+
+
 
 
 
@@ -2633,6 +3437,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				remover_acima(indice_remover, False)
 			else:
 				remover_acima(indice_remover)
+
 		if onde == "abaixo":
 			if indice_remover < len(matriz_trocadores_abaixo):
 				if e_utilidade_fria[matriz_trocadores_abaixo[indice_remover][1]-1]:
@@ -3061,6 +3866,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 
 	def criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=False, sub=False):
 		global Th0_fake, Thf_fake, CPh_fake, Tc0_fake, Tcf_fake, CPc_fake, correntes_quentes_fake, correntes_frias_fake, n_quentes, n_frias
+
 		ultimo_subestagio_acima = 0
 
 		if primeiro:
@@ -3091,24 +3897,31 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 					correntes_quentes_fake.append(1)
 					correntes_frias_fake.append(1)
 					dlg.nivel.addItem(str(min(n_quentes, n_frias)))
+			else:
+				for i in range(len(matriz_acima)-1, -1, -1):
+					if len(matriz_acima[i]) == 2:
+						matriz_acima.pop(-1)
+				for i in range(len(matriz_abaixo)-1, -1, -1):
+					if len(matriz_abaixo[i]) == 2:
+						matriz_abaixo.pop(-1)
 
 			nska = max(subestagio_trocador, subestagio_trocador_abaixo) + 2*max(nhot, ncold)
-			for i in range(len(matriz_acima)-1, -1, -1):
+			for i in range(len(matriz_acima)):
 				if len(matriz_acima[i]) > 2:
 					ultimo_subestagio_acima = matriz_acima[i][4]
-					break
-				else:
-					matriz_acima.pop(-1)
+				elif not sub:
+					matriz_acima[i] = [n_quentes, matriz_acima[i][0], 1, 1, ultimo_subestagio_acima+i+1, 1, matriz_acima[i][1]]
+					ultimo_subestagio_acima = i + 1
 
 			for i in range(len(matriz_acima)):
 				if len(matriz_acima[i]) > 2:
 					matriz_acima[i][4] = ultimo_subestagio_acima - i
 
-			for i in range(len(matriz_abaixo)-1, -1, -1):
+			for i in range(len(matriz_abaixo)):
 				if len(matriz_abaixo[i]) > 2:
 					matriz_abaixo[i][5] = 2
-				else:
-					matriz_abaixo.pop(-1)
+				elif not sub:
+					matriz_abaixo[i] = [matriz_abaixo[i][0], n_frias, 1, 1, i+1, 2, matriz_abaixo[i][1]]
 
 			receber_pinch_ev(Thf_fake, Tcf_fake, n_quentes, n_frias, CPh_fake, CPc_fake, dTmin, pinchq, pinchf, Th0_fake, Tc0_fake, nska)
 			try:
@@ -3518,10 +4331,11 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		if jogar_evolucao:
 			matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 			matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
-			# try:
-			matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
-			# except:
-			# 	mensagem_erro("Subnetwork Error. \nOne of them may not exist.")
+			try:
+				matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True)
+			except:
+				mensagem_erro("Subnetwork Error. \nOne of them may have no Heat Exchanger.")
+				return
 			matriz_evolucao = nao_sacrificar_matriz(matriz)
 			trocadores = criar_matriz(matriz_acima, matriz_abaixo)
 			divisoes_ev = nao_sacrificar_matriz(divisoes)
@@ -3570,10 +4384,11 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 	else:
 		matriz_acima = nao_sacrificar_matriz(matriz_acima_naomuda)
 		matriz_abaixo = nao_sacrificar_matriz(matriz_abaixo_naomuda)
-		# try:
-		matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True, sub=True)
-		# except:
-		# 	mensagem_erro("Subnetwork Error. \nOne of them may not exist.")
+		try:
+			matriz = criar_rede_completa(matriz_acima, matriz_abaixo, primeiro=True, sub=True)
+		except:
+			mensagem_erro("Subnetwork Error. \nOne of the Subnetworks has no Heat Exchangers.")
+			return
 		matriz_evolucao = nao_sacrificar_matriz(matriz)
 		dlg.completa = uic.loadUi("rede_completa.ui")
 		dlg.completa.showMaximized()
@@ -4685,6 +5500,9 @@ def suprir_9_correntes():
 		divisoes.append(["F", 1, 2, 2, [0.72, 0.28]])
 		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
 		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
+	elif arquivo == "4 correntes - 10 dtmin.xls":
+		acima = [[1, 1, 1, 1, 1, 1, 270], [2, 2, 1, 1, 2, 1, 105]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 40]]
 
 	for trocador in acima:
 		if trocador[6] == "max":
@@ -4703,6 +5521,9 @@ def suprir_9_correntes():
 	matriz_trocadores_abaixo = inserir_todos_abaixo(abaixo)
 	matriz_armazenada = inserir_todos_acima(acima)
 
+	checaresgotadosacima()
+	checaresgotadosabaixo()
+
 	# printar()
 	# printar_abaixo()
 	# testar_correntes(dlg)
@@ -4716,812 +5537,6 @@ def centralizar_combobox_teste(x):
 	x.setStyleSheet("QComboBox { background-color: #e1e1e1 }")
 	for i in range(x.count()):
 		x.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
-
-def vai():
-	global scroll_acima, scroll_abaixo, wid_acima, wid_abaixo, wid_ambas
-
-	wid_acima = wid_zoom([10000, 10000], "acima")
-	dlg.hen_acima.addWidget(wid_acima)
-	wid_abaixo = wid_zoom([10000, 10000], "abaixo")
-	dlg.hen_abaixo.addWidget(wid_abaixo)
-
-class Desenho(QWidget):
-	def __init__(self, tamanho, subrede):
-		super().__init__()
-		self.tamanho = tamanho
-		self.subrede = subrede
-
-		self.w = 0
-		self.h = 0
-
-	def paintEvent(self, event):
-		def corrente(painter, tipo, id, dividida, quantidade, comeco, fim, dados, toca):
-
-			if tipo == "quente":
-				painter.setPen(QPen(QColor("red"), grossura_seta, Qt.SolidLine))
-				ponta = -valor
-				ramos = 1
-				localizacao = localizacao_quente
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyq_sub[id]
-					fracoes = fracoesq[id]
-				texto = "Hot " + str(id+1)
-				if self.subrede == "acima":
-					tin = comeco[0] - maior_temp - 2*espaco
-					iden = fim[0] + 2*espaco
-					if not toca:
-						fim[0] -= (maior_temp + espaco)
-						lugar = fim[0] + 5
-				elif self.subrede == "abaixo":
-					tin = fim[0] + espaco
-					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
-					if not toca:
-						comeco[0] += (maior_temp + espaco)
-						lugar = int(comeco[0] - len(dados[2])*w_string - espaco/2)
-				elif self.subrede == "ambas":
-					tin = comeco[0] - maior_temp - 2*espaco
-					iden = fim[0] + maior_temp + 5*espaco
-					lugar = fim[0] + espaco
-			elif tipo == "fria":
-				painter.setPen(QPen(QColor("blue"), grossura_seta, Qt.SolidLine))
-				ponta = valor
-				ramos = -1
-				localizacao = localizacao_fria
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyf_sub[id]
-					fracoes = fracoesf[id]
-				texto = "Cold " + str(id+1)
-				if self.subrede == "acima":
-					tin = fim[0] - maior_temp - 2*espaco
-					iden = comeco[0] + 2*espaco
-					if not toca:
-						comeco[0] -= (maior_temp + espaco)
-						lugar = comeco[0] + 5
-				elif self.subrede == "abaixo":
-					tin = comeco[0] + espaco
-					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
-					if not toca:
-						fim[0] += (maior_temp + espaco)
-						lugar = int(fim[0] - len(dados[2])*w_string - espaco/2)
-				elif self.subrede == "ambas":
-					tin = comeco[0] + espaco
-					iden = comeco[0] + maior_temp + 5*espaco
-					lugar = fim[0] - maior_temp - 2*espaco
-			elif tipo == "quenteutil":
-				painter.setPen(QPen(QColor("orange"), grossura_seta, Qt.SolidLine))
-				ponta = -valor
-				ramos = 1
-				localizacao = localizacao_quente
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyq_sub[id]
-					fracoes = fracoesq[id]
-				if self.subrede == "acima":
-					tin = comeco[0] - maior_temp - 2*espaco
-					iden = fim[0] + 2*espaco
-					texto = "Hot " + str(id+1) + " (utility)"
-					if not toca:
-						fim[0] -= (maior_temp + espaco)
-						lugar = fim[0] + 5
-				elif self.subrede == "abaixo":
-					tin = fim[0] + espaco
-					texto = "(utility) Hot " + str(id+1)
-					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
-					if not toca:
-						comeco[0] += (maior_temp + espaco)
-						lugar = int(comeco[0] - len(dados[2])*w_string - espaco/2)
-				elif self.subrede == "ambas":
-					tin = comeco[0] - maior_temp - 2*espaco
-					iden = fim[0] + maior_temp + 5*espaco
-					lugar = fim[0] + espaco
-					texto = "Hot " + str(id+1) + " (utility)"
-			elif tipo == "friautil":
-				painter.setPen(QPen(QColor("cyan"), grossura_seta, Qt.SolidLine))
-				ponta = valor
-				ramos = -1
-				localizacao = localizacao_fria
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyf_sub[id]
-					fracoes = fracoesf[id]
-				if self.subrede == "acima":
-					tin = fim[0] - maior_temp - 2*espaco
-					texto = "Cold " + str(id+1) + " (utility)"
-					iden = comeco[0] + 2*espaco
-					if not toca:
-						comeco[0] -= (maior_temp + espaco)
-						lugar = comeco[0] + 5
-				elif self.subrede == "abaixo":
-					tin = comeco[0] + espaco
-					texto = "(utility) Cold " + str(id+1)
-					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
-					if not toca:
-						fim[0] += (maior_temp + espaco)
-						lugar = int(fim[0] - len(dados[2])*w_string - espaco/2)
-				elif self.subrede == "ambas":
-					tin = comeco[0] + espaco
-					iden = comeco[0] + maior_temp + 5*espaco
-					lugar = fim[0] - maior_temp - 2*espaco
-					texto = "Cold " + str(id+1) + " (utility)"
-			elif tipo == "quentefora":
-				painter.setPen(QPen(QColor("white"), grossura_seta, Qt.SolidLine))
-				ponta = -valor
-				ramos = 1
-				localizacao = localizacao_quente
-				tin = comeco[0] - maior_temp - espaco
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyq_sub[id]
-					fracoes = fracoesq[id]
-				if e_utilidade_quente_a[id]:
-					if self.subrede == "acima":
-						texto = "Hot " + str(id+1) + " (utility)"
-					elif self.subrede == "abaixo":
-						texto = "(utility) Hot " + str(id+1)
-				else:
-					texto = "Hot " + str(id+1)
-				if self.subrede == "acima":
-					iden = fim[0] + 2*espaco
-				elif self.subrede == "abaixo":
-					iden = comeco[0] - 2*espaco - int(len(texto)*w_string)
-			elif tipo == "friafora":
-				painter.setPen(QPen(QColor("white"), grossura_seta, Qt.SolidLine))
-				ponta = valor
-				ramos = -1
-				localizacao = localizacao_fria
-				tin = fim[0] - maior_temp - espaco
-				if dividida and self.subrede != "ambas":
-					dados[3] = dutyf_sub[id]
-					fracoes = fracoesf[id]
-				if e_utilidade_fria_a[id]:
-					if self.subrede == "acima":
-						texto = "Cold " + str(id+1) + " (utility)"
-					elif self.subrede == "abaixo":
-						texto = "(utility) Cold " + str(id+1)
-				else:
-					texto = "Cold " + str(id+1)
-				if self.subrede == "acima":
-					iden = comeco[0] + 2*espaco
-				elif self.subrede == "abaixo":
-					iden = fim[0] - 2*espaco - int(len(texto)*w_string)
-
-			painter.drawLine(int(comeco[0]), int(comeco[1]), int(fim[0]), int(fim[1]))
-			painter.drawLine(int(fim[0]), int(fim[1]), int(fim[0]+ponta), int(fim[1]+h_seta))
-			painter.drawLine(int(fim[0]), int(fim[1]), int(fim[0]+ponta), int(fim[1]-h_seta))
-
-			if self.subrede == "ambas":
-				if tipo[0] == "q":
-					tamanho_ramo = [int(meio - comeco[0] - 2*ramox), int(fim[0] - meio - 2*ramox)]
-				else:
-					tamanho_ramo = [int(meio - fim[0] - 2*ramox), int(comeco[0] - meio - 2*ramox)]
-
-			ramoxx = ramox*ramos
-
-			if self.subrede != "ambas":
-				localizacao.append([comeco[1]])
-				if dividida:
-					for ramo in range(1, quantidade):
-						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]), int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo), int(fim[0]-ramoxx), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(fim[0]-ramoxx), int(comeco[1]+ramoy*ramo), int(fim[0]-ramoxx), int(fim[1]))
-						localizacao[-1].append(int(comeco[1]+ramoy*ramo))
-			else:
-				localizacao[0].append([comeco[1]])
-				localizacao[1].append([comeco[1]])
-				if tipo[:4] == "fria":
-					primeiro = 1
-					segundo = 0
-				else:
-					primeiro = 0
-					segundo = 1
-				if dividida[primeiro]:
-					for ramo in range(1, quantidade[primeiro]):
-						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]), int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+ramoxx), int(comeco[1]+ramoy*ramo), int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+ramoxx+tamanho_ramo[primeiro]*ramos), int(fim[1]))
-						localizacao[primeiro][-1].append(int(comeco[1]+ramoy*ramo))
-				if dividida[segundo]:
-					for ramo in range(1, quantidade[segundo]):
-						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]), int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(fim[1]))
-						localizacao[segundo][-1].append(int(comeco[1]+ramoy*ramo))
-
-			fonte = painter.font()
-			fonte.setBold(True)
-			fonte.setFamily("Arial")
-			fonte.setPointSize(fonte_calor)
-			painter.setFont(fonte)
-			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-			if self.subrede == "acima":
-				alinha_in = Qt.AlignRight
-				alinha_toca = Qt.AlignLeft
-				alinha_iden = Qt.AlignLeft
-			elif self.subrede == "abaixo":
-				alinha_in = Qt.AlignLeft
-				alinha_toca = Qt.AlignRight
-				alinha_iden = Qt.AlignRight
-			elif self.subrede == "ambas":
-				if tipo[0] == "q":
-					alinha_in = Qt.AlignRight
-					alinha_toca = Qt.AlignLeft
-				else:
-					alinha_in = Qt.AlignLeft
-					alinha_toca = Qt.AlignRight
-				alinha_iden = Qt.AlignLeft
-
-			if self.subrede != "abaixo":
-				painter.drawText(QRect(int(iden + espaco), int(comeco[1]-h_string), int(len(texto)*w_string + 2*espaco), int(h_string*3)), alinha_iden, texto)
-			else:
-				painter.drawText(QRect(int(iden - 2*espaco), int(comeco[1]-h_string), int(len(texto)*w_string + 2*espaco), int(h_string*3)), alinha_iden, texto)
-
-			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-			fonte = painter.font()
-			fonte.setFamily("Arial")
-			fonte.setBold(False)
-			fonte.setPointSize(fonte_calor)
-			painter.setFont(fonte)
-			painter.drawText(QRect(int(tin), int(comeco[1]-h_string), int(w_string*len(dados[1])), int(h_string*3)), alinha_in, dados[1])
-			if not toca or self.subrede == "ambas":
-				painter.drawText(QRect(int(lugar), int(comeco[1]-h_string), int(w_string*len(dados[2])), int(h_string*3)), alinha_toca, dados[2])
-			if self.subrede != "ambas":
-				if not dividida:
-					if self.subrede == "acima":
-						painter.drawText(QRect(int(tin - 2*espaco - maior_cp), int(comeco[1]-h_string), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, dados[0])
-						painter.drawText(QRect(int(tin - 4*espaco - maior_cp - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
-					elif self.subrede == "abaixo":
-						painter.drawText(QRect(int(tin + maior_temp + 2*espaco), int(comeco[1]-h_string), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, dados[0])
-						painter.drawText(QRect(int(tin + maior_temp + 4*espaco + maior_cp), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
-
-				else:
-					for ramo in range(quantidade):
-						if self.subrede == "acima":
-							painter.drawText(QRect(int(tin - 2*espaco - maior_cp), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(float(dados[0])*fracoes[ramo], 2))))
-							painter.drawText(QRect(int(tin - 4*espaco - maior_cp - maior_duty), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(dados[3][ramo], 2))))
-						elif self.subrede == "abaixo":
-							painter.drawText(QRect(int(tin + maior_temp + 2*espaco), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_cp), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(float(dados[0])*fracoes[ramo], 2))))
-							painter.drawText(QRect(int(tin + maior_temp + 4*espaco + maior_cp), int(comeco[1] - h_string + ramo*(ramoy - h_string)), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, str('{:.2f}'.format(round(dados[3][ramo], 2))))
-			else:
-				if tipo[0] == "q":
-					painter.drawText(QRect(int(tin - 2*espaco - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
-					if id == 0:
-						fonte = painter.font()
-						fonte.setBold(True)
-						fonte.setPointSize(fonte_calor)
-						painter.setFont(fonte)
-						painter.drawText(QRect(int(tin - 3*espaco - maior_duty), int(comeco[1]-ramoy-h_string), int(maior_duty+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
-				else:
-					painter.drawText(QRect(int(lugar - 2*espaco - maior_duty), int(comeco[1]-h_string), int(maior_duty), int(h_string*3)), Qt.AlignHCenter, dados[3])
-
-		def trocador(painter, id, ondeq, ondef, calor, temperaturas, regras_temp, util=False, tipo=""):
-			painter.setPen(QPen(Qt.black, grossura_seta, Qt.SolidLine))
-			if util:
-				if tipo == "quente":
-					painter.setBrush(QColor("orange"))
-				elif tipo == "fria":
-					painter.setBrush(QColor("cyan"))
-			else:
-				painter.setBrush(QColor("white"))
-			painter.drawLine(int(ondeq[0] + raio_trocador/2), int(ondeq[1]), int(ondef[0] + raio_trocador/2), int(ondef[1]))
-			painter.drawEllipse(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
-			painter.drawEllipse(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
-			fonte = painter.font()
-			fonte.setFamily("Arial")
-			fonte.setBold(False)
-			fonte.setPointSize(fonte_temp)
-			painter.setFont(fonte)
-
-			duas_quente = regras_temp[0][0]
-			duas_fria = regras_temp[0][1]
-			viola_quente = regras_temp[1][0]
-			viola_frio = regras_temp[1][1]
-			termo_quente = regras_temp[1][2]
-			termo_frio = regras_temp[1][3]
-			anterior_quente = regras_temp[2][0]
-			anterior_fria = regras_temp[2][1]
-			anterior_termo_quente = regras_temp[2][2]
-			anterior_termo_fria = regras_temp[2][3]
-
-			#tqin
-			#sempre abaixo e ambas, duas_temp acima
-			if duas_quente or self.subrede != "acima":
-				if viola_quente or (self.subrede != "acima" and anterior_quente):
-					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-				else:
-					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-				fonte = painter.font()
-				if termo_quente or (self.subrede != "acima" and anterior_termo_quente):
-					temp = temperaturas[0] + "**"
-					fonte.setBold(True)
-				else:
-					temp = temperaturas[0]
-					fonte.setBold(False)
-				painter.setFont(fonte)
-				painter.drawText(QRect(int(ondeq[0] - w_string*len(temp) - 1), int(ondeq[1] + 1), int(w_string*len(temp)), int(raio_trocador)), Qt.AlignRight, temp)
-
-			#tqout
-			#sempre acima, duas_temp abaixo e ambas
-			if duas_quente or self.subrede == "acima":
-				if viola_frio or (self.subrede == "acima" and anterior_quente):
-					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-				else:
-					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-				fonte = painter.font()
-				if termo_frio or (self.subrede == "acima" and anterior_termo_quente):
-					temp = temperaturas[1] + "**"
-					fonte.setBold(True)
-				else:
-					temp = temperaturas[1]
-					fonte.setBold(False)
-				painter.setFont(fonte)
-				painter.drawText(QRect(int(ondeq[0] + raio_trocador + 1), int(ondeq[1] + 1), int(len(temp)*w_string), int(raio_trocador)), Qt.AlignLeft, temp)
-
-			#tfout
-			#sempre abaixo e ambas, duas_temp acima
-			if duas_fria or self.subrede != "acima":
-				if viola_quente or (self.subrede != "acima" and anterior_fria):
-					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-				else:
-					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-				fonte = painter.font()
-				if termo_quente or (self.subrede != "acima" and anterior_termo_fria):
-					temp = temperaturas[2] + "**"
-					fonte.setBold(True)
-				else:
-					temp = temperaturas[2]
-					fonte.setBold(False)
-				painter.setFont(fonte)
-				painter.drawText(QRect(int(ondef[0] - w_string*len(temp) - 1), int(ondef[1] + 1), int(w_string*len(temp)), int(raio_trocador)), Qt.AlignRight, temp)
-
-			#tfin
-			#sempre acima, duas_temp abaixo e ambas
-			if duas_fria or self.subrede == "acima":
-				if viola_frio or (self.subrede == "acima" and anterior_fria):
-					painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-				else:
-					painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-				fonte = painter.font()
-				if termo_frio or (self.subrede == "acima" and anterior_termo_fria):
-					temp = temperaturas[3] + "**"
-					fonte.setBold(True)
-				else:
-					temp = temperaturas[3]
-					fonte.setBold(False)
-				painter.setFont(fonte)
-				painter.drawText(QRect(int(ondef[0] + raio_trocador + 1), int(ondef[1] + 1), int(len(temp)*w_string), int(raio_trocador)), Qt.AlignLeft, temp)
-
-			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-			fonte = painter.font()
-			fonte.setFamily("Arial")
-			fonte.setBold(True)
-			fonte.setPointSize(fonte_calor)
-			painter.setFont(fonte)
-			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - len(calor)*w_string), int(ondeq[1]-raio_trocador-1), int(len(calor)*2*w_string), int(h_string*3)), Qt.AlignHCenter, calor)
-			painter.drawText(QRect(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
-			painter.drawText(QRect(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
-
-		def pinch(painter, onde, temperaturas, header):
-			painter.setPen(QPen(Qt.black, grossura_seta, Qt.DotLine))
-			painter.drawLine(int(onde[0]), int(onde[1]), int(onde[2]), int(onde[3]))
-			fonte = painter.font()
-			fonte.setFamily("Arial")
-			fonte.setBold(False)
-			fonte.setPointSize(fonte_calor)
-			painter.setFont(fonte)
-			painter.drawText(QRect(int(onde[0] - w_string*2*len(temperaturas[0])/2), int(onde[1] - 25), int(w_string*2*len(temperaturas[0])), int(h_string*3)), Qt.AlignHCenter, temperaturas[0])
-			painter.drawText(QRect(int(onde[2] - w_string*2*len(temperaturas[0])/2), int(onde[3] + 10), int(w_string*2*len(temperaturas[1])), int(h_string*3)), Qt.AlignHCenter, temperaturas[1])
-			fonte.setBold(True)
-			fonte.setPointSize(fonte_calor)
-			painter.setFont(fonte)
-			if self.subrede == "acima":
-				painter.drawText(QRect(int(header[0] - maior_temp - 4*espaco - maior_cp), int(header[1] - 25), int(maior_cp+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams CP ({})".format(unidades_usadas[1]))
-				painter.drawText(QRect(int(header[0] - maior_temp - 7*espaco - maior_cp - maior_duty), int(header[1] - 25), int(maior_duty+2*espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
-			elif self.subrede == "abaixo":
-				painter.drawText(QRect(int(header[0] + maior_temp + 2*espaco), int(header[1] - 25), int(maior_cp+espaco), int(h_string*3)), Qt.AlignHCenter, "Streams CP ({})".format(unidades_usadas[1]))
-				painter.drawText(QRect(int(header[0] + maior_temp + 4*espaco + maior_cp), int(header[1] - 25), int(maior_duty+2*espaco), int(h_string*3)), Qt.AlignHCenter, "Streams Duty ({})".format(unidades_usadas[2]))
-
-		def utilidade(painter, onde, calor, tipo, id):
-			painter.setPen(QPen(Qt.black, 3, Qt.SolidLine))
-			if tipo == "quente":
-				painter.setBrush(QColor("orange"))
-			else:
-				painter.setBrush(QColor("cyan"))
-
-			painter.drawEllipse(int(onde[0]), int(onde[1]-raio_trocador/2), int(raio_trocador), int(raio_trocador))
-			painter.drawText(QRect(int(onde[0] + raio_trocador/2 - len(calor)*w_string), int(onde[1]-raio_trocador-1), int(len(calor)*2*w_string), int(h_string*3)), Qt.AlignHCenter, calor)
-			painter.drawText(QRect(int(onde[0]), int(onde[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
-
-		global localizacao_quente, localizacao_fria, valor, espaco, fonte_temp, fonte_calor, ramox, ramoy, meio, w_string, h_string, h_seta
-		painter = QPainter(self)
-		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
-		painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
-		painter.drawRect(0, 0, self.tamanho[0], self.tamanho[1])
-
-		#designando variaveis
-		if self.subrede == "acima":
-			trocadores = matriz_armazenada
-			uteis = utilidades
-			quente_presente = corrente_quente_presente_acima
-			fria_presente = corrente_fria_presente_acima
-			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
-			thtoca, tctoca = Thf_acima, Tc0_acima
-			thcomeco, tccomeco = Th0, Tcf
-			CPha, CPca = CPh, CPc
-			correntes_quentes_a, correntes_frias_a = correntes_quentes, correntes_frias
-			dutyq, dutyf = calor_atual_quente, calor_atual_frio
-			dutyq_sub, dutyf_sub = calor_atual_quente_sub, calor_atual_frio_sub
-			divididaq, divididaf = dividida_quente, dividida_fria
-			quantidadeq, quantidadef = quantidade_quente, quantidade_fria
-			fracoesq, fracoesf = fracoes_quentes, fracoes_frias
-		elif self.subrede == "abaixo":
-			trocadores = matriz_trocadores_abaixo
-			uteis = utilidades_abaixo
-			quente_presente = corrente_quente_presente_abaixo
-			fria_presente = corrente_fria_presente_abaixo
-			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
-			thtoca, tctoca = Th0_abaixo, Tcf_abaixo
-			thcomeco, tccomeco = Thf, Tc0
-			CPha, CPca = CPh, CPc
-			correntes_quentes_a, correntes_frias_a = correntes_quentes, correntes_frias
-			dutyq, dutyf = calor_atual_quente_abaixo, calor_atual_frio_abaixo
-			dutyq_sub, dutyf_sub = calor_atual_quente_sub_abaixo, calor_atual_frio_sub_abaixo
-			divididaq, divididaf = dividida_quente_abaixo, dividida_fria_abaixo
-			quantidadeq, quantidadef = quantidade_quente_abaixo, quantidade_fria_abaixo
-			fracoesq, fracoesf = fracoes_quentes_abaixo, fracoes_frias_abaixo
-		elif self.subrede == "ambas":
-			trocadores = matriz_evolucao
-			uteis = utilidades_ev
-			quente_presente, fria_presente = [[True]]*(nhot+1), [[True]]*(ncold+1)
-			e_utilidade_quente_a, e_utilidade_fria_a = e_utilidade_quente[:], e_utilidade_fria[:]
-			e_utilidade_quente_a.append(True)
-			e_utilidade_fria_a.append(True)
-			thtoca, tctoca = Thf_fake, Tcf_fake
-			thcomeco, tccomeco = Th0_fake, Tc0_fake
-			CPha, CPca = CPh_fake, CPc_fake
-			correntes_quentes_a, correntes_frias_a = correntes_quentes_fake, correntes_frias_fake
-			dutyq, dutyf = calor_atual_quente_ev, calor_atual_frio_ev
-			dutyq_sub, dutyf_sub = calor_atual_quente_ev, calor_atual_frio_ev
-			divq_acima, divq_abaixo, divf_acima, divf_abaixo = dividida_quente_ev_acima, dividida_quente_ev_abaixo, dividida_fria_ev_acima, dividida_fria_ev_abaixo
-			quantq_acima, quantq_abaixo, quantf_acima, quantf_abaixo = quantidade_quente_ev_acima, quantidade_quente_ev_abaixo, quantidade_fria_ev_acima, quantidade_fria_ev_abaixo
-			fracoesq, fracoesf = fracoes_quentes, fracoes_frias
-
-
-		#determinando medidas
-		tempet = []
-		cpe = []
-		dutye = []
-		for temp in Th0:
-			tempet.append(len(str(temp)))
-		for temp in Thf:
-			tempet.append(len(str(temp)))
-		for cp in CPha:
-			cpe.append(len(str(cp)))
-			dutye.append(len(str('{:.2f}'.format(round(cp*(thcomeco[CPha.index(cp)]-thtoca[CPha.index(cp)]), 2)))))
-		for cp in CPca:
-			cpe.append(len(str(cp)))
-			dutye.append(len(str('{:.2f}'.format(round(cp*(tccomeco[CPca.index(cp)]-tctoca[CPca.index(cp)]), 2)))))
-
-		w_string = 7
-		h_string = 7
-		h_seta = 7
-		grossura_seta = 3
-		fonte_calor = 10
-		fonte_temp = 8
-		raio_trocador = 30
-		valor = 15 #tamanho das pontas das setas
-		espaco = 10
-		ramox = ramoy = 45
-		tamanho_minimo = 800
-
-		dutye.append(len("Streams Duty ({})".format(unidades_usadas[2])))
-		cpe.append(len("Streams CP ({})".format(unidades_usadas[1])))
-		maior_temp = int(max(tempet)*w_string)
-		maior_cp = int(max(cpe)*w_string)
-		maior_duty = int(max(dutye)*w_string)
-
-		espaco_trocadores = 2*maior_temp
-
-		if self.subrede != "ambas":
-			localizacao_quente = []
-			localizacao_fria = []
-			if self.subrede == "acima":
-				t_acima = len(trocadores) + 3
-				t_abaixo = 0
-			else:
-				t_abaixo = len(trocadores) + 3
-				t_acima = 0
-		else:
-			localizacao_quente = [[], []]
-			localizacao_fria = [[], []]
-			t_acima = 4 + len(uteis[0])*2
-			t_abaixo = 4 + len(uteis[1])*2
-			for t in range(len(trocadores)):
-				if trocadores[t][5] == 1:
-					t_acima += 2
-				else:
-					t_abaixo += 2
-		if self.subrede == "acima":
-			x_esquerda = 30 + maior_temp + maior_cp + maior_duty + 4*espaco
-		if self.subrede == "abaixo":
-			x_esquerda  = 30 + maior_duty
-		if self.subrede == "ambas":
-			x_esquerda = 30 + maior_duty + maior_temp + 3*espaco
-			x_direita = max(tamanho_minimo, x_esquerda + (len(trocadores)+len(uteis[0])+len(uteis[1])+4) * espaco_trocadores)
-		else:
-			x_direita = max(tamanho_minimo, x_esquerda + (len(trocadores)+len(uteis)+4) * espaco_trocadores)
-
-		meio = x_esquerda + t_acima/2 * espaco_trocadores
-		comecary = y = 100
-
-		#criar correntes quentes
-		for i in range(len(correntes_quentes_a)):
-			if quente_presente[i]:
-				if len(localizacao_quente) != 0 and self.subrede != "ambas":
-					y = localizacao_quente[-1][-1]
-				if self.subrede == "ambas":
-					if len(localizacao_quente[0]) != 0:
-						y = max(localizacao_quente[0][-1][-1], localizacao_quente[1][-1][-1])
-
-				if e_utilidade_quente_a[i]:
-					tipo = "quenteutil"
-				else:
-					tipo = "quente"
-
-				if thtoca[i] != pinchq and self.subrede != "ambas":
-					toca = False
-				else:
-					toca = True
-
-				dados = [str('{:.2f}'.format(round(CPha[i], 2))), str('{:.2f}'.format(round(thcomeco[i], 2))), str('{:.2f}'.format(round(thtoca[i], 2))), str('{:.2f}'.format(round(dutyq[i], 2)))]
-				if self.subrede != "ambas":
-					corrente(painter, tipo, i, divididaq[i], quantidadeq[i], [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, toca)
-				else:
-					corrente(painter, tipo, i, [divq_acima[i], divq_abaixo[i]], [quantq_acima[i], quantq_abaixo[i]], [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, toca)
-
-			else:
-				if len(localizacao_quente) != 0:
-					y = localizacao_quente[-1][-1]
-				else:
-					y = comecary
-
-				dados = ["", "", "", ""]
-				corrente(painter, "quentefora", i, False, False, [x_esquerda, ramoy + y], [x_direita, ramoy + y], dados, True)
-
-		#criar correntes frias
-		if self.subrede != "ambas":
-			y = localizacao_quente[-1][-1]
-		else:
-			y = max(localizacao_quente[0][-1][-1], localizacao_quente[1][-1][-1])
-		for j in range(len(correntes_frias_a)):
-			if fria_presente[j]:
-				if len(localizacao_fria) != 0 and self.subrede != "ambas":
-					y = localizacao_fria[-1][-1]
-				if self.subrede == "ambas":
-					if len(localizacao_fria[0]) != 0:
-						y = max(localizacao_fria[0][-1][-1], localizacao_fria[1][-1][-1])
-
-				if e_utilidade_fria_a[j]:
-					tipo = "friautil"
-				else:
-					tipo = "fria"
-
-				if tctoca[j] != pinchf and self.subrede != "ambas":
-					toca = False
-				else:
-					toca = True
-
-				dados = [str('{:.2f}'.format(round(CPca[j], 2))), str('{:.2f}'.format(round(tccomeco[j], 2))), str('{:.2f}'.format(round(tctoca[j], 2))), str('{:.2f}'.format(round(dutyf[j], 2)))]
-				if self.subrede != "ambas":
-					corrente(painter, tipo, j, divididaf[j], quantidadef[j], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, toca)
-				else:
-					corrente(painter, tipo, j, [divf_acima[j], divf_abaixo[j]], [quantf_acima[j], quantf_abaixo[j]], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, toca)
-
-			else:
-				if len(localizacao_fria) != 0:
-					y = localizacao_fria[-1][-1]
-				dados = ["", "", "", ""]
-				corrente(painter, "friafora", j, divididaf[j], quantidadef[j], [x_direita, ramoy + y], [x_esquerda, ramoy + y], dados, True)
-
-		#criar a linha do pinch e cabeçalhos
-		if self.subrede == "acima":
-			pinch(painter, [x_direita + 1, comecary, x_direita + 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_esquerda, comecary])
-		elif self.subrede == "abaixo":
-			pinch(painter, [x_esquerda - 1, comecary, x_esquerda - 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_direita, comecary])
-
-		#criar os trocadores
-		for t in trocadores:
-			chot = t[0]-1
-			ccold = t[1]-1
-			sbhot = t[2]-1
-			sbcold = t[3]-1
-			if self.subrede != "ambas" or t[5] == 2:
-				sestagio = t[4]*espaco_trocadores
-			else:
-				sestagio = (trocadores.index(t)+1)*espaco_trocadores
-			calor = str('{:.2f}'.format(round(t[6], 2)))
-
-			util = False
-			if e_utilidade_quente_a[chot]:
-				util = True
-				tipo = "quente"
-
-			if e_utilidade_fria_a[ccold]:
-				util = True
-				tipo = "fria"
-
-			if self.subrede == "acima":
-				tqin, tqout, tfout, tfin = t[7], t[9], t[8], t[10]
-				x, y = 7, 8
-				f = 1
-			elif self.subrede == "abaixo":
-				tqin, tqout, tfout, tfin = t[9], t[7], t[10], t[8]
-				x, y = 7, 8
-				f = 1
-			elif self.subrede == "ambas":
-				tqin, tfout, tqout, tfin = t[7], t[8], t[9], t[10]
-				if t[5] == 1:
-					f = -1
-					x, y = 7, 8
-				else:
-					f = 1
-					x, y = 9, 10
-
-			duas_temp_quente = True
-			duas_temp_fria = True
-			viola_quente, viola_frio = False, False
-			termo_quente, termo_frio = False, False
-			viola_anterior_quente, viola_anterior_fria = False, False
-
-			if tqin - tfout < dTmin:
-				viola_quente = True
-				if tqin - tfout < 0:
-					termo_quente = True
-			if tqout - tfin < dTmin:
-				viola_frio = True
-				if tqout - tfin < 0:
-					termo_frio = True
-			try:
-				if trocadores[trocadores.index(t)+f][0] == t[0] and trocadores[trocadores.index(t)+f][2] == t[2]:
-					duas_temp_quente = False
-				if trocadores[trocadores.index(t)+f][1] == t[1] and trocadores[trocadores.index(t)+f][3] == t[3]:
-					duas_temp_fria = False
-				if self.subrede == "ambas":
-					if trocadores[trocadores.index(t)+f][5] == 2 and t[5] == 1:
-						duas_temp_quente = True
-						duas_temp_fria = True
-			except:
-				pass
-			try:
-				termo, termo_quente_anterior, termo_fria_anterior = False, False, False
-				if (trocadores[trocadores.index(t)-f][x] - trocadores[trocadores.index(t)-f][y]) < dTmin and trocadores.index(t) != 0:
-					if (trocadores[trocadores.index(t)-f][x] - trocadores[trocadores.index(t)-f][y]) < 0 and trocadores.index(t) != 0:
-						termo = True
-					if trocadores[trocadores.index(t)-f][0] == t[0] and trocadores[trocadores.index(t)-f][2] == t[2]:
-						viola_anterior_quente = True
-						if termo:
-							termo_quente_anterior = True
-					if trocadores[trocadores.index(t)-f][1] == t[1] and trocadores[trocadores.index(t)-f][3] == t[3]:
-						viola_anterior_fria = True
-						if termo:
-							termo_fria_anterior = True
-			except:
-				pass
-
-			temperaturas = [str('{:.2f}'.format(round(tqin, 2))), str('{:.2f}'.format(round(tqout, 2))), str('{:.2f}'.format(round(tfout, 2))), str('{:.2f}'.format(round(tfin, 2)))]
-			regras_temp = [[duas_temp_quente, duas_temp_fria], [viola_quente, viola_frio, termo_quente, termo_frio], [viola_anterior_quente, viola_anterior_fria, termo_quente_anterior, termo_fria_anterior]]
-			if self.subrede == "acima":
-				trocador(painter, "E" + str(trocadores.index(t)+1), [x_direita - espaco_trocadores - sestagio, localizacao_quente[chot][sbhot]], [x_direita - espaco_trocadores - sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
-			elif self.subrede == "abaixo":
-				trocador(painter, "E" + str(trocadores.index(t)+1), [x_esquerda + espaco_trocadores + sestagio, localizacao_quente[chot][sbhot]], [x_esquerda + espaco_trocadores + sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
-			elif self.subrede == "ambas":
-				if t[5] == 1:
-					trocador(painter, "E" + str(trocadores.index(t)+1), [meio - sestagio, localizacao_quente[0][chot][sbhot]], [meio - sestagio, localizacao_fria[0][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
-				else:
-					trocador(painter, "E" + str(trocadores.index(t)+1), [meio + sestagio, localizacao_quente[1][chot][sbhot]], [meio + sestagio, localizacao_fria[1][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
-
-		#criar utilidades em caso de subredes
-		if self.subrede != "ambas":
-			for u in uteis:
-				corrente = u[0]-1
-				calor = str('{:.2f}'.format(round(u[1], 2)))
-				if self.subrede == "acima":
-					tipo = "quente"
-					id = "H" + str(uteis.index(u)+1)
-					onde = localizacao_fria[corrente][0]
-					v = -1
-					x = x_direita
-				elif self.subrede == "abaixo":
-					tipo = "fria"
-					id = "C" + str(uteis.index(u)+1)
-					onde = localizacao_quente[corrente][0]
-					v = 1
-					x = x_esquerda
-
-				ondex = (trocadores[-1][4] + uteis.index(u)+2) * espaco_trocadores
-				utilidade(painter, [x + v*ondex, onde], calor, tipo, id)
-		else:
-			for u in uteis[0]:
-				corrente = u[0]-1
-				calor = str('{:.2f}'.format(round(u[1], 2)))
-				tipo = "quente"
-				id = "H" + str(uteis[0].index(u)+1)
-				onde = localizacao_fria[0][corrente][0]
-
-				ondex = (trocadores[0][4] + uteis[0].index(u)+1) * espaco_trocadores
-				utilidade(painter, [meio - ondex, onde], calor, tipo, id)
-			for u in uteis[1]:
-				corrente = u[0]-1
-				calor = str('{:.2f}'.format(round(u[1], 2)))
-				tipo = "fria"
-				id = "C" + str(uteis[1].index(u)+1)
-				onde = localizacao_quente[1][corrente][0]
-
-				ondex = (trocadores[-1][4] + uteis[1].index(u)+1) * espaco_trocadores
-				utilidade(painter, [meio + ondex, onde], calor, tipo, id)
-
-
-
-		painter.end()
-
-		if self.subrede == "acima":
-			self.w = x_direita + maior_duty + 2*espaco
-		elif self.subrede == "abaixo":
-			self.w = x_direita + maior_temp + maior_cp + maior_duty + 6*espaco
-		elif self.subrede == "ambas":
-			self.w = x_direita + 2*maior_duty + 2*espaco
-			self.h = max(localizacao_fria[0][-1][-1], localizacao_fria[1][-1][-1]) + 10*espaco
-
-		if self.subrede != "ambas":
-			self.h = localizacao_fria[-1][-1] + 10*espaco
-
-	def salvar(self):
-		self.grab(QRect(0, 0, self.w, self.h)).save(self.subrede + ".png")
-
-class wid_zoom(QtWidgets.QMainWindow):
-	factor = 1.5
-
-	def __init__(self, tamanho, subrede, parent=None):
-		super(wid_zoom, self).__init__(parent)
-
-		self._scene = QtWidgets.QGraphicsScene(self)
-		self._view = QtWidgets.QGraphicsView(self._scene)
-
-		self.desenho = Desenho([tamanho[0], tamanho[1]], subrede)
-		self.desenho.setFixedSize(tamanho[0], tamanho[1])
-		self._scene.addWidget(self.desenho)
-
-		self.setCentralWidget(self._view)
-
-		QtWidgets.QShortcut(
-			QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn),
-			self._view,
-			context=Qt.WidgetShortcut,
-			activated=self.zoom_in,
-		)
-
-		QtWidgets.QShortcut(
-			QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut),
-			self._view,
-			context=Qt.WidgetShortcut,
-			activated=self.zoom_out,
-		)
-
-	@pyqtSlot()
-	def zoom_in(self):
-		scale_tr = QtGui.QTransform()
-		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
-
-		tr = self._view.transform() * scale_tr
-		self._view.setTransform(tr)
-
-	@pyqtSlot()
-	def zoom_out(self):
-		scale_tr = QtGui.QTransform()
-		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
-
-		scale_inverted, invertible = scale_tr.inverted()
-
-		if invertible:
-			tr = self._view.transform() * scale_inverted
-			self._view.setTransform(tr)
-
 
 app = QApplication([])
 dlg = uic.loadUi("MPinch.ui")
@@ -5645,7 +5660,7 @@ for i in range(5):
 openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
 done_teste(True)
 pinch_teste(False)
-suprir_9_correntes()
+# suprir_9_correntes()
 
 
 
