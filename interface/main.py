@@ -5,6 +5,7 @@ import xlrd #lidar com excel
 import xlsxwriter #criar excel
 from tkinter import Tk #usa pra nao mostrar a aba tk
 from tkinter.filedialog import askopenfilename #abrir arquivo (excel)
+from tkinter.filedialog import asksaveasfilename #salvar imagem
 
 from PyQt5 import uic, QtGui, QtWidgets #ler interface e widgets de um jeito diferente
 from PyQt5.QtWidgets import * #widgets
@@ -69,6 +70,8 @@ primeira_util = True
 primeira_util_fria = True
 
 primeira_evolucao = True
+zoom_atual = 1
+zoom_atual_abaixo = 1
 
 
 #streams
@@ -3039,18 +3042,21 @@ class Desenho(QWidget):
 		painter.end()
 
 		if self.subrede == "acima":
-			self.w = x_direita + maior_duty + 2*espaco
+			self.w = x_direita + maior_duty + 30*espaco
 		elif self.subrede == "abaixo":
-			self.w = x_direita + maior_temp + maior_cp + maior_duty + 6*espaco
+			self.w = x_direita + maior_temp + maior_cp + maior_duty + 36*espaco
 		elif self.subrede == "ambas":
-			self.w = x_direita + 2*maior_duty + 2*espaco
+			self.w = x_direita + 2*maior_duty + 30*espaco
 			self.h = max(localizacao_fria[0][-1][-1], localizacao_fria[1][-1][-1]) + 10*espaco
 
 		if self.subrede != "ambas":
 			self.h = localizacao_fria[-1][-1] + 10*espaco
 
 	def salvar(self):
-		self.grab(QRect(0, 0, self.w, self.h)).save(self.subrede + ".png")
+		file = asksaveasfilename(
+	        filetypes=[("PNG", ".png"), ("JPEG", ".JPEG")],
+	        defaultextension=".png")
+		self.grab(QRect(0, 0, self.w, self.h)).save(file)
 
 class wid_zoom(QtWidgets.QMainWindow):
 	factor = 1.5
@@ -3082,17 +3088,32 @@ class wid_zoom(QtWidgets.QMainWindow):
 		)
 
 	@pyqtSlot()
-	def zoom_in(self):
+	def zoom_in(self, fator=1.5, arruma=True):
+		global zoom_atual, zoom_atual_abaixo
+		
 		scale_tr = QtGui.QTransform()
-		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+		scale_tr.scale(fator, fator)
 
 		tr = self._view.transform() * scale_tr
 		self._view.setTransform(tr)
 
+		if dlg.tabWidget_2.currentIndex() == 0:
+			zoom_atual = fator * zoom_atual
+			barra = dlg.zoom_acima
+			valor = zoom_atual
+		elif dlg.tabWidget_2.currentIndex() == 1:
+			zoom_atual_abaixo = fator * zoom_atual_abaixo
+			barra = dlg.zoom_abaixo
+			valor = zoom_atual_abaixo
+		if arruma:
+			barra.setValue(int(valor*100))
+
 	@pyqtSlot()
-	def zoom_out(self):
+	def zoom_out(self, fator=1.5, arruma=True):
+		global zoom_atual, zoom_atual_abaixo
+
 		scale_tr = QtGui.QTransform()
-		scale_tr.scale(wid_zoom.factor, wid_zoom.factor)
+		scale_tr.scale(fator, fator)
 
 		scale_inverted, invertible = scale_tr.inverted()
 
@@ -3100,7 +3121,22 @@ class wid_zoom(QtWidgets.QMainWindow):
 			tr = self._view.transform() * scale_inverted
 			self._view.setTransform(tr)
 
+		if dlg.tabWidget_2.currentIndex() == 0:
+			zoom_atual = zoom_atual / fator
+			barra = dlg.zoom_acima
+			valor = zoom_atual
+		elif dlg.tabWidget_2.currentIndex() == 1:
+			zoom_atual_abaixo = zoom_atual_abaixo / fator
+			barra = dlg.zoom_abaixo
+			valor = zoom_atual_abaixo
 
+		if arruma:
+			barra.setValue(int(valor*100))
+
+def zoom_barra(barra, wid, atual):
+	valor = barra.value()/100
+	if valor != atual:
+		wid.zoom_in(valor/atual, arruma=False)
 
 
 
@@ -3319,7 +3355,6 @@ def dividir_corrente(divisao, onde):
 
 		printar()
 		printar_abaixo()
-
 
 	confirm()
 	janela.comboBox_2.currentIndexChanged.connect(confirm)
@@ -5656,6 +5691,7 @@ dlg.pushButton_8.clicked.connect(utilidade_teste_acima) #add cold utility
 dlg.addutil_acima.clicked.connect(utilidade_teste_acima)
 dlg.pushButton_16.clicked.connect(lambda: wid_acima.desenho.salvar())
 dlg.completa_acima.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True, sub=True))
+dlg.zoom_acima.valueChanged.connect(lambda: zoom_barra(dlg.zoom_acima, wid_acima, zoom_atual))
 #below
 dlg.radioButton_17.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(True)) #quando marca o heat load libera a linha pra digitar
 dlg.radioButton_20.toggled.connect(lambda: dlg.lineEdit_25.setEnabled(False)) #block o heat load quando max heat ta ativado
@@ -5674,6 +5710,7 @@ dlg.pushButton_20.clicked.connect(utilidade_teste_abaixo) #add hot utility
 dlg.addutil_abaixo.clicked.connect(utilidade_teste_abaixo)
 dlg.pushButton_19.clicked.connect(lambda: wid_abaixo.desenho.salvar())
 dlg.completa_abaixo.clicked.connect(lambda: evolucao(matriz_armazenada + utilidades, matriz_trocadores_abaixo + utilidades_abaixo, 1, jogar_evolucao=True, sub=True))
+dlg.zoom_abaixo.valueChanged.connect(lambda: zoom_barra(dlg.zoom_abaixo, wid_abaixo, zoom_atual_abaixo))
 
 
 
