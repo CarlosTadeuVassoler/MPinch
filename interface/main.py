@@ -2645,8 +2645,67 @@ class Desenho(QWidget):
 			painter.drawText(QRect(int(onde[0] + raio_trocador/2 - len(calor)*w_string), int(onde[1]-raio_trocador-1), int(len(calor)*2*w_string), int(h_string*3)), Qt.AlignHCenter, calor)
 			painter.drawText(QRect(int(onde[0]), int(onde[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, id)
 
+		def legenda(painer, ondeq, ondef):
+
+			painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
+			painter.setBrush(QColor("white"))
+			painter.drawRect(int(ondeq[0] - 12*espaco), int(ondeq[1] - 3*raio_trocador), int(24*espaco + raio_trocador), int(ondef[1] - ondeq[1] + 4*raio_trocador))
+			painter.drawLine(int(ondeq[0] + raio_trocador/2 - w_string*len("Legend")), int(ondeq[1] - 2*raio_trocador + h_string - 1), int(ondeq[0] + raio_trocador/2 + w_string*len("Legend")), int(ondeq[1] - 2*raio_trocador + h_string - 1))
+
+			painter.setPen(QPen(Qt.red, grossura_seta, Qt.SolidLine))
+			painter.drawLine(int(ondeq[0] - 10*espaco), int(ondeq[1]), int(ondeq[0] + 10*espaco + raio_trocador), int(ondeq[1]))
+			painter.drawLine(int(ondeq[0] + 10*espaco + raio_trocador), int(ondeq[1]), int(ondeq[0] + 10*espaco + raio_trocador - valor), int(ondeq[1] - h_seta))
+			painter.drawLine(int(ondeq[0] + 10*espaco + raio_trocador), int(ondeq[1]), int(ondeq[0] + 10*espaco + raio_trocador - valor), int(ondeq[1] + h_seta))
+
+			painter.setPen(QPen(Qt.blue, grossura_seta, Qt.SolidLine))
+			painter.drawLine(int(ondef[0] - 10*espaco), int(ondef[1]), int(ondef[0] + 10*espaco + raio_trocador), int(ondef[1]))
+			painter.drawLine(int(ondef[0] - 10*espaco), int(ondef[1]), int(ondef[0] - 10*espaco + valor), int(ondef[1] - h_seta))
+			painter.drawLine(int(ondef[0] - 10*espaco), int(ondef[1]), int(ondef[0] - 10*espaco + valor), int(ondef[1] + h_seta))
+
+			painter.setPen(QPen(Qt.black, grossura_seta, Qt.SolidLine))
+			painter.drawLine(int(ondeq[0] + raio_trocador/2), int(ondeq[1]), int(ondef[0] + raio_trocador/2), int(ondef[1]))
+			painter.drawEllipse(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
+			painter.drawEllipse(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador))
+
+			fonte = painter.font()
+			fonte.setPointSize(fonte_calor)
+			fonte.setBold(True)
+			fonte.setFamily("Arial")
+			painter.setFont(fonte)
+
+			painter.drawText(QRect(int(ondeq[0]), int(ondeq[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, "Id")
+			painter.drawText(QRect(int(ondef[0]), int(ondef[1] - raio_trocador/2), int(raio_trocador), int(raio_trocador)), Qt.AlignCenter, "Id")
+
+			texto = "Heat Load ({})".format(unidades_usadas[2])
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - w_string*(len(texto))), int(ondeq[1] - raio_trocador - 1), int(2*w_string*(len(texto))), int(h_string*3)), Qt.AlignHCenter, texto)
+
+			fonte = painter.font()
+			fonte.setPointSize(fonte_temp)
+			fonte.setBold(False)
+			fonte.setFamily("Arial")
+			painter.setFont(fonte)
+
+			texto = "Thin ({})".format(unidades_usadas[0])
+			painter.drawText(QRect(int(ondeq[0] - 1 - w_string*len(texto)), int(ondeq[1] + 1), int(w_string*len(texto)), int(h_string*3)), Qt.AlignRight, texto)
+			texto = "Thout ({})".format(unidades_usadas[0])
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador + 1), int(ondeq[1]+1), int(w_string*len(texto)), int(h_string*3)), Qt.AlignLeft, texto)
+			texto = "Tcout ({})".format(unidades_usadas[0])
+			painter.drawText(QRect(int(ondef[0] - 1 - w_string*len(texto)), int(ondef[1] + 1), int(w_string*len(texto)), int(h_string*3)), Qt.AlignRight, texto)
+			texto = "Tcin ({})".format(unidades_usadas[0])
+			painter.drawText(QRect(int(ondef[0] + raio_trocador + 1), int(ondef[1]+1), int(w_string*len(texto)), int(h_string*3)), Qt.AlignLeft, texto)
+
+			fonte = painter.font()
+			fonte.setPointSize(fonte_calor + 2)
+			fonte.setBold(True)
+			fonte.setFamily("Arial")
+			painter.setFont(fonte)
+
+			painter.drawText(QRect(int(ondeq[0] + raio_trocador/2 - w_string*len("Legend")), int(ondeq[1] - 2.5*raio_trocador), int(2*w_string*len("Legend")), int(3*h_string)), Qt.AlignHCenter, "Legend")
+
+
 		global localizacao_quente, localizacao_fria, valor, espaco, fonte_temp, fonte_calor, ramox, ramoy, meio, w_string, h_string, h_seta
 		painter = QPainter(self)
+		painter.setRenderHints(QPainter.Antialiasing)
 		painter.setPen(QPen(Qt.white, 0, Qt.SolidLine))
 		painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
 		painter.drawRect(0, 0, self.tamanho[0], self.tamanho[1])
@@ -2839,8 +2898,12 @@ class Desenho(QWidget):
 		#criar a linha do pinch e cabeçalhos
 		if self.subrede == "acima":
 			pinch(painter, [x_direita + 1, comecary, x_direita + 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_esquerda, comecary])
+			legenda(painter, [x_direita + maior_duty + 14*espaco, localizacao_fria[-1][0]], [x_direita + maior_duty + 14*espaco, localizacao_fria[-1][0] + 4*espaco])
 		elif self.subrede == "abaixo":
 			pinch(painter, [x_esquerda - 1, comecary, x_esquerda - 1, localizacao_fria[-1][-1] + ramoy], [str('{:.2f}'.format(round(pinchq, 2))), str('{:.2f}'.format(round(pinchf, 2)))], [x_direita, comecary])
+			legenda(painter, [x_direita + 30*espaco + maior_temp + maior_duty, localizacao_fria[-1][0]], [x_direita + 30*espaco + maior_temp + maior_duty, localizacao_fria[-1][0] + 4*espaco])
+		elif self.subrede == "ambas":
+			legenda(painter, [x_direita + 20*espaco + maior_temp + maior_duty, localizacao_fria[1][-1][0]], [x_direita + 20*espaco + maior_temp + maior_duty, localizacao_fria[1][-1][0] + 4*espaco])
 
 		#criar os trocadores
 		for t in trocadores:
@@ -5660,7 +5723,7 @@ for i in range(5):
 openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
 done_teste(True)
 pinch_teste(False)
-# suprir_9_correntes()
+suprir_9_correntes()
 
 
 
