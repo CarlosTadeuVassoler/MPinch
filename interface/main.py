@@ -2439,9 +2439,9 @@ class Desenho(QWidget):
 						localizacao[primeiro][-1].append(int(comeco[1]+ramoy*ramo))
 				if dividida[segundo]:
 					for ramo in range(1, quantidade[segundo]):
-						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]), int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+2*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo))
-						painter.drawLine(int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+2*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(fim[1]))
+						painter.drawLine(int(comeco[0]+3*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]), int(comeco[0]+3*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+3*ramoxx+tamanho_ramo[primeiro]*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+3*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo))
+						painter.drawLine(int(comeco[0]+3*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(comeco[1]+ramoy*ramo), int(comeco[0]+3*ramoxx+(tamanho_ramo[primeiro]+tamanho_ramo[segundo])*ramos), int(fim[1]))
 						localizacao[segundo][-1].append(int(comeco[1]+ramoy*ramo))
 
 			fonte = painter.font()
@@ -2918,6 +2918,7 @@ class Desenho(QWidget):
 				sestagio = t[4]*espaco_trocadores
 			else:
 				sestagio = (trocadores.index(t)+1)*espaco_trocadores
+
 			calor = str('{:.2f}'.format(round(t[6], 2)))
 
 			util = False
@@ -2995,9 +2996,9 @@ class Desenho(QWidget):
 				trocador(painter, "E" + str(trocadores.index(t)+1), [x_esquerda + espaco_trocadores + sestagio, localizacao_quente[chot][sbhot]], [x_esquerda + espaco_trocadores + sestagio, localizacao_fria[ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
 			elif self.subrede == "ambas":
 				if t[5] == 1:
-					trocador(painter, "E" + str(trocadores.index(t)+1), [meio - sestagio, localizacao_quente[0][chot][sbhot]], [meio - sestagio, localizacao_fria[0][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+					trocador(painter, "E" + str(trocadores.index(t)+1), [meio - sestagio - ramox, localizacao_quente[0][chot][sbhot]], [meio - sestagio - ramox, localizacao_fria[0][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
 				else:
-					trocador(painter, "E" + str(trocadores.index(t)+1), [meio + sestagio, localizacao_quente[1][chot][sbhot]], [meio + sestagio, localizacao_fria[1][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
+					trocador(painter, "E" + str(trocadores.index(t)+1), [meio + sestagio + ramox, localizacao_quente[1][chot][sbhot]], [meio + sestagio + ramox, localizacao_fria[1][ccold][sbcold]], calor, temperaturas, regras_temp, util, tipo)
 
 		#criar utilidades em caso de subredes
 		if self.subrede != "ambas":
@@ -3090,7 +3091,7 @@ class wid_zoom(QtWidgets.QMainWindow):
 	@pyqtSlot()
 	def zoom_in(self, fator=1.5, arruma=True):
 		global zoom_atual, zoom_atual_abaixo
-		
+
 		scale_tr = QtGui.QTransform()
 		scale_tr.scale(fator, fator)
 
@@ -3201,120 +3202,238 @@ def violou_dtmin(trocador_violado, onde, dados_do_trocador):
 def dividir_corrente(divisao, onde):
 	global divtype
 	divtype = divisao
-	dlg.DivisaoQuente = uic.loadUi("divisao.ui")
-	dlg.DivisaoFria = uic.loadUi("divisao.ui")
+	dlg.divisao = uic.loadUi("divisao.ui")
 	if divtype == "Q":
-		janela = dlg.DivisaoQuente
 		for i in range(nhot):
 			if not e_utilidade_quente[i]:
-				dlg.DivisaoQuente.comboBox_2.addItem(str(i+1))
+				dlg.divisao.comboBox_2.addItem(str(i+1))
 			else:
-				dlg.DivisaoQuente.comboBox_2.addItem(str(i+1) + " (utility)")
+				dlg.divisao.comboBox_2.addItem(str(i+1) + " (utility)")
 		for i in range(ncold):
-			dlg.DivisaoQuente.comboBox_3.addItem(str(i+1))
-		dlg.DivisaoQuente.show()
+			dlg.divisao.comboBox_3.addItem(str(i+1))
 	elif divtype == "F":
-		janela = dlg.DivisaoFria
-		dlg.DivisaoFria.label_5.setText("Split Cold Stream")
+		dlg.divisao.label_5.setText("Split Cold Stream")
 		for i in range(ncold):
 			if not e_utilidade_fria[i]:
-				dlg.DivisaoFria.comboBox_2.addItem(str(i+1))
+				dlg.divisao.comboBox_2.addItem(str(i+1))
 			else:
-				dlg.DivisaoFria.comboBox_2.addItem(str(i+1) + " (utility)")
+				dlg.divisao.comboBox_2.addItem(str(i+1) + " (utility)")
 		for i in range(nhot):
-			dlg.DivisaoFria.comboBox_3.addItem(str(i+1))
-		dlg.DivisaoFria.show()
+			dlg.divisao.comboBox_3.addItem(str(i+1))
 
-	def confirm():
-		global caixa_fracao, quantidade, corrente, estagio, caixa_corrente
-		if divtype == "Q":
-			quantidade = int(dlg.DivisaoQuente.comboBox_3.currentText())
-			estagio = 1
-			corrente = dlg.DivisaoQuente.comboBox_2.currentIndex() + 1
-		if divtype == "F":
-			quantidade = int(dlg.DivisaoFria.comboBox_3.currentText())
-			estagio = 1
-			corrente = dlg.DivisaoFria.comboBox_2.currentIndex() + 1
+	dlg.divisao.show()
 
+
+	def confirm(onde, muda=True):
+		global caixa_fracao, quantidade, corrente, estagio, caixa_corrente, label_minimo, spacer, linha
+		global minimos
+
+		def calcular_minimo(corrente, quantidade, matriz, i1, i2):
+			calor = []
+			achou = False
+			for i in range(quantidade):
+				calor.append(0)
+			for trocador in matriz:
+				if corrente == trocador[i1]:
+					calor[trocador[i2]-1] += trocador[6]
+					achou = True
+
+			return calor, achou
+
+		achou = False
+		minimos = []
+
+		quantidade = int(dlg.divisao.comboBox_3.currentText())
+		estagio = 1
+		corrente = dlg.divisao.comboBox_2.currentIndex() + 1
 		if divtype == "Q":
-			dlg.DivisaoQuente.pushButton_3.setEnabled(True)
-			lay = dlg.DivisaoQuente.verticalLayout_3
+			if onde == "above":
+				quantidade2 = max(quantidade, quantidade_quente[corrente-1])
+				if not muda:
+					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
+				calor, achou = calcular_minimo(corrente, quantidade2, matriz_armazenada, 0, 2)
+				if achou:
+					fracoes = calcular_fracoes(corrente, calor, "quente")
+					minimos = fracoes[:]
+				valores_atuais = fracoes_quentes[corrente-1][:]
+			elif onde == "below":
+				quantidade2 = max(quantidade, quantidade_quente_abaixo[corrente-1])
+				if not muda:
+					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
+				calor, achou = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 0, 2)
+				if achou:
+					fracoes = calcular_fracoes_abaixo(corrente, calor, "quente")
+					minimos = fracoes[:]
+				valores_atuais = fracoes_quentes_abaixo[corrente-1][:]
 		if divtype == "F":
-			dlg.DivisaoFria.pushButton_3.setEnabled(True)
-			lay = dlg.DivisaoFria.verticalLayout_3
+			if onde == "above":
+				quantidade2 = max(quantidade, quantidade_fria[corrente-1])
+				if not muda:
+					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
+				calor, achou = calcular_minimo(corrente, quantidade2, matriz_armazenada, 1, 3)
+				if achou:
+					fracoes = calcular_fracoes(corrente, calor, "fria")
+					minimos = fracoes[:]
+				valores_atuais = fracoes_frias[corrente-1][:]
+			elif onde == "below":
+				quantidade2 = max(quantidade, quantidade_fria_abaixo[corrente-1])
+				if not muda:
+					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
+				calor, achou = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 1, 3)
+				if achou:
+					fracoes = calcular_fracoes_abaixo(corrente, calor, "fria")
+					minimos = fracoes[:]
+				valores_atuais = fracoes_frias_abaixo[corrente-1][:]
+
+		if len(valores_atuais) > 0 and not muda:
+			valores = valores_atuais
+			if len(valores_atuais) < quantidade:
+				for i in range(len(valores_atuais), quantidade):
+					valores.append(0)
+		else:
+			valores = []
+			for f in range(quantidade):
+				valores.append(round(1/quantidade, 2))
+			x = float(valores[-1])
+			if x * quantidade > 1:
+				sobrou = x*quantidade - 1
+				valores[-1] = round(x - sobrou, 2)
+			if x * quantidade < 1:
+				faltou = 1 - x*quantidade
+				valores[-1] = round(x + faltou, 2)
+
+		if not achou:
+			fracoes = []
+			for f in range(quantidade):
+				fracoes.append("")
+		else:
+			quantos = 0
+			for q in calor:
+				if q != 0:
+					quantos += 1
+			if quantos > quantidade:
+				quantidade = quantidade2
+				dlg.divisao.comboBox_3.setCurrentIndex(quantidade-1)
+				mensagem_erro("Not able to remove a branch wich has a Heat Exchanger. \nRemove it before spliting the stream.")
+				return
+
+			elif quantidade < quantidade2:
+				for f in range(len(fracoes)-1, -1, -1):
+					if fracoes[f] == 0:
+						fracoes.pop(f)
+					else:
+						fracoes[f] = "(minimum: " + str(fracoes[f]) + ")"
+
+			if quantidade >= quantidade2:
+				soma = 0
+				zeros = []
+				for f in range(len(fracoes)):
+					soma += fracoes[f]
+					if fracoes[f] == 0:
+						zeros.append(f)
+					else:
+						fracoes[f] = "(minimum: " + str(fracoes[f]) + ")"
+				for z in zeros:
+					fracoes[z] = ""
+
+		dlg.divisao.pushButton_3.setEnabled(True)
+		lay = dlg.divisao.verticalLayout_3
 
 
 		try:
 			for widget in range(len(caixa_fracao)-1, -1, -1):
 				lay.removeWidget(caixa_corrente[widget])
 				lay.removeWidget(caixa_fracao[widget])
+				lay.removeWidget(label_minimo[widget])
+				lay.removeItem(spacer[widget])
+				lay.removeWidget(linha[widget])
 				caixa_corrente[widget].setParent(None)
 				caixa_fracao[widget].setParent(None)
+				label_minimo[widget].setParent(None)
+				linha[widget].setParent(None)
 		except:
 			pass
 
 
 		caixa_fracao = [0] * quantidade
 		caixa_corrente = [0] * quantidade
+		label_minimo = [0] * quantidade
+		spacer = [0] * quantidade
+		linha = [0] * quantidade
 
 		for i in range(quantidade):
 			caixa_fracao[i] = QtWidgets.QDoubleSpinBox(dlg)
 			caixa_corrente[i] = QtWidgets.QLabel(dlg)
-			if divtype == "Q":
-				dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_corrente[i])
-				dlg.DivisaoQuente.verticalLayout_3.addWidget(caixa_fracao[i])
-			if divtype == "F":
-				dlg.DivisaoFria.verticalLayout_3.addWidget(caixa_corrente[i])
-				dlg.DivisaoFria.verticalLayout_3.addWidget(caixa_fracao[i])
+			label_minimo[i] = QtWidgets.QLabel(dlg)
+			spacer[i] = QtWidgets.QSpacerItem(1, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
+			linha[i] = QtWidgets.QFrame()
+			linha[i].setGeometry(QRect(60, 110, 751, 20))
+			linha[i].setFrameShape(QtWidgets.QFrame.HLine)
+			linha[i].setFrameShadow(QtWidgets.QFrame.Sunken)
+			dlg.divisao.verticalLayout_3.addWidget(caixa_corrente[i])
+			dlg.divisao.verticalLayout_3.addWidget(caixa_fracao[i])
+			dlg.divisao.verticalLayout_3.addWidget(label_minimo[i])
+			dlg.divisao.verticalLayout_3.addSpacerItem(spacer[i])
+			dlg.divisao.verticalLayout_3.addWidget(linha[i])
 			caixa_fracao[i].setSingleStep(float(0.1))
 			caixa_fracao[i].setMaximum(1)
 			caixa_fracao[i].setMinimum(0)
-			caixa_fracao[i].setValue(round(1/quantidade, 2))
+			caixa_fracao[i].setValue(round(valores[i], 4))
 			caixa_corrente[i].setText("Substream {}".format(i+1))
 			caixa_corrente[i].setAlignment(Qt.AlignCenter)
 			caixa_fracao[i].setAlignment(Qt.AlignCenter)
-		x = caixa_fracao[-1].value()
-		if x * quantidade > 1:
-			sobrou = x*quantidade - 1
-			caixa_fracao[-1].setValue(x - sobrou)
-		if x * quantidade < 1:
-			faltou = 1 - x*quantidade
-			caixa_fracao[-1].setValue(x + faltou)
+			label_minimo[i].setText(fracoes[i])
+			label_minimo[i].setAlignment(Qt.AlignCenter)
 
 	def split(onde):
-
-		if verificar_trocador_estagio(estagio, corrente, divtype) and onde == "above":
-			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
+		if onde == "above":
 			if divtype == "Q":
-				dlg.DivisaoQuente.close()
+				if not corrente_quente_presente_acima[corrente-1]:
+					mensagem_erro("Stream not present in the subnetwork.")
+					return
 			if divtype == "F":
-				dlg.DivisaoFria.close()
-			return
-
-		if verificar_trocador_estagio_abaixo(estagio, corrente, divtype) and onde == "below":
-			QMessageBox.about(dlg, "Error!", "There is already a heat exchanger in this position, remove it before making the division.")
+				if not corrente_fria_presente_acima[corrente-1]:
+					mensagem_erro("Stream not present in the subnetwork.")
+					return
+		elif onde == "below":
 			if divtype == "Q":
-				dlg.DivisaoQuente.close()
+				if not corrente_quente_presente_abaixo[corrente-1]:
+					mensagem_erro("Stream not present in the subnetwork.")
+					return
 			if divtype == "F":
-				dlg.DivisaoFria.close()
-			return
+				if not corrente_fria_presente_abaixo[corrente-1]:
+					mensagem_erro("Stream not present in the subnetwork.")
+					return
 
 		soma = 0
 		fracao = [0] * quantidade
 		for i in range(quantidade):
 			soma += round(float(caixa_fracao[i].value()), 2)
 			fracao[i] = round(float(caixa_fracao[i].value()), 2)
+
+		if len(minimos) > 0:
+			for i in range(quantidade):
+				if fracao[i] < minimos[i]:
+					mensagem_erro("The specified fraction is lower than the minimum. \nOne of the branches will not have enough duty to the already existing Heat Exchangers.")
+					return
+
 		if soma != 1:
 			QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
-			if divtype == "Q":
-				dlg.DivisaoQuente.show()
-			if divtype == "F":
-				dlg.DivisaoFria.show()
+			dlg.divisao.show()
 			return
 
 		if onde == "above":
+			if divtype == "Q":
+				a = preparar_corrente_acima(corrente, indice=0)
+			elif divtype == "F":
+				a = preparar_corrente_acima(corrente, indice=1)
+			trocadores = []
+			for i in range(len(a)-1, -1, -1):
+				trocadores.append(a[i])
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 1, corrente, quantidade, fracao])
+			matriz_armazenada = inserir_todos_acima(trocadores, coloca=False, atualiza=True)
+
 
 			for divisao in divisoes:
 				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
@@ -3331,8 +3450,16 @@ def dividir_corrente(divisao, onde):
 			wid_acima.desenho.update()
 
 		elif onde == "below":
+			if divtype == "Q":
+				a = preparar_corrente_abaixo(corrente, indice=0)
+			elif divtype == "F":
+				a = preparar_corrente_abaixo(corrente, indice=1)
+			trocadores = []
+			for i in range(len(a)-1, -1, -1):
+				trocadores.append(a[i])
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 2, corrente, quantidade, fracao])
+			matriz_trocadores_abaixo = inserir_todos_abaixo(trocadores, coloca=False, atualiza=True)
 
 			for divisao in divisoes:
 				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
@@ -3348,19 +3475,16 @@ def dividir_corrente(divisao, onde):
 					testar_correntes_abaixo(dlg)
 			wid_abaixo.desenho.update()
 
-		if divtype == "Q":
-			dlg.DivisaoQuente.close()
-		if divtype == "F":
-			dlg.DivisaoFria.close()
-
+		dlg.divisao.close()
+		
 		printar()
 		printar_abaixo()
 
-	confirm()
-	janela.comboBox_2.currentIndexChanged.connect(confirm)
-	janela.comboBox_3.currentIndexChanged.connect(confirm)
-	janela.pushButton_3.clicked.connect(lambda: split(onde))
-	janela.pushButton_2.clicked.connect(lambda: dlg.DivisaoQuente.close())
+	confirm(onde)
+	dlg.divisao.comboBox_2.currentIndexChanged.connect(lambda: confirm(onde, muda=False))
+	dlg.divisao.comboBox_3.currentIndexChanged.connect(lambda: confirm(onde))
+	dlg.divisao.pushButton_3.clicked.connect(lambda: split(onde))
+	dlg.divisao.pushButton_2.clicked.connect(lambda: dlg.divisao.close())
 
 def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 
@@ -3374,7 +3498,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 							remover_utilidade(utilidades[i][0], i, utilidades)
 							dlg.trocador_acima.removeItem(dlg.trocador_acima.count()-1)
 						except:
-							print("deu nao")
+							pass
 				dlg.comboBox_10.setEnabled(False)
 				dlg.pushButton_8.setEnabled(False)
 				for i in range(len(matriz_armazenada)-1, indice_remover-1, -1):
@@ -3382,11 +3506,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				remover_todos_acima(indice_remover, temps=True)
 				subestagio_trocador = indice_remover + 1
 			else:
-				tabela = dlg.tableWidget_2.currentRow()
-				if tabela != -1:
-					indice_remover = dlg.tableWidget_2.currentRow() - len(matriz_armazenada)
-				else:
-					indice_remover = dlg.trocador_acima.currentIndex() - len(matriz_armazenada)
+				indice_remover = dlg.trocador_acima.currentIndex() - len(matriz_armazenada)
 				utilidade_remover = utilidades[indice_remover]
 				corrente_remover_utilidade = utilidade_remover[0]
 				remover_utilidade(corrente_remover_utilidade, indice_remover, utilidades)
@@ -3399,7 +3519,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 							remover_utilidade(utilidades[i][0], i, utilidades)
 							dlg.trocador_acima.removeItem(dlg.trocador_acima.count()-1)
 						except:
-							print("deu nao")
+							pass
 				trocador_remover = matriz_armazenada[indice_remover]
 				matriz = nao_sacrificar_matriz(matriz_armazenada)
 				matriz.pop(indice_remover)
@@ -3413,11 +3533,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				dlg.trocador_acima.removeItem(dlg.trocador_acima.count()-1)
 				subestagio_trocador = len(matriz_armazenada) + 1
 			else:
-				tabela = dlg.tableWidget_2.currentRow()
-				if tabela != -1:
-					indice_remover = dlg.tableWidget_2.currentRow() - len(matriz_armazenada)
-				else:
-					indice_remover = dlg.trocador_acima.currentIndex() - len(matriz_armazenada)
+				indice_remover = dlg.trocador_acima.currentIndex() - len(matriz_armazenada)
 				utilidade_remover = utilidades[indice_remover]
 				corrente_remover_utilidade = utilidade_remover[0]
 				remover_utilidade(corrente_remover_utilidade, indice_remover, utilidades)
@@ -3433,7 +3549,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 							remover_utilidade_abaixo(utilidades_abaixo[i][0], i, utilidades_abaixo)
 							dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
 						except:
-							print("deu nao")
+							pass
 				dlg.comboBox_43.setEnabled(False)
 				dlg.pushButton_20.setEnabled(False)
 				for i in range(len(matriz_trocadores_abaixo)-1, indice_remover-1, -1):
@@ -3441,11 +3557,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				remover_todos_abaixo(indice_remover, temps=True)
 				subestagio_trocador_abaixo = indice_remover + 1
 			else:
-				tabela = dlg.tableWidget_14.currentRow()
-				if tabela != -1:
-					indice_remover = dlg.tableWidget_14.currentRow() - len(matriz_trocadores_abaixo)
-				else:
-					indice_remover = dlg.trocador_abaixo.currentIndex() - len(matriz_trocadores_abaixo)
+				indice_remover = dlg.trocador_abaixo.currentIndex() - len(matriz_trocadores_abaixo)
 				utilidade_remover = utilidades_abaixo[indice_remover]
 				corrente_remover_utilidade = utilidade_remover[0]
 				remover_utilidade_abaixo(corrente_remover_utilidade, indice_remover, utilidades_abaixo)
@@ -3458,7 +3570,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 							remover_utilidade_abaixo(utilidades_abaixo[i][0], i, utilidades_abaixo)
 							dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
 						except:
-							print("deu nao")
+							pass
 				trocador_remover = matriz_trocadores_abaixo[indice_remover]
 				matriz = nao_sacrificar_matriz(matriz_trocadores_abaixo)
 				matriz.pop(indice_remover)
@@ -3472,11 +3584,7 @@ def remover_anteriores(onde, indice_remover, nem_pergunta=False):
 				dlg.trocador_abaixo.removeItem(dlg.trocador_abaixo.count()-1)
 				subestagio_trocador_abaixo = len(matriz_trocadores_abaixo) + 1
 			else:
-				tabela = dlg.tableWidget_14.currentRow()
-				if tabela != -1:
-					indice_remover = dlg.tableWidget_14.currentRow() - len(matriz_trocadores_abaixo)
-				else:
-					indice_remover = dlg.trocador_abaixo.currentIndex() - len(matriz_trocadores_abaixo)
+				indice_remover = dlg.trocador_abaixo.currentIndex() - len(matriz_trocadores_abaixo)
 				utilidade_remover = utilidades_abaixo[indice_remover]
 				corrente_remover_utilidade = utilidade_remover[0]
 				remover_utilidade_abaixo(corrente_remover_utilidade, indice_remover, utilidades_abaixo)
@@ -5599,8 +5707,25 @@ def suprir_9_correntes():
 		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
 		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
 	elif arquivo == "4 correntes - 10 dtmin.xls":
-		acima = [[1, 1, 1, 1, 1, 1, 270], [2, 2, 1, 1, 2, 1, 105]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 40]]
+		acima = [[1, 1, 1, 1, 1, 1, 135], [1, 1, 2, 2, 2, 1, 135], [2, 2, 1, 1, 3, 1, 52.5], [2, 2, 2, 2, 4, 1, 52.5]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 20], [1, 2, 2, 2, 2, 1, 20]]
+
+		divisao_de_correntes("Q", 1, 1, 2, [0.5, 0.5])
+		divisoes.append(["Q", 1, 1, 2, [0.5, 0.5]])
+		divisao_de_correntes("Q", 1, 2, 2, [0.5, 0.5])
+		divisoes.append(["Q", 1, 2, 2, [0.5, 0.5]])
+		divisao_de_correntes("F", 1, 1, 2, [0.5, 0.5])
+		divisoes.append(["F", 1, 1, 2, [0.5, 0.5]])
+		divisao_de_correntes("F", 1, 2, 2, [0.5, 0.5])
+		divisoes.append(["F", 1, 2, 2, [0.5, 0.5]])
+
+		divisao_de_correntes_abaixo("Q", 1, 1, 2, [0.5, 0.5])
+		divisoes.append(["Q", 2, 1, 2, [0.5, 0.5]])
+		divisao_de_correntes_abaixo("Q", 1, 2, 2, [0.5, 0.5])
+		divisoes.append(["Q", 2, 2, 2, [0.5, 0.5]])
+		divisao_de_correntes_abaixo("F", 1, 2, 2, [0.5, 0.5])
+		divisoes.append(["F", 2, 2, 2, [0.5, 0.5]])
+
 
 	for trocador in acima:
 		if trocador[6] == "max":

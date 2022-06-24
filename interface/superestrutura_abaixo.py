@@ -667,9 +667,10 @@ def remover_todos_abaixo(ate=0, temps=False):
 			calcular_superestrutura_abaixo("nada", trocador[0], trocador[1], trocador[2], trocador[3], trocador[4], trocador[5])
 		atualizar_matriz_abaixo(linha_interface_abaixo)
 
-def preparar_corrente_abaixo(corrente):
+def preparar_corrente_abaixo(corrente, indice=1):
+	trocadores = []
 	for i in range(len(linha_interface_abaixo)-1, -1, -1):
-		if linha_interface_abaixo[i][1] == corrente:
+		if linha_interface_abaixo[i][indice] == corrente:
 			chot = linha_interface_abaixo[i][0]
 			ccold = linha_interface_abaixo[i][1]
 			sbhot = linha_interface_abaixo[i][2]
@@ -677,6 +678,7 @@ def preparar_corrente_abaixo(corrente):
 			sestagio = linha_interface_abaixo[i][4]
 			estagio = linha_interface_abaixo[i][5]
 			calor = linha_interface_abaixo[i][6]
+			trocadores.append([chot, ccold, sbhot, sbcold, sestagio, estagio, calor])
 
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			Qtotalh0[chot-1][sbhot-1][estagio-1] += calor
@@ -685,3 +687,14 @@ def preparar_corrente_abaixo(corrente):
 			calor_atual_frio_abaixo[ccold-1] += calor
 			calor_atual_quente_sub_abaixo[chot-1][sbhot-1] += calor
 			calor_atual_frio_sub_abaixo[ccold-1][sbcold-1] += calor
+	return trocadores
+
+def calcular_fracoes_abaixo(corrente, calores, tipo):
+	fracoes = []
+	for i in range(len(calores)):
+		if tipo == "quente":
+			fracoes.append(calores[i]/Qtotalh01[corrente-1])
+		elif tipo == "fria":
+			fracoes.append(calores[i]/Qtotalc01[corrente-1])
+
+	return fracoes

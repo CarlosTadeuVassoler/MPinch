@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>338</width>
-    <height>380</height>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,7 +123,7 @@
        <property name="maximumSize">
         <size>
          <width>318</width>
-         <height>200</height>
+         <height>16777215</height>
         </size>
        </property>
        <property name="widgetResizable">
@@ -135,7 +135,7 @@
           <x>0</x>
           <y>0</y>
           <width>316</width>
-          <height>196</height>
+          <height>374</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">

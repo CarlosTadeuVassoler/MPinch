@@ -667,9 +667,10 @@ def remover_todos_acima(ate=0, temps=False):
 			calcular_superestrutura("nada", trocador[0], trocador[1], trocador[2], trocador[3], trocador[4], trocador[5])
 		atualizar_matriz(linha_interface)
 
-def preparar_corrente_acima(corrente):
+def preparar_corrente_acima(corrente, indice=0):
+	trocadores = []
 	for i in range(len(linha_interface)-1, -1, -1):
-		if linha_interface[i][0] == corrente:
+		if linha_interface[i][indice] == corrente:
 			chot = linha_interface[i][0]
 			ccold = linha_interface[i][1]
 			sbhot = linha_interface[i][2]
@@ -677,6 +678,7 @@ def preparar_corrente_acima(corrente):
 			sestagio = linha_interface[i][4]
 			estagio = linha_interface[i][5]
 			calor = linha_interface[i][6]
+			trocadores.append([chot, ccold, sbhot, sbcold, sestagio, estagio, calor])
 
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			Qtotalh0[chot-1][sbhot-1][estagio-1] += calor
@@ -685,3 +687,14 @@ def preparar_corrente_acima(corrente):
 			calor_atual_frio[ccold-1] += calor
 			calor_atual_quente_sub[chot-1][sbhot-1] += calor
 			calor_atual_frio_sub[ccold-1][sbcold-1] += calor
+	return trocadores
+
+def calcular_fracoes(corrente, calores, tipo):
+	fracoes = []
+	for i in range(len(calores)):
+		if tipo == "quente":
+			fracoes.append(calores[i]/Qtotalh01[corrente-1])
+		elif tipo == "fria":
+			fracoes.append(calores[i]/Qtotalc01[corrente-1])
+
+	return fracoes
