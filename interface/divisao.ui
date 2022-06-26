@@ -92,6 +92,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="confirm">
+     <property name="text">
+      <string>Confirm</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QLabel" name="label_7">
@@ -105,6 +112,59 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Reference Sans Serif</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The standard fractions are determinated as follows:&lt;/p&gt;&lt;p&gt;-If the stream is already splited and the number of branches wasn't changed, it shows the current fractions of each branch.&lt;/p&gt;&lt;p&gt;-If the stream is not splited yet or the number of branches of some stream was changed, the standard fractions are (number of branches)&lt;span style=&quot; vertical-align:super;&quot;&gt;-1&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If there are minimum fractions, they mean the lower value that allows the branch to keep its Heat Exchangers.&lt;/p&gt;&lt;p&gt;Any of the substreams fractions can be changed, since the sum of them equals 1, and all of the minimum fractions are satisfied. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton{
+	background: 		#1E90FF;
+	border: 2px solid 	#000000;
+	border-radius: 10px;
+	color: 	#FFFFFF;
+	text-align: center;
+}
+
+QToolButton:focus{
+	border: 2px solid #FBAD25;
+}</string>
+       </property>
+       <property name="text">
+        <string>?</string>
        </property>
       </widget>
      </item>
@@ -135,7 +195,7 @@
           <x>0</x>
           <y>0</y>
           <width>316</width>
-          <height>374</height>
+          <height>344</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">

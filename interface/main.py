@@ -3226,19 +3226,22 @@ def dividir_corrente(divisao, onde):
 
 	def confirm(onde, muda=True):
 		global caixa_fracao, quantidade, corrente, estagio, caixa_corrente, label_minimo, spacer, linha
-		global minimos
+		global minimos, ramosxtrocador
 
 		def calcular_minimo(corrente, quantidade, matriz, i1, i2):
 			calor = []
 			achou = False
+			ramosxtrocador = []
 			for i in range(quantidade):
 				calor.append(0)
+				ramosxtrocador.append([])
 			for trocador in matriz:
 				if corrente == trocador[i1]:
 					calor[trocador[i2]-1] += trocador[6]
 					achou = True
+					ramosxtrocador[trocador[i2]-1].append(matriz.index(trocador))
 
-			return calor, achou
+			return calor, achou, ramosxtrocador
 
 		achou = False
 		minimos = []
@@ -3251,7 +3254,7 @@ def dividir_corrente(divisao, onde):
 				quantidade2 = max(quantidade, quantidade_quente[corrente-1])
 				if not muda:
 					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
-				calor, achou = calcular_minimo(corrente, quantidade2, matriz_armazenada, 0, 2)
+				calor, achou, ramosxtrocador = calcular_minimo(corrente, quantidade2, matriz_armazenada, 0, 2)
 				if achou:
 					fracoes = calcular_fracoes(corrente, calor, "quente")
 					minimos = fracoes[:]
@@ -3260,7 +3263,7 @@ def dividir_corrente(divisao, onde):
 				quantidade2 = max(quantidade, quantidade_quente_abaixo[corrente-1])
 				if not muda:
 					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
-				calor, achou = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 0, 2)
+				calor, achou, ramosxtrocador = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 0, 2)
 				if achou:
 					fracoes = calcular_fracoes_abaixo(corrente, calor, "quente")
 					minimos = fracoes[:]
@@ -3270,7 +3273,7 @@ def dividir_corrente(divisao, onde):
 				quantidade2 = max(quantidade, quantidade_fria[corrente-1])
 				if not muda:
 					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
-				calor, achou = calcular_minimo(corrente, quantidade2, matriz_armazenada, 1, 3)
+				calor, achou, ramosxtrocador = calcular_minimo(corrente, quantidade2, matriz_armazenada, 1, 3)
 				if achou:
 					fracoes = calcular_fracoes(corrente, calor, "fria")
 					minimos = fracoes[:]
@@ -3279,7 +3282,7 @@ def dividir_corrente(divisao, onde):
 				quantidade2 = max(quantidade, quantidade_fria_abaixo[corrente-1])
 				if not muda:
 					dlg.divisao.comboBox_3.setCurrentIndex(quantidade2-1)
-				calor, achou = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 1, 3)
+				calor, achou, ramosxtrocador = calcular_minimo(corrente, quantidade2, matriz_trocadores_abaixo, 1, 3)
 				if achou:
 					fracoes = calcular_fracoes_abaixo(corrente, calor, "fria")
 					minimos = fracoes[:]
@@ -3293,14 +3296,14 @@ def dividir_corrente(divisao, onde):
 		else:
 			valores = []
 			for f in range(quantidade):
-				valores.append(round(1/quantidade, 2))
+				valores.append(round(1/quantidade, 4))
 			x = float(valores[-1])
 			if x * quantidade > 1:
 				sobrou = x*quantidade - 1
-				valores[-1] = round(x - sobrou, 2)
+				valores[-1] = round(x - sobrou, 4)
 			if x * quantidade < 1:
 				faltou = 1 - x*quantidade
-				valores[-1] = round(x + faltou, 2)
+				valores[-1] = round(x + faltou, 4)
 
 		if not achou:
 			fracoes = []
@@ -3321,6 +3324,7 @@ def dividir_corrente(divisao, onde):
 				for f in range(len(fracoes)-1, -1, -1):
 					if fracoes[f] == 0:
 						fracoes.pop(f)
+						ramosxtrocador.pop(f)
 					else:
 						fracoes[f] = "(minimum: " + str(fracoes[f]) + ")"
 
@@ -3375,6 +3379,7 @@ def dividir_corrente(divisao, onde):
 			dlg.divisao.verticalLayout_3.addWidget(label_minimo[i])
 			dlg.divisao.verticalLayout_3.addSpacerItem(spacer[i])
 			dlg.divisao.verticalLayout_3.addWidget(linha[i])
+			caixa_fracao[i].setDecimals(4)
 			caixa_fracao[i].setSingleStep(float(0.1))
 			caixa_fracao[i].setMaximum(1)
 			caixa_fracao[i].setMinimum(0)
@@ -3408,12 +3413,12 @@ def dividir_corrente(divisao, onde):
 		soma = 0
 		fracao = [0] * quantidade
 		for i in range(quantidade):
-			soma += round(float(caixa_fracao[i].value()), 2)
-			fracao[i] = round(float(caixa_fracao[i].value()), 2)
+			soma += round(float(caixa_fracao[i].value()), 4)
+			fracao[i] = round(float(caixa_fracao[i].value()), 4)
 
 		if len(minimos) > 0:
 			for i in range(quantidade):
-				if fracao[i] < minimos[i]:
+				if round(fracao[i], 4) < round(minimos[i], 4):
 					mensagem_erro("The specified fraction is lower than the minimum. \nOne of the branches will not have enough duty to the already existing Heat Exchangers.")
 					return
 
@@ -3425,15 +3430,22 @@ def dividir_corrente(divisao, onde):
 		if onde == "above":
 			if divtype == "Q":
 				a = preparar_corrente_acima(corrente, indice=0)
+				indice = 2
 			elif divtype == "F":
 				a = preparar_corrente_acima(corrente, indice=1)
+				indice = 3
 			trocadores = []
 			for i in range(len(a)-1, -1, -1):
 				trocadores.append(a[i])
+
+			for r in ramosxtrocador:
+				for t in trocadores:
+					if t[7] in r:
+						t[indice] = ramosxtrocador.index(r) + 1
+
 			divisao_de_correntes(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 1, corrente, quantidade, fracao])
-			matriz_armazenada = inserir_todos_acima(trocadores, coloca=False, atualiza=True)
-
+			matriz_armazenada = inserir_todos_acima(trocadores, coloca=False, atualiza=True, novo=False)
 
 			for divisao in divisoes:
 				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
@@ -3452,14 +3464,22 @@ def dividir_corrente(divisao, onde):
 		elif onde == "below":
 			if divtype == "Q":
 				a = preparar_corrente_abaixo(corrente, indice=0)
+				indice = 2
 			elif divtype == "F":
 				a = preparar_corrente_abaixo(corrente, indice=1)
+				indice = 3
 			trocadores = []
 			for i in range(len(a)-1, -1, -1):
 				trocadores.append(a[i])
+
+			for r in ramosxtrocador:
+				for t in trocadores:
+					if t[7] in r:
+						t[indice] = ramosxtrocador.index(r) + 1
+
 			divisao_de_correntes_abaixo(divtype, estagio, corrente, quantidade, fracao)
 			divisoes.append([divtype, 2, corrente, quantidade, fracao])
-			matriz_trocadores_abaixo = inserir_todos_abaixo(trocadores, coloca=False, atualiza=True)
+			matriz_trocadores_abaixo = inserir_todos_abaixo(trocadores, coloca=False, atualiza=True, novo=False)
 
 			for divisao in divisoes:
 				if divisao[:3] == divisoes[-1][:3] and divisoes.index(divisao) != len(divisoes) - 1:
@@ -3476,11 +3496,11 @@ def dividir_corrente(divisao, onde):
 			wid_abaixo.desenho.update()
 
 		dlg.divisao.close()
-		
+
 		printar()
 		printar_abaixo()
 
-	confirm(onde)
+	dlg.divisao.confirm.clicked.connect(lambda: confirm(onde))
 	dlg.divisao.comboBox_2.currentIndexChanged.connect(lambda: confirm(onde, muda=False))
 	dlg.divisao.comboBox_3.currentIndexChanged.connect(lambda: confirm(onde))
 	dlg.divisao.pushButton_3.clicked.connect(lambda: split(onde))

@@ -566,7 +566,7 @@ def testar_correntes_abaixo(dlg, primeira=False):
 		dlg.label_27.setText("Not Respected")
 		dlg.label_27.setStyleSheet("QLabel {color: red}")
 
-def inserir_todos_abaixo(matriz, coloca=True, atualiza=False):
+def inserir_todos_abaixo(matriz, coloca=True, atualiza=False, novo=True):
 	if len(matriz) == 0:
 		for i in range(nhot):
 			for si in range(ncold):
@@ -606,7 +606,7 @@ def inserir_todos_abaixo(matriz, coloca=True, atualiza=False):
 									Fcarr[estagio-1][ccold-1][sbcold-1]/100])
 
 		if atualiza:
-			if matriz.index(trocador) != len(matriz)-1:
+			if matriz.index(trocador) != len(matriz)-1 or not novo:
 				linha_interface_abaixo[sestagio-1] = [chot,
 											   ccold,
 											   sbhot,
@@ -620,7 +620,7 @@ def inserir_todos_abaixo(matriz, coloca=True, atualiza=False):
 											   Tcski[ccold-1][sbcold-1][sestagio-1][estagio-1],
 											   Fharr[estagio-1][chot-1][sbhot-1]/100,
 											   Fcarr[estagio-1][ccold-1][sbcold-1]/100]
-			else:
+			elif novo:
 				linha_interface_abaixo.append([chot,
 										ccold,
 										sbhot,
@@ -678,7 +678,7 @@ def preparar_corrente_abaixo(corrente, indice=1):
 			sestagio = linha_interface_abaixo[i][4]
 			estagio = linha_interface_abaixo[i][5]
 			calor = linha_interface_abaixo[i][6]
-			trocadores.append([chot, ccold, sbhot, sbcold, sestagio, estagio, calor])
+			trocadores.append([chot, ccold, sbhot, sbcold, sestagio, estagio, calor, i])
 
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			Qtotalh0[chot-1][sbhot-1][estagio-1] += calor
