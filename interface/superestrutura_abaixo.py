@@ -39,7 +39,16 @@ fracoes_quentes_abaixo = []
 fracoes_frias_abaixo = []
 fechar_corrente_abaixo = []
 
-
+def mensagem_err(texto, titulo="Error"):
+	msg = QMessageBox()
+	msg.setIcon(QMessageBox.Warning)
+	msg.setStyleSheet("font-weight: bold")
+	msg.setStyleSheet("text-align: center")
+	msg.setText(texto)
+	msg.setWindowTitle(titulo)
+	msg.setStandardButtons(QMessageBox.Ok)
+	msg.exec_()
+	return
 
 def declarar_np(*args):
 	x = np.array([0.0])
@@ -336,7 +345,7 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False, ulti
 	estagio = vetor[5]
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] != 0:
-		QMessageBox.about(dlg,"Error!","There is already a heat exchanger in this position!")
+		mensagem_err("There is already a heat exchanger in this position!")
 		return linha_interface_abaixo, False
 
 	Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = vetor[6]
@@ -348,11 +357,11 @@ def inserir_trocador_abaixo(dlg, vetor, verificar_termo=True, ignora=False, ulti
 
 	if Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] > Qmax:
 		if not ignora:
-			QMessageBox.about(dlg,"Error!","The input heat is greater than the available heat.")
+			mensagem_err("The input heat is greater than the available heat.")
 			Q[chot-1][sbhot-1][ccold-1][sbcold-1][sestagio-1][estagio-1] = 0
 			return linha_interface_abaixo, False
 		elif ultimo:
-			QMessageBox.about(dlg,"Carreful!","The input heat is greater than the available heat. \nYou will use more than the utility duty.")
+			mensagem_err("The input heat is greater than the available heat. \nYou will use more than the utility duty.", titulo="Be Carreful")
 
 	matrizes("inserir", chot, ccold, sbhot, sbcold, sestagio, estagio)
 
@@ -461,7 +470,7 @@ def matrizes(acao, chot, ccold, sbhot, sbcold, sestagio, estagio):
 
 def adicionar_utilidade_abaixo(dlg, corrente):
 	if calor_atual_quente_abaixo[corrente-1] == 0:
-		QMessageBox.about(dlg, "Error!", "The duty of this stream has already been supplied")
+		mensagem_err("The duty of this stream has already been supplied")
 		return
 	utilidades_abaixo.append([corrente, calor_atual_quente_abaixo[corrente-1]])
 	calor_sub_sem_utilidade[corrente-1] = calor_atual_quente_sub_abaixo[corrente-1][:]
@@ -506,13 +515,13 @@ def caixa_de_temperatura_abaixo(dlg, sk):
 		Qmax = Qtotalh0[chot-1][sbhot-1][estagio-1]
 
 	if q > Qmax:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is greater than the available heat.")
+		mensagem_err("The calculated heat is greater than the available heat.")
 		return
 	if q < 0:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is negative.")
+		mensagem_err("The calculated heat is negative.")
 		return
 	if q == 0:
-		QMessageBox.about(dlg, "Error!", "The calculated heat is equals 0.")
+		mensagem_err("The calculated heat is equals 0.")
 		return
 
 	dlg.lineEdit_25.setText(str(float('{:.1f}'.format(q))))
@@ -555,7 +564,7 @@ def testar_correntes_abaixo(dlg, primeira=False):
 	if ncoldc > nhotc:
 		dlg.label_22.setStyleSheet("QLabel {color: red}")
 		if not primeira:
-			QMessageBox.about(dlg,"Be Carreful","With this Split, you went against the Pinch Recomendations")
+			mensagem_err("With this Split, you went against the Pinch Recomendations", titulo="Be Carreful")
 	else:
 		dlg.label_22.setStyleSheet("QLabel {color: green}")
 

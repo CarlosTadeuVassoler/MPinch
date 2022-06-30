@@ -199,9 +199,9 @@ def add_utilidade():
 	if len(correntes_util) > 0:
 		if correntes_util[0][3] == tipo:
 			if tipo == "Hot":
-				QMessageBox.about(dlg, "Error!", "There's already a hot utility. You must input a cold one.")
+				mensagem_erro("There's already a hot utility. You must input a cold one.")
 			else:
-				QMessageBox.about(dlg, "Error!", "There's already a cold utility. You must input a hot one.")
+				mensagem_erro("There's already a cold utility. You must input a hot one.")
 			return
 
 	dlg.donebutton.setEnabled(False)
@@ -287,7 +287,7 @@ def remover_corrente(corrente, tabela, tipo):
 	global correntes, correntes_util, n_util, ncold, nhot, n
 
 	if corrente == -1:
-		QMessageBox.about(dlg, "Error!", "Select the line of the Stream that you want to remove")
+		mensagem_erro("Select the line of the Stream that you want to remove")
 		return
 
 	if tipo == "corrente":
@@ -380,7 +380,7 @@ def pinch_teste(desenha=True):
 
 	if len(correntes_util) != 0:
 		if correntes_util[0][3] == correntes_util[1][3]:
-			QMessageBox.about(dlg, "Error!", "You won't be able to sinthetize the Heat Exchange Network with two " + correntes_util[0][3] + " utilities. Edit any of these to make sure you have the both types.")
+			mensagem_erro("You won't be able to sinthetize the Heat Exchange Network with two " + correntes_util[0][3] + " utilities. Edit any of these to make sure you have the both types.")
 			dlg.pinchbutton.setEnabled(False)
 			return
 		else:
@@ -630,13 +630,13 @@ def unidades_compativeis(unidade_temp, unidade_cp, unidade_pelicula, cp_printar)
 
 
 #diagrams comparison
-def mensagem_erro(texto):
+def mensagem_erro(texto, titulo="Error"):
 	msg = QMessageBox()
 	msg.setIcon(QMessageBox.Warning)
 	msg.setStyleSheet("font-weight: bold")
 	msg.setStyleSheet("text-align: center")
 	msg.setText(texto)
-	msg.setWindowTitle("Error")
+	msg.setWindowTitle(titulo)
 	msg.setStandardButtons(QMessageBox.Ok)
 	msg.exec_()
 	return
@@ -3028,7 +3028,7 @@ class Desenho(QWidget):
 				id = "H" + str(uteis[0].index(u)+1)
 				onde = localizacao_fria[0][corrente][0]
 
-				ondex = (trocadores[0][4] + uteis[0].index(u)+1) * espaco_trocadores
+				ondex = (trocadores[0][4] + uteis[0].index(u)+2) * espaco_trocadores
 				utilidade(painter, [meio - ondex, onde], calor, tipo, id)
 			for u in uteis[1]:
 				corrente = u[0]-1
@@ -3037,7 +3037,7 @@ class Desenho(QWidget):
 				id = "C" + str(uteis[1].index(u)+1)
 				onde = localizacao_quente[1][corrente][0]
 
-				ondex = (trocadores[-1][4] + uteis[1].index(u)+1) * espaco_trocadores
+				ondex = (trocadores[-1][4] + uteis[1].index(u)+2) * espaco_trocadores
 				utilidade(painter, [meio + ondex, onde], calor, tipo, id)
 
 		painter.end()
@@ -3423,7 +3423,7 @@ def dividir_corrente(divisao, onde):
 					return
 
 		if soma != 1:
-			QMessageBox.about(dlg, "Error!", "The sum of the fractions must be equals 1.")
+			mensagem_erro("The sum of the fractions must be equals 1.")
 			dlg.divisao.show()
 			return
 
@@ -4136,7 +4136,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				if len(matriz_acima[i]) > 2:
 					ultimo_subestagio_acima = matriz_acima[i][4]
 				elif not sub:
-					matriz_acima[i] = [n_quentes, matriz_acima[i][0], 1, 1, ultimo_subestagio_acima+i+1, 1, matriz_acima[i][1]]
+					matriz_acima[i] = [n_quentes, matriz_acima[i][0], 1, 1, i+1, 1, matriz_acima[i][1]]
 					ultimo_subestagio_acima = i + 1
 
 			for i in range(len(matriz_acima)):
@@ -4150,6 +4150,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 					matriz_abaixo[i] = [matriz_abaixo[i][0], n_frias, 1, 1, i+1, 2, matriz_abaixo[i][1]]
 
 			receber_pinch_ev(Thf_fake, Tcf_fake, n_quentes, n_frias, CPh_fake, CPc_fake, dTmin, pinchq, pinchf, Th0_fake, Tc0_fake, nska)
+
 			try:
 				remover_todos_ev()
 			except:
@@ -4388,7 +4389,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 						else:
 							valores[i] = 0
 				except:
-					QMessageBox.about(dlg, "Error!", "Specify all the values or select the standard method.")
+					mensagem_erro("Specify all the values or select the standard method.")
 					return
 
 			matriz_completa = nao_sacrificar_matriz(matriz_completa_naomuda)
@@ -4645,6 +4646,9 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 		dlg.trocadores_loop.setText("Requires new search")
 		dlg.remover.setEnabled(False)
 		divisoes_ev, ramo = remover_ramo(matriz, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=trocador)
+		print()
+		for d in divisoes_ev:
+			print(d)
 	if not path:
 		if calor == 0:
 			for i in range(len(matriz)):
@@ -4657,13 +4661,14 @@ def editar_calor(matriz_naomuda, trocador, calor, path=False):
 			matriz[trocador][6] = calor
 		matriz_teste = inserir_trocador_ev(matriz)
 		matriz_evolucao = nao_sacrificar_matriz(matriz_teste)
+		for t in matriz_evolucao:
+			print(t)
 	else:
 		matriz_evolucao = nao_sacrificar_matriz(utilidade(matriz_naomuda, [trocador, calor], path=True, ramo=ramo))
 		for i in range(2):
 			dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
 			dlg.trocador_editar.addItem("E" + str(dlg.trocador_editar.count()+1))
 
-	# desenhar_rede(correntes_quentes, correntes_frias, "ambas")
 	wid_ambas.desenho.update()
 
 def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
@@ -4699,17 +4704,17 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 			calor = calor_atual_quente_ev[corrente-1]
 			if quantidade_quente_ev_abaixo[corrente-1] < sub:
 				if calor > 0.001:
-					QMessageBox.about(dlg, "Error!", "This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_quente_ev_abaixo[corrente-1]))
+					mensagem_erro("This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_quente_ev_abaixo[corrente-1]), titulo="Warning")
 					sub = 1
 		else:
 			tipo = "Hot"
 			calor = calor_atual_frio_ev[corrente-1]
 			if quantidade_fria_ev_acima[corrente-1] < sub:
 				if calor > 0.001:
-						QMessageBox.about(dlg, "Error!", "This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_fria_ev_acima[corrente-1]))
+						mensagem_erro("This Stream has only {} branch/branches. \nThe utility will be added to the Substream 1.".format(quantidade_fria_ev_acima[corrente-1]), titulo="Warning")
 						sub = 1
 		if calor < 0.001:
-			QMessageBox.about(dlg, "Error!", "There is no duty left for this stream. \nThe utility will not be added.")
+			mensagem_erro("There is no duty left for this stream. \nThe utility will not be added.")
 			return
 	if tipo == "Hot" or path:
 		for trocadorr in matriz:
@@ -4773,10 +4778,9 @@ def utilidade(matriz_naomuda, dados, path=False, ramo=[False, False]):
 		dlg.trocador_path.addItem("E" + str(dlg.trocador_path.count()+1))
 
 def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, ramo_frio, estagio, excecao=-1):
-	ainda_tem_quente = False
-	ainda_tem_frio = False
+	ainda_tem_quente, ainda_tem_frio = False, False
 	ramoo = [True, True]
-	remove_quente = remove_fria = False
+	remove_quente, remove_fria = False, False
 	for trocador in matriz_completa:
 		if matriz_completa.index(trocador) != excecao and trocador[5] == estagio:
 			if ramo_quente == trocador[2] and corrente_quente == trocador[0]:
@@ -4808,7 +4812,7 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 									trocador[2] -= 1
 				divisao_de_correntes_ev("Q", estagio, corrente_quente, len(fracao), fracao)
 				if len(fracao) != 1:
-					novas_divisoes[novas_divisoes.index(divisao)] = ["Q", estagio, corrente_fria, len(fracao), fracao]
+					novas_divisoes[novas_divisoes.index(divisao)] = ["Q", estagio, corrente_quente, len(fracao), fracao]
 				else:
 					remove_quente = True
 					indice_quente = novas_divisoes.index(divisao)
@@ -4837,8 +4841,15 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 					indice_fria = novas_divisoes.index(divisao)
 
 	if remove_quente:
+		print("remove quente")
+		if remove_fria:
+			if indice_fria < indice_quente:
+				indice_quente -= 1
 		novas_divisoes.pop(indice_quente)
 	if remove_fria:
+		if remove_quente:
+			if indice_quente < indice_fria:
+				indice_fria -= 1
 		novas_divisoes.pop(indice_fria)
 
 	return novas_divisoes, ramoo
@@ -5727,8 +5738,8 @@ def suprir_9_correntes():
 		divisao_de_correntes_abaixo("F", 1, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303])
 		divisoes.append(["F", 2, 3, 3, [0.72185186976924193314304968313096, 0.10981568380823375743795655749601, 0.16833244642252430941899375937303]])
 	elif arquivo == "4 correntes - 10 dtmin.xls":
-		acima = [[1, 1, 1, 1, 1, 1, 135], [1, 1, 2, 2, 2, 1, 135], [2, 2, 1, 1, 3, 1, 52.5], [2, 2, 2, 2, 4, 1, 52.5]]
-		abaixo = [[1, 2, 1, 1, 1, 1, 20], [1, 2, 2, 2, 2, 1, 20]]
+		acima = [[1, 1, 1, 1, 1, 1, 100], [1, 1, 2, 2, 2, 1, 100], [2, 2, 1, 1, 3, 1, 50.5], [2, 2, 2, 2, 4, 1, 50.5], [1, 1, 1, 1, 5, 1, 35], [1, 1, 2, 2, 6, 1, 35], [2, 2, 1, 1, 7, 1, 2], [2, 2, 2, 2, 8, 1, 2]]
+		abaixo = [[1, 2, 1, 1, 1, 1, 15], [1, 2, 2, 2, 2, 1, 15], [1, 2, 1, 1, 3, 1, 5], [1, 2, 2, 2, 4, 1, 5]]
 
 		divisao_de_correntes("Q", 1, 1, 2, [0.5, 0.5])
 		divisoes.append(["Q", 1, 1, 2, [0.5, 0.5]])
@@ -5901,8 +5912,8 @@ for i in range(5):
 # openfile_teste(pergunta=False, nome="50 correntes.xls")
 # openfile_teste(pergunta=False, nome="40 correntes - 3 dtmin.xls")
 # openfile_teste(pergunta=False, nome="25 correntes.xls")
-# openfile_teste(pergunta=False, nome="4 correntes - 10 dtmin.xls")
-openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
+openfile_teste(pergunta=False, nome="4 correntes - 10 dtmin.xls")
+# openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
 done_teste(True)
 pinch_teste(False)
 suprir_9_correntes()
