@@ -3230,8 +3230,8 @@ def dividir_corrente(divisao, onde):
 
 		def calcular_minimo(corrente, quantidade, matriz, i1, i2):
 			calor = []
-			achou = False
 			ramosxtrocador = []
+			achou = False
 			for i in range(quantidade):
 				calor.append(0)
 				ramosxtrocador.append([])
@@ -3754,6 +3754,8 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 				if dados_do_trocador[6] < 0.001:
 					matriz_reserva[-1][6] = calor_atual_frio_sub[matriz_reserva[-1][1]-1][matriz_reserva[-1][3]-1]
 				if matriz_reserva[-1][6] < 0.001:
+					mensagem_erro("This cold stream is already supplied")
+					matriz_reserva.pop(-1)
 					return
 
 				quantidade = 1
@@ -3804,6 +3806,8 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 				if dados_do_trocador[6] < 0.001:
 					matriz_reserva[-1][6] = calor_atual_quente_sub_abaixo[matriz_reserva[-1][0]-1][matriz_reserva[-1][2]-1]
 				if matriz_reserva[-1][6] < 0.001:
+					mensagem_erro("This hot stream is already supplied")
+					matriz_reserva.pop(-1)
 					return
 
 				quantidade = 1
@@ -3921,6 +3925,9 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 			pass
 
 		if tipo == "quente": #acima
+			if dados_do_trocador[6] < 0.001:
+				mensagem_erro("This cold stream is already supplied.")
+				return
 			if dlg.radioButton_4.isChecked():
 				matriz_armazenada, inseriu = inserir_trocador(dlg, dados_do_trocador, ignora=True, ultimo=True)
 			else:
@@ -3939,6 +3946,9 @@ def divisao_de_utilidades(tipo, corrente, dados_do_trocador, ambas=False, m=[]):
 				subestagio_trocador += 1
 
 		elif tipo == "fria":
+			if dados_do_trocador[6] < 0.001:
+				mensagem_erro("This hot stream is already supplied.")
+				return
 			if dlg.radioButton_20.isChecked():
 				matriz_trocadores_abaixo, inseriu = inserir_trocador_abaixo(dlg, dados_do_trocador, ignora=True, ultimo=True)
 			else:
@@ -4517,7 +4527,8 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 				dlg.trocador_editar.removeItem(dlg.trocador_editar.count()-1)
 				dlg.trocador_path.removeItem(dlg.trocador_path.count()-1)
 				if todos:
-					evolucao([], [], "todos", True)
+					evolucao([], [], 1)
+					dlg.lista_lacos.close()
 				else:
 					evolucao([], [], nivel)
 
@@ -4595,7 +4606,7 @@ def evolucao(matriz_acima_naomuda, matriz_abaixo_naomuda, nivel, todos=False, jo
 		dlg.sugerir_path.clicked.connect(lambda: calcular_recomendado_violacao(dlg, matriz_evolucao[dlg.trocador_path.currentIndex()]))
 		if todos:
 			trocadores_laco = []
-			for n in range(min(nhot, ncold)):
+			for n in range(1, min(nhot, ncold)+1):
 				trocadores_laco.append(sorted(lacos(incidencia, trocadores, n, todos)))
 				if len(trocadores_laco[-1]) == 0:
 					trocadores_laco.pop(-1)
@@ -4841,7 +4852,6 @@ def remover_ramo(matriz_completa, corrente_quente, corrente_fria, ramo_quente, r
 					indice_fria = novas_divisoes.index(divisao)
 
 	if remove_quente:
-		print("remove quente")
 		if remove_fria:
 			if indice_fria < indice_quente:
 				indice_quente -= 1
@@ -5016,6 +5026,13 @@ def inserir_teste():
 	global subestagio_trocador, matriz_armazenada, primeira_util
 	dados_do_trocador = ler_dados(dlg, subestagio_trocador)
 
+	if not corrente_quente_presente_acima[dados_do_trocador[0]-1]:
+		mensagem_erro("This hot stream is not present in the above subnetwork.")
+		return
+	if not corrente_fria_presente_acima[dados_do_trocador[1]-1]:
+		mensagem_erro("This cold stream is not present in the above subnetwork.")
+		return
+
 	if dados_do_trocador[2] > quantidade_quente[dados_do_trocador[0]-1]:
 		mensagem_erro("The hot stream has not this many branches.")
 		return
@@ -5101,10 +5118,10 @@ def checaresgotadosacima():
 	contadordutyhot = 0
 
 	for corrente in range(nhot):
-		if calor_atual_quente[corrente] == 0:
+		if round(calor_atual_quente[corrente], 2) == 0:
 			contadordutyhot += 1
 	for corrente in range(ncold):
-		if calor_atual_frio[corrente] == 0:
+		if round(calor_atual_frio[corrente], 2) == 0:
 			contadordutycold += 1
 
 	objetivo_quente = nhot
@@ -5299,6 +5316,13 @@ def inserir_teste_abaixo():
 	global subestagio_trocador_abaixo, matriz_trocadores_abaixo, primeira_util_fria
 	dados_do_trocador = ler_dados_abaixo(dlg, subestagio_trocador_abaixo)
 
+	if not corrente_quente_presente_abaixo[dados_do_trocador[0]-1]:
+		mensagem_erro("This hot stream is not present in the below subnetwork.")
+		return
+	if not corrente_fria_presente_abaixo[dados_do_trocador[1]-1]:
+		mensagem_erro("This cold stream is not present in the below subnetwork.")
+		return
+
 	if dados_do_trocador[2] > quantidade_quente_abaixo[dados_do_trocador[0]-1]:
 		mensagem_erro("The hot stream has not this many branches.")
 		return
@@ -5385,10 +5409,10 @@ def checaresgotadosabaixo():
 	contadordutycold=0
 
 	for corrente in range(nhot):
-		if calor_atual_quente_abaixo[corrente] == 0:
+		if round(calor_atual_quente_abaixo[corrente], 2) == 0:
 			contadordutyhot += 1
 	for corrente in range(ncold):
-		if calor_atual_frio_abaixo[corrente] == 0:
+		if round(calor_atual_frio_abaixo[corrente], 2) == 0:
 			contadordutycold += 1
 
 	objetivo_quente = nhot
@@ -5912,8 +5936,8 @@ for i in range(5):
 # openfile_teste(pergunta=False, nome="50 correntes.xls")
 # openfile_teste(pergunta=False, nome="40 correntes - 3 dtmin.xls")
 # openfile_teste(pergunta=False, nome="25 correntes.xls")
-openfile_teste(pergunta=False, nome="4 correntes - 10 dtmin.xls")
-# openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
+# openfile_teste(pergunta=False, nome="4 correntes - 10 dtmin.xls")
+openfile_teste(pergunta=False, nome="9 correntes - 20 dtmin.xls")
 done_teste(True)
 pinch_teste(False)
 suprir_9_correntes()
